@@ -7,7 +7,7 @@
       xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern"
       xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      d:DesignHeight="600" d:DesignWidth="900"
       Title="AnonymizerPage">
 
     <Grid Margin="20">
@@ -19,41 +19,45 @@
 
         <!-- Header -->
         <StackPanel Grid.Row="0" Margin="0,0,0,20">
-            <TextBlock Text="System Anonymizer" 
+            <TextBlock Text="Identity Anonymizer" 
                        FontSize="28" 
                        FontWeight="Bold"/>
-            <TextBlock Text="Anonymize hardware identifiers and system information to enhance privacy" 
+            <TextBlock Text="Spoof system identifiers to enhance privacy and reduce fingerprinting" 
                        FontSize="14" 
-                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       
                        Margin="0,5,0,0"/>
-            <Border Background="#FFDC3545" 
+
+            <!-- Warning Box -->
+            <Border Background="#FFFFD580" 
                     Padding="10" 
                     Margin="0,15,0,0"
-                    CornerRadius="4">
+                    CornerRadius="4"
+                    BorderBrush="#FFAA6A00"
+                    BorderThickness="1">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="⚠️" FontSize="16" VerticalAlignment="Center"/>
-                    <TextBlock Text="EXTREME WARNING: These changes can permanently alter hardware identifiers and may cause system instability, license issues, or hardware failures. Use at your own risk!" 
+                    <TextBlock Text="Caution: Changing HWIDs (GUIDs, Serials) may invalidate software licenses (e.g., Windows Activation, Games). Proceed with care." 
                                FontSize="13"
                                TextWrapping="Wrap"
                                Margin="10,0,0,0"
-                               Foreground="White"
-                               VerticalAlignment="Center"/>
+                               VerticalAlignment="Center"
+                               Foreground="#FF5C3A00"/>
                 </StackPanel>
             </Border>
         </StackPanel>
 
-        <!-- ScrollViewer with Expandable Categories -->
+        <!-- Content Area -->
         <ScrollViewer Grid.Row="1" 
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled"
                       HorizontalContentAlignment="Stretch">
             <StackPanel>
 
-                <!-- Network Identifiers Category -->
+                <!-- 1. Network Identity -->
                 <Expander Style="{StaticResource {x:Static ui:ThemeKeys.ExpanderCardStyleKey}}"
                           Margin="0,0,0,10"
                           HorizontalAlignment="Stretch"
-                          IsExpanded="True">
+                         >
                     <Expander.Header>
                         <Grid HorizontalAlignment="Stretch" Background="Transparent">
                             <Grid.ColumnDefinitions>
@@ -62,55 +66,28 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Grid.Column="0" 
-                                       Text="🌐" 
-                                       FontSize="20" 
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,10,0"/>
+                            <TextBlock Grid.Column="0" Text="🌐" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
 
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="Network Identifiers" 
-                                           FontWeight="Bold" 
-                                           FontSize="16"/>
-                                <TextBlock Text="MAC addresses, hostnames, and network configuration" 
-                                           FontSize="12" 
-                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+                                <TextBlock Text="Network Identity" FontWeight="Bold" FontSize="16"/>
+                                <TextBlock Text="Hostname, MAC Addresses, Network Settings" FontSize="12"/>
                             </StackPanel>
 
-                            <CheckBox Grid.Column="2"
-                                      x:Name="NetworkIdentifiersAllCheckBox"
-                                      Content="Select All"
-                                      IsThreeState="True"
-                                      VerticalAlignment="Center"
-                                      Margin="10,0,0,0"
-                                      Checked="NetworkIdentifiersAll_Checked"
-                                      Unchecked="NetworkIdentifiersAll_Unchecked"
-                                      Indeterminate="NetworkIdentifiersAll_Indeterminate"
+                            <CheckBox Grid.Column="2" x:Name="NetworkAllCheckBox" Content="Select All" IsThreeState="True"
+                                      VerticalAlignment="Center" Margin="10,0,0,0"
                                       Click="HeaderCheckBox_Click"/>
                         </Grid>
                     </Expander.Header>
                     <Expander.Content>
                         <StackPanel Margin="15,10,15,15">
-                            <CheckBox x:Name="ChkRandomizeAllMAC"
-                                      Content="Randomize all MAC addresses"
-                                      Margin="4"
-                                      Checked="NetworkIdentifiersOption_Checked"
-                                      Unchecked="NetworkIdentifiersOption_Unchecked"/>
-                            <CheckBox x:Name="ChkRandomizeComputerName"
-                                      Content="Randomize computer name"
-                                      Margin="4"
-                                      Checked="NetworkIdentifiersOption_Checked"
-                                      Unchecked="NetworkIdentifiersOption_Unchecked"/>
-                            <CheckBox x:Name="ChkRandomizeHostname"
-                                      Content="Randomize TCP/IP hostname"
-                                      Margin="4"
-                                      Checked="NetworkIdentifiersOption_Checked"
-                                      Unchecked="NetworkIdentifiersOption_Unchecked"/>
+                            <CheckBox x:Name="ChkRandomizeHostname" Content="Randomize Hostname / Computer Name" Margin="4" Tag="Network"/>
+                            <CheckBox x:Name="ChkRandomizeMAC" Content="Randomize MAC Address (All Adapters)" Margin="4" Tag="Network"/>
+                            <CheckBox x:Name="ChkDisableIPv6" Content="Disable IPv6 (Leak Protection)" Margin="4" Tag="Network"/>
                         </StackPanel>
                     </Expander.Content>
                 </Expander>
 
-                <!-- System Identifiers Category -->
+                <!-- 2. Hardware IDs (Spoofing) -->
                 <Expander Style="{StaticResource {x:Static ui:ThemeKeys.ExpanderCardStyleKey}}"
                           Margin="0,0,0,10"
                           HorizontalAlignment="Stretch"
@@ -123,71 +100,32 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Grid.Column="0" 
-                                       Text="💻" 
-                                       FontSize="20" 
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,10,0"/>
+                            <TextBlock Grid.Column="0" Text="💻" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
 
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="System Identifiers" 
-                                           FontWeight="Bold" 
-                                           FontSize="16"/>
-                                <TextBlock Text="Machine GUID, product IDs, and installation identifiers" 
-                                           FontSize="12" 
-                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+                                <TextBlock Text="Hardware Identifiers (HWID)" FontWeight="Bold" FontSize="16"/>
+                                <TextBlock Text="Machine GUIDs, Serial Numbers, Product IDs" FontSize="12"/>
                             </StackPanel>
 
-                            <CheckBox Grid.Column="2"
-                                      x:Name="SystemIdentifiersAllCheckBox"
-                                      Content="Select All"
-                                      IsThreeState="True"
-                                      VerticalAlignment="Center"
-                                      Margin="10,0,0,0"
-                                      Checked="SystemIdentifiersAll_Checked"
-                                      Unchecked="SystemIdentifiersAll_Unchecked"
-                                      Indeterminate="SystemIdentifiersAll_Indeterminate"
+                            <CheckBox Grid.Column="2" x:Name="HwidAllCheckBox" Content="Select All" IsThreeState="True"
+                                      VerticalAlignment="Center" Margin="10,0,0,0"
                                       Click="HeaderCheckBox_Click"/>
                         </Grid>
                     </Expander.Header>
                     <Expander.Content>
                         <StackPanel Margin="15,10,15,15">
-                            <CheckBox x:Name="ChkRandomizeMachineGUID"
-                                      Content="Randomize Machine GUID"
-                                      Margin="4"
-                                      Checked="SystemIdentifiersOption_Checked"
-                                      Unchecked="SystemIdentifiersOption_Unchecked"/>
-                            
-                            <CheckBox x:Name="ChkRandomizeProductID"
-                                      Content="Randomize Windows Product ID"
-                                      Margin="4"
-                                      Checked="SystemIdentifiersOption_Checked"
-                                      Unchecked="SystemIdentifiersOption_Unchecked"/>
-                            <CheckBox x:Name="ChkRandomizeInstallationID"
-                                      Content="Randomize Installation ID"
-                                      Margin="4"
-                                      Checked="SystemIdentifiersOption_Checked"
-                                      Unchecked="SystemIdentifiersOption_Unchecked"/>
-                            <CheckBox x:Name="ChkRandomizeInstallDate"
-                                      Content="Randomize Windows installation date"
-                                      Margin="4"
-                                      Checked="SystemIdentifiersOption_Checked"
-                                      Unchecked="SystemIdentifiersOption_Unchecked"/>
-                            <CheckBox x:Name="ChkRandomizeOwnerInfo"
-                                      Content="Randomize registered owner information"
-                                      Margin="4"
-                                      Checked="SystemIdentifiersOption_Checked"
-                                      Unchecked="SystemIdentifiersOption_Unchecked"/>
-                            <CheckBox x:Name="ChkRandomizeOrgInfo"
-                                      Content="Randomize registered organization"
-                                      Margin="4"
-                                      Checked="SystemIdentifiersOption_Checked"
-                                      Unchecked="SystemIdentifiersOption_Unchecked"/>
+                            <CheckBox x:Name="ChkRandomizeMachineGUID" Content="Randomize Machine GUID (Cryptography)" Margin="4" Tag="HWID"/>
+                            <CheckBox x:Name="ChkRandomizeBaseboard" Content="Randomize Baseboard/Motherboard Serial" Margin="4" Tag="HWID"/>
+                            <CheckBox x:Name="ChkSpoofProductInfo" Content="Spoof System Product Name &amp; Manufacturer" Margin="4" Tag="HWID"/>
+                            <CheckBox x:Name="ChkRandomizeBIOS" Content="Randomize BIOS Serial Number" Margin="4" Tag="HWID"/>
+                            <CheckBox x:Name="ChkRandomizeInstallID" Content="Randomize Windows Installation ID" Margin="4" Tag="HWID"/>
+                            <CheckBox x:Name="ChkRandomizeProductID" Content="Randomize Windows Product ID" Margin="4" Tag="HWID"/>
+                            <CheckBox x:Name="ChkSpoofGPU" Content="Spoof GPU Device ID (Registry)" Margin="4" Tag="HWID"/>
                         </StackPanel>
                     </Expander.Content>
                 </Expander>
 
-                <!-- Hardware Identifiers Category -->
+                <!-- 3. Storage Trace -->
                 <Expander Style="{StaticResource {x:Static ui:ThemeKeys.ExpanderCardStyleKey}}"
                           Margin="0,0,0,10"
                           HorizontalAlignment="Stretch"
@@ -200,75 +138,27 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Grid.Column="0" 
-                                       Text="🔧" 
-                                       FontSize="20" 
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,10,0"/>
+                            <TextBlock Grid.Column="0" Text="💾" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
 
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="Hardware Identifiers" 
-                                           FontWeight="Bold" 
-                                           FontSize="16"/>
-                                <TextBlock Text="BIOS, motherboard, disk, and GPU identifiers" 
-                                           FontSize="12" 
-                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+                                <TextBlock Text="Storage &amp; Volume" FontWeight="Bold" FontSize="16"/>
+                                <TextBlock Text="Disk Serials, Volume IDs" FontSize="12"/>
                             </StackPanel>
 
-                            <CheckBox Grid.Column="2"
-                                      x:Name="HardwareIdentifiersAllCheckBox"
-                                      Content="Select All"
-                                      IsThreeState="True"
-                                      VerticalAlignment="Center"
-                                      Margin="10,0,0,0"
-                                      Checked="HardwareIdentifiersAll_Checked"
-                                      Unchecked="HardwareIdentifiersAll_Unchecked"
-                                      Indeterminate="HardwareIdentifiersAll_Indeterminate"
+                            <CheckBox Grid.Column="2" x:Name="StorageAllCheckBox" Content="Select All" IsThreeState="True"
+                                      VerticalAlignment="Center" Margin="10,0,0,0"
                                       Click="HeaderCheckBox_Click"/>
                         </Grid>
                     </Expander.Header>
                     <Expander.Content>
                         <StackPanel Margin="15,10,15,15">
-                            <CheckBox x:Name="ChkRandomizeBIOSSerial"
-                                      Content="Randomize BIOS serial number"
-                                      Margin="4"
-                                      Checked="HardwareIdentifiersOption_Checked"
-                                      Unchecked="HardwareIdentifiersOption_Unchecked"/>
-                            <CheckBox x:Name="ChkRandomizeBIOSVersion"
-                                      Content="Randomize BIOS version"
-                                      Margin="4"
-                                      Checked="HardwareIdentifiersOption_Checked"
-                                      Unchecked="HardwareIdentifiersOption_Unchecked"/>
-                            <CheckBox x:Name="ChkRandomizeBaseboardSerial"
-                                      Content="Randomize motherboard serial number"
-                                      Margin="4"
-                                      Checked="HardwareIdentifiersOption_Checked"
-                                      Unchecked="HardwareIdentifiersOption_Unchecked"/>
-                            <CheckBox x:Name="ChkSpoofSystemManufacturer"
-                                      Content="Spoof system manufacturer name"
-                                      Margin="4"
-                                      Checked="HardwareIdentifiersOption_Checked"
-                                      Unchecked="HardwareIdentifiersOption_Unchecked"/>
-                            <CheckBox x:Name="ChkSpoofSystemProductName"
-                                      Content="Spoof system product name"
-                                      Margin="4"
-                                      Checked="HardwareIdentifiersOption_Checked"
-                                      Unchecked="HardwareIdentifiersOption_Unchecked"/>
-                            <CheckBox x:Name="ChkSpoofDiskSerial"
-                                      Content="Spoof disk serial number"
-                                      Margin="4"
-                                      Checked="HardwareIdentifiersOption_Checked"
-                                      Unchecked="HardwareIdentifiersOption_Unchecked"/>
-                            <CheckBox x:Name="ChkSpoofGPUDeviceID"
-                                      Content="Spoof GPU device ID"
-                                      Margin="4"
-                                      Checked="HardwareIdentifiersOption_Checked"
-                                      Unchecked="HardwareIdentifiersOption_Unchecked"/>
+                            <CheckBox x:Name="ChkSpoofDiskSerial" Content="Spoof Disk Serial Number (Registry)" Margin="4" Tag="Storage"/>
+                            <CheckBox x:Name="ChkChangeVolumeSerial" Content="Change C: Volume Serial (Requires Reboot)" Margin="4" Tag="Storage"/>
                         </StackPanel>
                     </Expander.Content>
                 </Expander>
 
-                <!-- Privacy Identifiers Category -->
+                <!-- 4. Tracking & Ownership -->
                 <Expander Style="{StaticResource {x:Static ui:ThemeKeys.ExpanderCardStyleKey}}"
                           Margin="0,0,0,10"
                           HorizontalAlignment="Stretch"
@@ -281,168 +171,27 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Grid.Column="0" 
-                                       Text="🔒" 
-                                       FontSize="20" 
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,10,0"/>
+                            <TextBlock Grid.Column="0" Text="🕵️" FontSize="20" VerticalAlignment="Center" Margin="0,0,10,0"/>
 
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="Privacy Identifiers" 
-                                           FontWeight="Bold" 
-                                           FontSize="16"/>
-                                <TextBlock Text="Advertising ID, telemetry, and tracking identifiers" 
-                                           FontSize="12" 
-                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+                                <TextBlock Text="Tracking &amp; Registration" FontWeight="Bold" FontSize="16"/>
+                                <TextBlock Text="Advertising IDs, Registered Owner, Install Date" FontSize="12"/>
                             </StackPanel>
 
-                            <CheckBox Grid.Column="2"
-                                      x:Name="PrivacyIdentifiersAllCheckBox"
-                                      Content="Select All"
-                                      IsThreeState="True"
-                                      VerticalAlignment="Center"
-                                      Margin="10,0,0,0"
-                                      Checked="PrivacyIdentifiersAll_Checked"
-                                      Unchecked="PrivacyIdentifiersAll_Unchecked"
-                                      Indeterminate="PrivacyIdentifiersAll_Indeterminate"
+                            <CheckBox Grid.Column="2" x:Name="TrackAllCheckBox" Content="Select All" IsThreeState="True"
+                                      VerticalAlignment="Center" Margin="10,0,0,0"
                                       Click="HeaderCheckBox_Click"/>
                         </Grid>
                     </Expander.Header>
                     <Expander.Content>
                         <StackPanel Margin="15,10,15,15">
-                            <CheckBox x:Name="ChkDisableAdvertisingID"
-                                      Content="Disable and clear Advertising ID"
-                                      Margin="4"
-                                      Checked="PrivacyIdentifiersOption_Checked"
-                                      Unchecked="PrivacyIdentifiersOption_Unchecked"/>
-                            <CheckBox x:Name="ChkClearTelemetryID"
-                                      Content="Clear telemetry identifiers"
-                                      Margin="4"
-                                      Checked="PrivacyIdentifiersOption_Checked"
-                                      Unchecked="PrivacyIdentifiersOption_Unchecked"/>
-                            <CheckBox x:Name="ChkClearDiagnosticData"
-                                      Content="Clear diagnostic data"
-                                      Margin="4"
-                                      Checked="PrivacyIdentifiersOption_Checked"
-                                      Unchecked="PrivacyIdentifiersOption_Unchecked"/>
+                            <CheckBox x:Name="ChkResetAdID" Content="Reset &amp; Clear Advertising ID" Margin="4" Tag="Track"/>
+                            <CheckBox x:Name="ChkClearTelemetryID" Content="Clear Telemetry ID" Margin="4" Tag="Track"/>
+                            <CheckBox x:Name="ChkRandomizeOwner" Content="Randomize Registered Owner &amp; Organization" Margin="4" Tag="Track"/>
+                            <CheckBox x:Name="ChkRandomizeInstallDate" Content="Randomize Windows Install Date" Margin="4" Tag="Track"/>
                         </StackPanel>
                     </Expander.Content>
                 </Expander>
-
-                <!-- Advanced Operations Category -->
-                <Expander Style="{StaticResource {x:Static ui:ThemeKeys.ExpanderCardStyleKey}}"
-                          Margin="0,0,0,10"
-                          HorizontalAlignment="Stretch"
-                          IsExpanded="False">
-                    <Expander.Header>
-                        <Grid HorizontalAlignment="Stretch" Background="Transparent">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <TextBlock Grid.Column="0" 
-                                       Text="⚡" 
-                                       FontSize="20" 
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,10,0"/>
-
-                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="Advanced Operations" 
-                                           FontWeight="Bold" 
-                                           FontSize="16"/>
-                                <TextBlock Text="Dangerous operations - TPM, volume serials, comprehensive changes" 
-                                           FontSize="12" 
-                                           Foreground="#FFDC3545"/>
-                            </StackPanel>
-
-                            <CheckBox Grid.Column="2"
-                                      x:Name="AdvancedOperationsAllCheckBox"
-                                      Content="Select All"
-                                      IsThreeState="True"
-                                      VerticalAlignment="Center"
-                                      Margin="10,0,0,0"
-                                      Checked="AdvancedOperationsAll_Checked"
-                                      Unchecked="AdvancedOperationsAll_Unchecked"
-                                      Indeterminate="AdvancedOperationsAll_Indeterminate"
-                                      Click="HeaderCheckBox_Click"/>
-                        </Grid>
-                    </Expander.Header>
-                    <Expander.Content>
-                        <StackPanel Margin="15,10,15,15">
-                            <Border Background="#FFFFC107" 
-                                    Padding="8" 
-                                    Margin="0,0,0,10"
-                                    CornerRadius="4">
-                                <TextBlock Text="⚠️ These operations can cause permanent system damage, data loss, or make your system unbootable!" 
-                                           FontSize="12"
-                                           TextWrapping="Wrap"
-                                           FontWeight="Bold"/>
-                            </Border>
-
-                            <CheckBox x:Name="ChkClearTPM"
-                                      Content="Clear TPM (DANGEROUS - Will reset BitLocker!)"
-                                      Margin="4"
-                                      Foreground="#FFDC3545"
-                                      Checked="AdvancedOperationsOption_Checked"
-                                      Unchecked="AdvancedOperationsOption_Unchecked"/>
-                            <CheckBox x:Name="ChkChangeVolumeSerial"
-                                      Content="Change volume serial number (Requires VolumeID tool)"
-                                      Margin="4"
-                                      Checked="AdvancedOperationsOption_Checked"
-                                      Unchecked="AdvancedOperationsOption_Unchecked"/>
-                        </StackPanel>
-                    </Expander.Content>
-                </Expander>
-
-                <!-- Preset Actions -->
-                <Border
-                        Margin="0,10,0,10"
-                        Padding="20">
-                    <StackPanel>
-                        <TextBlock Text="Quick Presets" 
-                                   FontSize="18" 
-                                   FontWeight="Bold"
-                                   Margin="0,0,0,10"/>
-                        <TextBlock Text="Apply common anonymization scenarios" 
-                                   FontSize="12" 
-                                   Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                                   Margin="0,0,0,15"/>
-
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="10"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="10"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <Button Grid.Column="0"
-                                    x:Name="BtnBasicAnonymization"
-                                    Content="Basic (Network Only)"
-                                    Padding="15,10"
-                                    Click="BtnBasicAnonymization_Click"
-                                    ToolTip="Randomize MAC addresses and hostname"/>
-
-                            <Button Grid.Column="2"
-                                    x:Name="BtnStandardAnonymization"
-                                    Content="Standard (Network + System)"
-                                    Padding="15,10"
-                                    Click="BtnStandardAnonymization_Click"
-                                    ToolTip="Network identifiers + Machine GUID + Product IDs"/>
-
-                            <Button Grid.Column="4"
-                                    x:Name="BtnFullAnonymization"
-                                    Content="Full (Everything)"
-                                    Padding="15,10"
-                                    Style="{StaticResource AccentButtonStyle}"
-                                    Click="BtnFullAnonymization_Click"
-                                    ToolTip="All available anonymization options (EXTREME RISK!)"/>
-                        </Grid>
-                    </StackPanel>
-                </Border>
 
             </StackPanel>
         </ScrollViewer>
@@ -450,28 +199,37 @@
         <!-- Action Buttons -->
         <Grid Grid.Row="2" Margin="0,20,0,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="0"
-                    x:Name="BtnShowCurrentIDs"
-                    Content="Show Current IDs"
-                    Padding="20,10"
-                    Margin="0,0,10,0"
-                    Click="BtnShowCurrentIDs_Click"
-                    ToolTip="Display current system identifiers"/>
+            <!-- Status Text or Left Info -->
+            <TextBlock Text="A restart is required after applying changes." 
+                       VerticalAlignment="Center" 
+                       Foreground="Gray" 
+                       FontStyle="Italic"/>
 
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button x:Name="BtnAnonymizeAll"
+                        Content="Anonymize Everything (Panic)"
+                        Background="#FFD43B3B"
+                        Foreground="White"
+                        Margin="0,0,10,0"
+                        Padding="15,10"
+                        BorderThickness="0"
+                        Click="BtnAnonymizeAll_Click">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            
+                        </Style>
+                    </Button.Resources>
+                </Button>
 
-
-            <Button Grid.Column="3"
-                    x:Name="BtnApplyAnonymization"
-                    Content="Apply Selected Anonymization"
-                    Style="{StaticResource AccentButtonStyle}"
-                    Padding="20,10"
-                    Click="BtnApplyAnonymization_Click"/>
+                <Button x:Name="BtnApplySelected"
+                        Content="Apply Selected Spoofing"
+                        Padding="20,10"
+                        Click="BtnApplySelected_Click"/>
+            </StackPanel>
         </Grid>
     </Grid>
 </Page>

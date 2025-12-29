@@ -10,9 +10,9 @@ using System.Windows;
 [assembly: AssemblyTitle("SecVers Debloat")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Atlas Playbook v0.5.0")]
+[assembly: AssemblyCompany("SecVers")]
 [assembly: AssemblyProduct("SecVers Debloat")]
-[assembly: AssemblyCopyright("Copyright © Atlas Playbook v0.5.0 2025")]
+[assembly: AssemblyCopyright("Copyright © SecVers 2025")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -25,7 +25,7 @@ namespace SecVers_Debloat.UI.Pages
     public partial class HardeningPage : Page
     {
         private readonly SystemHardeningManager _hardeningManager;
-        private bool _isInitializing = true;
+        private bool _isInitializing = false;
 
         public HardeningPage()
         {
@@ -48,7 +48,6 @@ namespace SecVers_Debloat.UI.Pages
 
         private void ExploitProtectionAll_Checked(object sender, RoutedEventArgs e)
         {
-            if (_isInitializing) return;
             ChkEnableDEP.IsChecked = true;
             ChkEnableSEHOP.IsChecked = true;
             ChkEnableBottomUpASLR.IsChecked = true;
@@ -65,7 +64,6 @@ namespace SecVers_Debloat.UI.Pages
 
         private void ExploitProtectionAll_Unchecked(object sender, RoutedEventArgs e)
         {
-            if (_isInitializing) return;
             ChkEnableDEP.IsChecked = false;
             ChkEnableSEHOP.IsChecked = false;
             ChkEnableBottomUpASLR.IsChecked = false;
@@ -115,7 +113,7 @@ namespace SecVers_Debloat.UI.Pages
 
         private void NetworkHardeningAll_Checked(object sender, RoutedEventArgs e)
         {
-            if (_isInitializing) return;
+          
             ChkDisableSMBCompression.IsChecked = true;
             ChkEnableFirewallAllProfiles.IsChecked = true;
             ChkSetFirewallDefaultBlockInbound.IsChecked = true;
@@ -124,7 +122,6 @@ namespace SecVers_Debloat.UI.Pages
 
         private void NetworkHardeningAll_Unchecked(object sender, RoutedEventArgs e)
         {
-            if (_isInitializing) return;
             ChkDisableSMBCompression.IsChecked = false;
             ChkEnableFirewallAllProfiles.IsChecked = false;
             ChkSetFirewallDefaultBlockInbound.IsChecked = false;

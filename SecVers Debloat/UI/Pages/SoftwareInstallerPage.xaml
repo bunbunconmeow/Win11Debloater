@@ -7,10 +7,361 @@
       xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern"
       xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
       mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
+      d:DesignHeight="400" d:DesignWidth="900"
       Title="SoftwareInstallerPage">
 
-    <Grid>
-        
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="Software Library" 
+                       FontSize="28" 
+                       FontWeight="Bold"/>
+            <TextBlock Text="Comprehensive repository for automatic installation via Winget" 
+                       FontSize="14" 
+                       Margin="0,5,0,0"/>
+
+            <!-- Status Box -->
+            <Border x:Name="StatusBorder"
+                    Background="#FFE5F3FB" 
+                    Padding="10" 
+                    Margin="0,15,0,0"
+                    CornerRadius="4"
+                    BorderBrush="#FF0078D7"
+                    BorderThickness="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="StatusIcon" Text="⏳" FontSize="16" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="StatusText" Text="Initializing Winget..." 
+                               FontSize="13"
+                               Margin="10,0,0,0"
+                               VerticalAlignment="Center"
+                               Foreground="#FF004E8C"/>
+                </Grid>
+            </Border>
+        </StackPanel>
+
+        <!-- Content Area -->
+        <ScrollViewer Grid.Row="1" 
+                      VerticalScrollBarVisibility="Auto" 
+                      HorizontalScrollBarVisibility="Disabled">
+            <StackPanel x:Name="MainContainer">
+
+                <!-- 1. BROWSERS -->
+                <Expander Style="{StaticResource {x:Static ui:ThemeKeys.ExpanderCardStyleKey}}" Margin="0,0,0,10" HorizontalAlignment="Stretch" >
+                    <Expander.Header>
+                        <Grid HorizontalAlignment="Stretch" Background="Transparent" Margin="0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="30"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="🌐" FontSize="18" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Browsers" FontWeight="Bold" FontSize="15"/>
+                                <TextBlock Text="Chrome, Firefox, Zen, Brave, Edge..." FontSize="11" Foreground="Gray"/>
+                            </StackPanel>
+                            <CheckBox Grid.Column="2" Content="Select All" Click="HeaderCheckBox_Click" Tag="PanelBrowsers" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Expander.Header>
+                    <StackPanel x:Name="PanelBrowsers" Margin="15,5,15,15">
+                        <CheckBox Content="Google Chrome" Tag="Google.Chrome" Margin="4"/>
+                        <CheckBox Content="Mozilla Firefox" Tag="Mozilla.Firefox" Margin="4"/>
+                        <CheckBox Content="Zen Browser (Optimized Firefox)" Tag="Zen-Team.Zen-Browser" Margin="4"/>
+                        <CheckBox Content="Brave Browser" Tag="Brave.Brave" Margin="4"/>
+                        <CheckBox Content="Microsoft Edge" Tag="Microsoft.Edge" Margin="4"/>
+                        <CheckBox Content="Opera GX" Tag="Opera.OperaGX" Margin="4"/>
+                        <CheckBox Content="Vivaldi" Tag="Vivaldi.Vivaldi" Margin="4"/>
+                        <CheckBox Content="Tor Browser" Tag="TorProject.TorBrowser" Margin="4"/>
+                        <CheckBox Content="LibreWolf" Tag="LibreWolf.LibreWolf" Margin="4"/>
+                        <CheckBox Content="Waterfox" Tag="Waterfox.Waterfox" Margin="4"/>
+                    </StackPanel>
+                </Expander>
+
+                <!-- 2. ARCHIVIERUNG (ZIP) -->
+                <Expander Style="{StaticResource {x:Static ui:ThemeKeys.ExpanderCardStyleKey}}" Margin="0,0,0,10" HorizontalAlignment="Stretch" >
+                    <Expander.Header>
+                        <Grid HorizontalAlignment="Stretch" Background="Transparent" Margin="0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="30"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="📦" FontSize="18" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Compression &amp; Backup" FontWeight="Bold" FontSize="15"/>
+                                <TextBlock Text="NanaZip, 7-Zip, WinRAR..." FontSize="11" Foreground="Gray"/>
+                            </StackPanel>
+                            <CheckBox Grid.Column="2" Content="Select All" Click="HeaderCheckBox_Click" Tag="PanelZip" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Expander.Header>
+                    <StackPanel x:Name="PanelZip" Margin="15,5,15,15">
+                        <CheckBox Content="NanaZip (Modern 7-Zip)" Tag="M2Team.NanaZip" Margin="4"/>
+                        <CheckBox Content="7-Zip" Tag="7zip.7zip" Margin="4"/>
+                        <CheckBox Content="WinRAR" Tag="RARLab.WinRAR" Margin="4"/>
+                        <CheckBox Content="PeaZip" Tag="PeaZip.PeaZip" Margin="4"/>
+                        <CheckBox Content="WinZip" Tag="WinZip.WinZip" Margin="4"/>
+                    </StackPanel>
+                </Expander>
+
+                <!-- 3. OFFICE & PRODUCTIVITY -->
+                <Expander Style="{StaticResource {x:Static ui:ThemeKeys.ExpanderCardStyleKey}}" Margin="0,0,0,10" HorizontalAlignment="Stretch" >
+                    <Expander.Header>
+                        <Grid HorizontalAlignment="Stretch" Background="Transparent" Margin="0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="30"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="📝" FontSize="18" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Office &amp; Productivity" FontWeight="Bold" FontSize="15"/>
+                                <TextBlock Text="Office 365, LibreOffice, Adobe Reader..." FontSize="11" Foreground="Gray"/>
+                            </StackPanel>
+                            <CheckBox Grid.Column="2" Content="Select All" Click="HeaderCheckBox_Click" Tag="PanelOffice" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Expander.Header>
+                    <StackPanel x:Name="PanelOffice" Margin="15,5,15,15">
+                        <CheckBox Content="Microsoft 365 (Office)" Tag="Microsoft.Office" Margin="4"/>
+                        <CheckBox Content="LibreOffice" Tag="TheDocumentFoundation.LibreOffice" Margin="4"/>
+                        <CheckBox Content="OpenOffice" Tag="Apache.OpenOffice" Margin="4"/>
+                        <CheckBox Content="Adobe Acrobat Reader DC" Tag="Adobe.Acrobat.Reader.64-bit" Margin="4"/>
+                        <CheckBox Content="Foxit PDF Reader" Tag="Foxit.FoxitReader" Margin="4"/>
+                        <CheckBox Content="Obsidian" Tag="Obsidian.Obsidian" Margin="4"/>
+                        <CheckBox Content="Notion" Tag="Notion.Notion" Margin="4"/>
+                        <CheckBox Content="Standard Notes" Tag="StandardNotes.StandardNotes" Margin="4"/>
+                    </StackPanel>
+                </Expander>
+
+                <!-- 4. COMMUNICATION -->
+                <Expander Style="{StaticResource {x:Static ui:ThemeKeys.ExpanderCardStyleKey}}" Margin="0,0,0,10" HorizontalAlignment="Stretch" >
+                    <Expander.Header>
+                        <Grid HorizontalAlignment="Stretch" Background="Transparent" Margin="0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="30"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="💬" FontSize="18" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Social &amp; Messaging" FontWeight="Bold" FontSize="15"/>
+                                <TextBlock Text="Discord, Teams, Zoom, Telegram..." FontSize="11" Foreground="Gray"/>
+                            </StackPanel>
+                            <CheckBox Grid.Column="2" Content="Select All" Click="HeaderCheckBox_Click" Tag="PanelSocial" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Expander.Header>
+                    <StackPanel x:Name="PanelSocial" Margin="15,5,15,15">
+                        <CheckBox Content="Discord" Tag="Discord.Discord" Margin="4"/>
+                        <CheckBox Content="Telegram Desktop" Tag="Telegram.TelegramDesktop" Margin="4"/>
+                        <CheckBox Content="WhatsApp" Tag="WhatsApp.WhatsApp" Margin="4"/>
+                        <CheckBox Content="Microsoft Teams" Tag="Microsoft.Teams" Margin="4"/>
+                        <CheckBox Content="Zoom" Tag="Zoom.Zoom" Margin="4"/>
+                        <CheckBox Content="Signal" Tag="Signal.Signal" Margin="4"/>
+                        <CheckBox Content="Skype" Tag="Microsoft.Skype" Margin="4"/>
+                        <CheckBox Content="Slack" Tag="SlackTechnologies.Slack" Margin="4"/>
+                        <CheckBox Content="Thunderbird" Tag="Mozilla.Thunderbird" Margin="4"/>
+                        <CheckBox Content="BetterDiscord (Installer)" Tag="BetterDiscord.Installer" Margin="4"/>
+                        <CheckBox Content="Vencord (Installer)" Tag="Vencord.Installer" Margin="4"/>
+                    </StackPanel>
+                </Expander>
+
+                <!-- 5. GAMING -->
+                <Expander Style="{StaticResource {x:Static ui:ThemeKeys.ExpanderCardStyleKey}}" Margin="0,0,0,10" HorizontalAlignment="Stretch" >
+                    <Expander.Header>
+                        <Grid HorizontalAlignment="Stretch" Background="Transparent" Margin="0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="30"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="🎮" FontSize="18" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Gaming" FontWeight="Bold" FontSize="15"/>
+                                <TextBlock Text="Steam, Epic, Battlenet, Tools..." FontSize="11" Foreground="Gray"/>
+                            </StackPanel>
+                            <CheckBox Grid.Column="2" Content="Select All" Click="HeaderCheckBox_Click" Tag="PanelGaming" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Expander.Header>
+                    <StackPanel x:Name="PanelGaming" Margin="15,5,15,15">
+                        <CheckBox Content="Steam" Tag="Valve.Steam" Margin="4"/>
+                        <CheckBox Content="Epic Games Launcher" Tag="EpicGames.EpicGamesLauncher" Margin="4"/>
+                        <CheckBox Content="Ubisoft Connect" Tag="Ubisoft.Connect" Margin="4"/>
+                        <CheckBox Content="GOG Galaxy" Tag="GOG.Galaxy" Margin="4"/>
+                        <CheckBox Content="Battle.net" Tag="Blizzard.BattleNet" Margin="4"/>
+                        <CheckBox Content="EA App" Tag="ElectronicArts.EADesktop" Margin="4"/>
+                        <CheckBox Content="GeForce Experience" Tag="Nvidia.GeForceExperience" Margin="4"/>
+                        <CheckBox Content="Nvidia App (Beta)" Tag="Nvidia.NvidiaApp" Margin="4"/>
+                        <CheckBox Content="MSI Afterburner" Tag="Guru3D.Afterburner" Margin="4"/>
+                        <CheckBox Content="Discord (Canary)" Tag="Discord.Discord.Canary" Margin="4"/>
+                    </StackPanel>
+                </Expander>
+
+                <!-- 6. DEVELOPMENT -->
+                <Expander Style="{StaticResource {x:Static ui:ThemeKeys.ExpanderCardStyleKey}}" Margin="0,0,0,10" HorizontalAlignment="Stretch" >
+                    <Expander.Header>
+                        <Grid HorizontalAlignment="Stretch" Background="Transparent" Margin="0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="30"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="👨‍💻" FontSize="18" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Development" FontWeight="Bold" FontSize="15"/>
+                                <TextBlock Text="VS Code, Git, Python, Node, Java..." FontSize="11" Foreground="Gray"/>
+                            </StackPanel>
+                            <CheckBox Grid.Column="2" Content="Select All" Click="HeaderCheckBox_Click" Tag="PanelDev" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Expander.Header>
+                    <StackPanel x:Name="PanelDev" Margin="15,5,15,15">
+                        <CheckBox Content="Visual Studio Code" Tag="Microsoft.VisualStudioCode" Margin="4"/>
+                        <CheckBox Content="Visual Studio 2022 Community" Tag="Microsoft.VisualStudio.2022.Community" Margin="4"/>
+                        <CheckBox Content="Notepad++" Tag="Notepad++.Notepad++" Margin="4"/>
+                        <CheckBox Content="Sublime Text 4" Tag="SublimeHQ.SublimeText.4" Margin="4"/>
+                        <CheckBox Content="Git" Tag="Git.Git" Margin="4"/>
+                        <CheckBox Content="GitHub Desktop" Tag="GitHub.GitHubDesktop" Margin="4"/>
+                        <CheckBox Content="Python 3.12" Tag="Python.Python.3.12" Margin="4"/>
+                        <CheckBox Content="Node.js (LTS)" Tag="OpenJS.NodeJS.LTS" Margin="4"/>
+                        <CheckBox Content="Oracle JDK 21" Tag="Oracle.JDK.21" Margin="4"/>
+                        <CheckBox Content="Docker Desktop" Tag="Docker.DockerDesktop" Margin="4"/>
+                        <CheckBox Content="Postman" Tag="Postman.Postman" Margin="4"/>
+                        <CheckBox Content="Wireshark" Tag="WiresharkFoundation.Wireshark" Margin="4"/>
+                        <CheckBox Content="FileZilla" Tag="FileZilla.FileZilla" Margin="4"/>
+                    </StackPanel>
+                </Expander>
+
+                <!-- 7. MEDIA & CREATIVITY -->
+                <Expander Style="{StaticResource {x:Static ui:ThemeKeys.ExpanderCardStyleKey}}" Margin="0,0,0,10" HorizontalAlignment="Stretch" >
+                    <Expander.Header>
+                        <Grid HorizontalAlignment="Stretch" Background="Transparent" Margin="0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="30"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="🎨" FontSize="18" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Media &amp; Creativity" FontWeight="Bold" FontSize="15"/>
+                                <TextBlock Text="VLC, Spotify, GIMP, OBS..." FontSize="11" Foreground="Gray"/>
+                            </StackPanel>
+                            <CheckBox Grid.Column="2" Content="Select All" Click="HeaderCheckBox_Click" Tag="PanelMedia" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Expander.Header>
+                    <StackPanel x:Name="PanelMedia" Margin="15,5,15,15">
+                        <CheckBox Content="VLC Media Player" Tag="VideoLAN.VLC" Margin="4"/>
+                        <CheckBox Content="Spotify" Tag="Spotify.Spotify" Margin="4"/>
+                        <CheckBox Content="iTunes" Tag="Apple.iTunes" Margin="4"/>
+                        <CheckBox Content="PotPlayer" Tag="Daum.PotPlayer" Margin="4"/>
+                        <CheckBox Content="Audacity" Tag="Audacity.Audacity" Margin="4"/>
+                        <CheckBox Content="OBS Studio" Tag="OBSProject.OBSStudio" Margin="4"/>
+                        <CheckBox Content="HandBrake" Tag="HandBrake.HandBrake" Margin="4"/>
+                        <CheckBox Content="GIMP" Tag="GIMP.GIMP" Margin="4"/>
+                        <CheckBox Content="Paint.NET" Tag="dotPDN.PaintDotNet" Margin="4"/>
+                        <CheckBox Content="Inkscape" Tag="Inkscape.Inkscape" Margin="4"/>
+                        <CheckBox Content="Krita" Tag="KDE.Krita" Margin="4"/>
+                        <CheckBox Content="Blender" Tag="BlenderFoundation.Blender" Margin="4"/>
+                        <CheckBox Content="IrfanView" Tag="IrfanView.IrfanView" Margin="4"/>
+                        <CheckBox Content="ShareX" Tag="ShareX.ShareX" Margin="4"/>
+                    </StackPanel>
+                </Expander>
+
+                <!-- 8. SYSTEM TOOLS -->
+                <Expander Style="{StaticResource {x:Static ui:ThemeKeys.ExpanderCardStyleKey}}" Margin="0,0,0,10" HorizontalAlignment="Stretch" >
+                    <Expander.Header>
+                        <Grid HorizontalAlignment="Stretch" Background="Transparent" Margin="0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="30"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="🛠" FontSize="18" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="System Utilities" FontWeight="Bold" FontSize="15"/>
+                                <TextBlock Text="PowerToys, Rufus, AnyDesk, Cleaners..." FontSize="11" Foreground="Gray"/>
+                            </StackPanel>
+                            <CheckBox Grid.Column="2" Content="Select All" Click="HeaderCheckBox_Click" Tag="PanelSystem" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Expander.Header>
+                    <StackPanel x:Name="PanelSystem" Margin="15,5,15,15">
+                        <CheckBox Content="Microsoft PowerToys" Tag="Microsoft.PowerToys" Margin="4"/>
+                        <CheckBox Content="Rufus (USB Tool)" Tag="Rufus.Rufus" Margin="4"/>
+                        <CheckBox Content="balenaEtcher" Tag="Balena.Etcher" Margin="4"/>
+                        <CheckBox Content="AnyDesk" Tag="AnyDeskSoftwareGmbH.AnyDesk" Margin="4"/>
+                        <CheckBox Content="TeamViewer" Tag="TeamViewer.TeamViewer" Margin="4"/>
+                        <CheckBox Content="WizTree (Disk Space)" Tag="AntibodySoftware.WizTree" Margin="4"/>
+                        <CheckBox Content="BleachBit (Cleaner)" Tag="BleachBit.BleachBit" Margin="4"/>
+                        <CheckBox Content="CCleaner" Tag="Piriform.CCleaner" Margin="4"/>
+                        <CheckBox Content="CPU-Z" Tag="CPUID.CPU-Z" Margin="4"/>
+                        <CheckBox Content="GPU-Z" Tag="TechPowerUp.GPU-Z" Margin="4"/>
+                        <CheckBox Content="HWiNFO" Tag="REALiX.HWiNFO" Margin="4"/>
+                        <CheckBox Content="Everything (Search)" Tag="voidtools.Everything" Margin="4"/>
+                        <CheckBox Content="Process Hacker 2" Tag="ProcessHacker.ProcessHacker" Margin="4"/>
+                    </StackPanel>
+                </Expander>
+
+                <!-- 9. RUNTIMES (WICHTIG) -->
+                <Expander Style="{StaticResource {x:Static ui:ThemeKeys.ExpanderCardStyleKey}}" Margin="0,0,0,10" HorizontalAlignment="Stretch" >
+                    <Expander.Header>
+                        <Grid HorizontalAlignment="Stretch" Background="Transparent" Margin="0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="30"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="⚙️" FontSize="18" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Runtimes &amp; Frameworks" FontWeight="Bold" FontSize="15"/>
+                                <TextBlock Text="DirectX, C++, .NET..." FontSize="11" Foreground="Gray"/>
+                            </StackPanel>
+                            <CheckBox Grid.Column="2" Content="Select All" Click="HeaderCheckBox_Click" Tag="PanelRuntimes" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Expander.Header>
+                    <StackPanel x:Name="PanelRuntimes" Margin="15,5,15,15">
+                        <CheckBox Content=".NET Desktop Runtime 8" Tag="Microsoft.DotNet.DesktopRuntime.8" Margin="4"/>
+                        <CheckBox Content=".NET Desktop Runtime 6" Tag="Microsoft.DotNet.DesktopRuntime.6" Margin="4"/>
+                        <CheckBox Content="Visual C++ 2015-2022 Redist (x64)" Tag="Microsoft.VCRedist.2015+.x64" Margin="4"/>
+                        <CheckBox Content="Visual C++ 2015-2022 Redist (x86)" Tag="Microsoft.VCRedist.2015+.x86" Margin="4"/>
+                        <CheckBox Content="DirectX End-User Runtime" Tag="Microsoft.DirectX" Margin="4"/>
+                        <CheckBox Content="Java Runtime (JRE)" Tag="Oracle.JavaRuntimeEnvironment" Margin="4"/>
+                    </StackPanel>
+                </Expander>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Footer -->
+        <Grid Grid.Row="2" Margin="0,20,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                <TextBlock x:Name="InfoText" 
+                           Text="Select applications to add to queue." 
+                           Foreground="Gray"/>
+                <ProgressBar x:Name="InstallProgress" 
+                             Height="4" 
+                             Margin="0,5,10,0" 
+                             IsIndeterminate="True" 
+                             Visibility="Collapsed"/>
+            </StackPanel>
+
+            <Button x:Name="BtnInstall" 
+                    Grid.Column="1"
+                    Content="Install Queue"
+                    Padding="25,10"
+                    FontSize="14"
+                    Click="BtnInstall_Click">
+            </Button>
+        </Grid>
     </Grid>
 </Page>
