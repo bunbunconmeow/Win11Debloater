@@ -1,0 +1,280 @@
+﻿<Page x:Class="SecVers_Debloat.UI.Pages.AboutPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:SecVers_Debloat.UI.Pages"
+      xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern"
+      xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="AboutPage">
+
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="32" MaxWidth="1000">
+
+                <!-- App Header -->
+                <StackPanel HorizontalAlignment="Center" Margin="0,0,0,32">
+                    <TextBlock 
+                    Text="SecVers Debloat" 
+                    FontSize="32" 
+                    FontWeight="Bold"
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0,8"/>
+
+                    <TextBlock 
+                    Text="Version 1.0.0" 
+                    FontSize="16"
+                    Opacity="0.8"
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0,4"/>
+
+                    <TextBlock 
+                    Text="Windows 11 Debloating Tool" 
+                    FontSize="14"
+                    Opacity="0.6"
+                    HorizontalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Description Card -->
+                <Border 
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="24"
+                Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock 
+                        Text="📋 About" 
+                        FontSize="20" 
+                        FontWeight="SemiBold"
+                        Margin="0,0,0,12"/>
+
+                        <TextBlock 
+                        TextWrapping="Wrap"
+                        LineHeight="22"
+                        Opacity="0.9">
+                        SecVers Debloat is a powerful Windows 11 debloating and optimization tool designed to help users remove bloatware, 
+                        disable telemetry, hardening the system and enhance system performance. With a modern interface and community-driven scripts, 
+                        it provides a comprehensive solution for Windows customization.
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <!-- Creator Card -->
+                <Border 
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="24"
+                Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock 
+                        Text="👨‍💻 Creator" 
+                        FontSize="20" 
+                        FontWeight="SemiBold"
+                        Margin="0,0,0,12"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Name:" FontWeight="SemiBold" Margin="0,0,16,8" Width="100"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="Mia_conmeow" Margin="0,0,0,8"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="GitHub:" FontWeight="SemiBold" Margin="0,0,16,8"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Margin="0,0,0,8">
+                            <Hyperlink NavigateUri="https://github.com/bunbunconmeow" RequestNavigate="Hyperlink_RequestNavigate">
+                                <Run Text="@bunbunconmeow"/>
+                            </Hyperlink>
+                            </TextBlock>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Website:" FontWeight="SemiBold" Margin="0,0,16,0"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1">
+                            <Hyperlink NavigateUri="https://secvers.org/" RequestNavigate="Hyperlink_RequestNavigate">
+                                <Run Text="secvers.org"/>
+                            </Hyperlink>
+                            </TextBlock>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- GitHub Repository Card -->
+                <Border 
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="24"
+                Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock 
+                        Text="🔗 Links" 
+                        FontSize="20" 
+                        FontWeight="SemiBold"
+                        Margin="0,0,0,16"/>
+
+                        <Button 
+                        Height="48"
+                        Margin="0,0,0,8"
+                        HorizontalAlignment="Stretch"
+                        Click="BtnGitHub_Click"
+                        Style="{StaticResource AccentButtonStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:FontIcon Icon="{x:Static ui:SegoeFluentIcons.Globe}" FontSize="16" Margin="0,0,8,0"/>
+                                <TextBlock Text="View on GitHub" FontSize="14" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button 
+                        Height="48"
+                        Margin="0,0,0,8"
+                        HorizontalAlignment="Stretch"
+                        Click="BtnIssues_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:FontIcon Icon="{x:Static ui:SegoeFluentIcons.Bug}" FontSize="16" Margin="0,0,8,0"/>
+                                <TextBlock Text="Report an Issue" FontSize="14" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button 
+                        Height="48"
+                        Margin="0,0,0,8"
+                        HorizontalAlignment="Stretch"
+                        Click="BtnDocumentation_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:FontIcon Icon="{x:Static ui:SegoeFluentIcons.Bookmarks}" FontSize="16" Margin="0,0,8,0"/>
+                                <TextBlock Text="Documentation" FontSize="14" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button 
+                        Height="48"
+                        HorizontalAlignment="Stretch"
+                        Click="BtnLicense_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:FontIcon Icon="{x:Static ui:SegoeFluentIcons.Certificate}" FontSize="16" Margin="0,0,8,0"/>
+                                <TextBlock Text="License (BSD-3)" FontSize="14" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Border>
+
+                <!-- Features Card -->
+                <Border 
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="24"
+                Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock 
+                        Text="✨ Features" 
+                        FontSize="20" 
+                        FontWeight="SemiBold"
+                        Margin="0,0,0,12"/>
+
+                        <StackPanel Margin="0,0,0,8">
+                            <TextBlock Text="✓ Remove Windows Bloatware" Margin="0,0,0,6" Opacity="0.9"/>
+                            <TextBlock Text="✓ Disable Telemetry &amp; Tracking" Margin="0,0,0,6" Opacity="0.9"/>
+                            <TextBlock Text="✓ Install Popular Software Packages" Margin="0,0,0,6" Opacity="0.9"/>
+                            <TextBlock Text="✓ Community-Driven Scripts" Margin="0,0,0,6" Opacity="0.9"/>
+                            <TextBlock Text="✓ Windows Defender Configuration" Margin="0,0,0,6" Opacity="0.9"/>
+                            <TextBlock Text="✓ System Hardening Options" Margin="0,0,0,6" Opacity="0.9"/>
+                            <TextBlock Text="✓ Modern Fluent UI Design" Margin="0,0,0,6" Opacity="0.9"/>
+                            <TextBlock Text="✓ Safe Preset Configurations" Opacity="0.9"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Technologies Card -->
+                <Border 
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="24"
+                Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock 
+                        Text="🛠️ Built With" 
+                        FontSize="20" 
+                        FontWeight="SemiBold"
+                        Margin="0,0,0,12"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Framework:" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text=".NET Framework 4.8" Margin="0,0,0,8" Opacity="0.9"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="UI Library:" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="iNKORE.UI.WPF.Modern" Margin="0,0,0,8" Opacity="0.9"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Language:" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="C# &amp; PowerShell" Margin="0,0,0,8" Opacity="0.9"/>
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Platform:" FontWeight="SemiBold"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="Windows 10/11" Opacity="0.9"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Disclaimer Card -->
+                <Border 
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="24"
+                Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock 
+                        Text="⚠️ Disclaimer" 
+                        FontSize="20" 
+                        FontWeight="SemiBold"
+                        Margin="0,0,0,12"/>
+
+                        <TextBlock 
+                        TextWrapping="Wrap"
+                        LineHeight="22"
+                        Opacity="0.9">
+                        This tool makes significant changes to your Windows installation. While we strive to ensure safety, 
+                        use at your own risk. Always create a system restore point before making changes. 
+                        The creators are not responsible for any system issues that may arise from using this tool.
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <!-- Copyright -->
+                <TextBlock 
+                Text="© 2024 SecVers Debloat. Licensed under BSD-3 License." 
+                FontSize="12"
+                Opacity="0.6"
+                HorizontalAlignment="Center"
+                Margin="0,16,0,0"/>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>
