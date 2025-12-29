@@ -1,0 +1,130 @@
+﻿<Window x:Class="SecVers_Debloat.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern"
+        xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
+        xmlns:local="clr-namespace:SecVers_Debloat"
+        ui:WindowHelper.UseModernWindowStyle="True"
+        ui:WindowHelper.SystemBackdropType="Acrylic"
+        ui:TitleBar.Height="36"
+        ui:ThemeManager.RequestedTheme="Dark"
+        mc:Ignorable="d"
+        ResizeMode="CanMinimize"
+        MinHeight="550"
+        MinWidth="900"
+        Title="SecVers Debloat" 
+        Height="550" 
+        Width="900"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <ui:NavigationView
+            x:Name="NavigationView"
+            IsTabStop="False"
+            PaneDisplayMode="LeftCompact"
+            IsPaneOpen="True"
+            OpenPaneLength="220"
+            CompactPaneLength="48"
+            IsBackButtonVisible="Collapsed"
+           
+            IsSettingsVisible="False"
+            SelectionChanged="NavigationView_SelectionChanged">
+
+            <!-- Navigation Menu Items -->
+            <ui:NavigationView.MenuItems>
+
+                <!-- Welcome Page -->
+                <ui:NavigationViewItem
+                    Content="Welcome"
+                    Tag="WelcomePage"
+                    IsSelected="True">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:FontIcon Icon="{x:Static ui:SegoeFluentIcons.Home}"/>
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+
+                <!-- Debloat Page -->
+                <ui:NavigationViewItem
+                    Content="Debloat"
+                    Tag="DebloatPage">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:FontIcon Icon="{x:Static ui:SegoeFluentIcons.Delete}"/>
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+                
+                <ui:NavigationViewItem
+                    Content="Registry Tweaks"
+                    Tag="RegistryTweaks">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:FontIcon Icon="{x:Static ui:SegoeFluentIcons.SDCard}"/>
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+
+                <!-- Software Installer Page -->
+                <ui:NavigationViewItem
+                    Content="Software Installer"
+                    Tag="SoftwareInstallerPage">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:FontIcon Icon="{x:Static ui:SegoeFluentIcons.Download}"/>
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+
+                <!-- Community Scripts Page -->
+                <ui:NavigationViewItem
+                    Content="Community Scripts"
+                    Tag="CommunityScriptsPage">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:FontIcon Icon="{x:Static ui:SegoeFluentIcons.Code}"/>
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+
+                <!-- Separator -->
+                <ui:NavigationViewItemSeparator/>
+
+                <!-- Defender Options Page -->
+                <ui:NavigationViewItem
+                    Content="Defender Optionen"
+                    Tag="DefenderPage">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:FontIcon Icon="{x:Static ui:SegoeFluentIcons.DefenderApp}"/>
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+
+                <!-- Hardening Options Page -->
+                <ui:NavigationViewItem
+                    Content="Hardening Optionen"
+                    Tag="HardeningPage">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:FontIcon Icon="{x:Static ui:SegoeFluentIcons.ExploitProtection}"/>
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem
+                    Content="System Anonymizer"
+                    Tag="AnonymizerPage">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:FontIcon Icon="{x:Static ui:SegoeFluentIcons.RedEye}"/>
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+            </ui:NavigationView.MenuItems>
+
+            <!-- Footer Items (Settings wird automatisch von IsSettingsVisible hinzugefügt) -->
+            <ui:NavigationView.FooterMenuItems>
+                <ui:NavigationViewItem
+                    Content="About"
+                    Tag="AboutPage">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:FontIcon Icon="{x:Static ui:SegoeFluentIcons.Info}"/>
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+            </ui:NavigationView.FooterMenuItems>
+
+            <!-- Content Frame -->
+            <ui:Frame 
+                x:Name="ContentFrame" 
+                Margin="0"
+                NavigationUIVisibility="Hidden"/>
+
+        </ui:NavigationView>
+    </Grid>
+</Window>

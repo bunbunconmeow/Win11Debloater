@@ -1,0 +1,15 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="ARM" />
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="SecVers Debloat/SecVers Debloat.csproj" Id="d462c9b2-c8da-4540-8d06-b76629c9fbd3">
+    <Platform Solution="*|x64" Project="x64" />
+  </Project>
+  <Project Path="SecVersDebloater/SecVersDebloater.wapproj" Type="c7167f0d-bc9f-4e6e-afe1-012c56b48db5" Id="d356f855-b12a-45a6-a9c0-bf303cde663d">
+    <Deploy />
+  </Project>
+</Solution>

@@ -1,0 +1,655 @@
+﻿<Page x:Class="SecVers_Debloat.UI.Pages.HardeningPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:SecVers_Debloat.UI.Pages"
+      xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern"
+      xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="HardeningPage">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="System Hardening" 
+                       FontSize="28" 
+                       FontWeight="Bold"/>
+            <TextBlock Text="Enhance your system's security posture with advanced hardening options" 
+                       FontSize="14" 
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       Margin="0,5,0,0"/>
+            <Border Background="#FFF4D03F" 
+                    Padding="10" 
+                    Margin="0,15,0,0"
+                    CornerRadius="4">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="⚠️" FontSize="16" VerticalAlignment="Center"/>
+                    <TextBlock Text="Warning: These settings can affect system functionality. Create a restore point before proceeding." 
+                               FontSize="13"
+                               TextWrapping="Wrap"
+                               Margin="10,0,0,0"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <!-- ScrollViewer with Expandable Categories -->
+        <ScrollViewer Grid.Row="1" 
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                       HorizontalContentAlignment="Stretch">
+            <StackPanel>
+
+                <!-- Exploit Protection Category -->
+                <Expander Style="{StaticResource {x:Static ui:ThemeKeys.ExpanderCardStyleKey}}"
+                          Margin="0,0,0,10"
+                          IsExpanded="False"
+                          HorizontalAlignment="Stretch"
+                          HorizontalContentAlignment="Stretch"
+                          >
+                    <Expander.Header>
+                        <Grid HorizontalAlignment="Stretch" Background="Transparent">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" 
+                                       Text="🛡️" 
+                                       FontSize="20" 
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"/>
+
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Exploit Protection" 
+                                           FontWeight="Bold" 
+                                           FontSize="16"/>
+                                <TextBlock Text="DEP, ASLR, CFG, and memory protection features" 
+                                           FontSize="12" 
+                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+                            </StackPanel>
+
+                            <CheckBox Grid.Column="2"
+                                      x:Name="ExploitProtectionAllCheckBox"
+                                      Content="Select All"
+                                      IsThreeState="True"
+                                      VerticalAlignment="Center"
+                                      Margin="10,0,0,0"
+                                      Checked="ExploitProtectionAll_Checked"
+                                      Unchecked="ExploitProtectionAll_Unchecked"
+                                      Indeterminate="ExploitProtectionAll_Indeterminate"
+                                      Click="HeaderCheckBox_Click"/>
+                        </Grid>
+                    </Expander.Header>
+                    <Expander.Content>
+                        <StackPanel Margin="15,10,15,15">
+                            <CheckBox x:Name="ChkEnableDEP"
+                                      Content="Enable DEP for all processes"
+                                      Margin="4"
+                                      Checked="ExploitProtectionOption_Checked"
+                                      Unchecked="ExploitProtectionOption_Unchecked"/>
+                            <CheckBox x:Name="ChkEnableSEHOP"
+                                      Content="Enable SEHOP (Structured Exception Handler Overwrite Protection)"
+                                      Margin="4"
+                                      Checked="ExploitProtectionOption_Checked"
+                                      Unchecked="ExploitProtectionOption_Unchecked"/>
+                            <CheckBox x:Name="ChkEnableBottomUpASLR"
+                                      Content="Enable Bottom-up ASLR"
+                                      Margin="4"
+                                      Checked="ExploitProtectionOption_Checked"
+                                      Unchecked="ExploitProtectionOption_Unchecked"/>
+                            <CheckBox x:Name="ChkEnableHighEntropyASLR"
+                                      Content="Enable High-entropy ASLR"
+                                      Margin="4"
+                                      Checked="ExploitProtectionOption_Checked"
+                                      Unchecked="ExploitProtectionOption_Unchecked"/>
+                            <CheckBox x:Name="ChkEnableMandatoryASLR"
+                                      Content="Enable Mandatory ASLR"
+                                      Margin="4"
+                                      Checked="ExploitProtectionOption_Checked"
+                                      Unchecked="ExploitProtectionOption_Unchecked"/>
+                            <CheckBox x:Name="ChkEnableCFG"
+                                      Content="Enable Control Flow Guard (CFG)"
+                                      Margin="4"
+                                      Checked="ExploitProtectionOption_Checked"
+                                      Unchecked="ExploitProtectionOption_Unchecked"/>
+                            <CheckBox x:Name="ChkEnableValidateExceptionChains"
+                                      Content="Enable Validate Exception Chains"
+                                      Margin="4"
+                                      Checked="ExploitProtectionOption_Checked"
+                                      Unchecked="ExploitProtectionOption_Unchecked"/>
+                            <CheckBox x:Name="ChkEnableValidateHeapIntegrity"
+                                      Content="Enable Validate Heap Integrity"
+                                      Margin="4"
+                                      Checked="ExploitProtectionOption_Checked"
+                                      Unchecked="ExploitProtectionOption_Unchecked"/>
+                            <CheckBox x:Name="ChkBlockUntrustedFonts"
+                                      Content="Block untrusted fonts"
+                                      Margin="4"
+                                      Checked="ExploitProtectionOption_Checked"
+                                      Unchecked="ExploitProtectionOption_Unchecked"/>
+                            <CheckBox x:Name="ChkEnableCodeIntegrityGuard"
+                                      Content="Enable Code Integrity Guard"
+                                      Margin="4"
+                                      Checked="ExploitProtectionOption_Checked"
+                                      Unchecked="ExploitProtectionOption_Unchecked"/>
+                            <CheckBox x:Name="ChkDisableWin32kSystemCalls"
+                                      Content="Disable Win32k System Calls"
+                                      Margin="4"
+                                      Checked="ExploitProtectionOption_Checked"
+                                      Unchecked="ExploitProtectionOption_Unchecked"/>
+                            <CheckBox x:Name="ChkEnableExportAddressFiltering"
+                                      Content="Enable Export Address Filtering"
+                                      Margin="4"
+                                      Checked="ExploitProtectionOption_Checked"
+                                      Unchecked="ExploitProtectionOption_Unchecked"/>
+                        </StackPanel>
+                    </Expander.Content>
+                </Expander>
+
+                <!-- Network Hardening Category -->
+                <Expander Style="{StaticResource {x:Static ui:ThemeKeys.ExpanderCardStyleKey}}"
+                          Margin="0,0,0,10"
+                           HorizontalAlignment="Stretch"
+                          IsExpanded="False">
+                    <Expander.Header>
+                        <Grid HorizontalAlignment="Stretch" Background="Transparent">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" 
+                                       Text="🌐" 
+                                       FontSize="20" 
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"/>
+
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Network Hardening" 
+                                           FontWeight="Bold" 
+                                           FontSize="16"/>
+                                <TextBlock Text="Firewall, SMB, IPv6, and network security settings" 
+                                           FontSize="12" 
+                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+                            </StackPanel>
+
+                            <CheckBox Grid.Column="2"
+                                      x:Name="NetworkHardeningAllCheckBox"
+                                      Content="Select All"
+                                      IsThreeState="True"
+                                      VerticalAlignment="Center"
+                                      Margin="10,0,0,0"
+                                      Checked="NetworkHardeningAll_Checked"
+                                      Unchecked="NetworkHardeningAll_Unchecked"
+                                      Indeterminate="NetworkHardeningAll_Indeterminate"
+                                      Click="HeaderCheckBox_Click"/>
+                        </Grid>
+                    </Expander.Header>
+                    <Expander.Content>
+                        <StackPanel Margin="15,10,15,15">
+                            <CheckBox x:Name="ChkDisableSMBCompression"
+                                      Content="Disable SMB Compression (CVE-2020-0796)"
+                                      Margin="4"
+                                      Checked="NetworkHardeningOption_Checked"
+                                      Unchecked="NetworkHardeningOption_Unchecked"/>
+                            <CheckBox x:Name="ChkEnableFirewallAllProfiles"
+                                      Content="Enable Windows Firewall for all profiles"
+                                      Margin="4"
+                                      Checked="NetworkHardeningOption_Checked"
+                                      Unchecked="NetworkHardeningOption_Unchecked"/>
+                            <CheckBox x:Name="ChkSetFirewallDefaultBlockInbound"
+                                      Content="Block inbound connections by default"
+                                      Margin="4"
+                                      Checked="NetworkHardeningOption_Checked"
+                                      Unchecked="NetworkHardeningOption_Unchecked"/>
+                            <CheckBox x:Name="ChkDisableIPv6"
+                                      Content="Disable IPv6 (if not needed)"
+                                      Margin="4"
+                                      Checked="NetworkHardeningOption_Checked"
+                                      Unchecked="NetworkHardeningOption_Unchecked"/>
+                        </StackPanel>
+                    </Expander.Content>
+                </Expander>
+
+                <!-- Account Security Category -->
+                <Expander Style="{StaticResource {x:Static ui:ThemeKeys.ExpanderCardStyleKey}}"
+                          Margin="0,0,0,10"
+                           HorizontalAlignment="Stretch"
+                          IsExpanded="False">
+                    <Expander.Header>
+                        <Grid HorizontalAlignment="Stretch" Background="Transparent">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" 
+                                       Text="👤" 
+                                       FontSize="20" 
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"/>
+
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Account Security" 
+                                           FontWeight="Bold" 
+                                           FontSize="16"/>
+                                <TextBlock Text="Password policies, UAC, and account management" 
+                                           FontSize="12" 
+                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+                            </StackPanel>
+
+                            <CheckBox Grid.Column="2"
+                                      x:Name="AccountSecurityAllCheckBox"
+                                      Content="Select All"
+                                      IsThreeState="True"
+                                      VerticalAlignment="Center"
+                                      Margin="10,0,0,0"
+                                      Checked="AccountSecurityAll_Checked"
+                                      Unchecked="AccountSecurityAll_Unchecked"
+                                      Indeterminate="AccountSecurityAll_Indeterminate"
+                                      Click="HeaderCheckBox_Click"/>
+                        </Grid>
+                    </Expander.Header>
+                    <Expander.Content>
+                        <StackPanel Margin="15,10,15,15">
+                            <CheckBox x:Name="ChkDisableGuestAccount"
+                                      Content="Disable Guest Account"
+                                      Margin="4"
+                                      Checked="AccountSecurityOption_Checked"
+                                      Unchecked="AccountSecurityOption_Unchecked"/>
+                            <CheckBox x:Name="ChkEnablePasswordComplexity"
+                                      Content="Enable Password Complexity Requirements"
+                                      Margin="4"
+                                      Checked="AccountSecurityOption_Checked"
+                                      Unchecked="AccountSecurityOption_Unchecked"/>
+                            <CheckBox x:Name="ChkDisableCredentialStorage"
+                                      Content="Disable Storage of Credentials"
+                                      Margin="4"
+                                      Checked="AccountSecurityOption_Checked"
+                                      Unchecked="AccountSecurityOption_Unchecked"/>
+                            <CheckBox x:Name="ChkEnableUACMaximum"
+                                      Content="Enable UAC at maximum level"
+                                      Margin="4"
+                                      Checked="AccountSecurityOption_Checked"
+                                      Unchecked="AccountSecurityOption_Unchecked"/>
+                            <CheckBox x:Name="ChkBlockMicrosoftAccounts"
+                                      Content="Block Microsoft Accounts"
+                                      Margin="4"
+                                      Checked="AccountSecurityOption_Checked"
+                                      Unchecked="AccountSecurityOption_Unchecked"/>
+                            <CheckBox x:Name="ChkLimitBlankPasswordConsoleOnly"
+                                      Content="Limit Blank Password Use to Console Only"
+                                      Margin="4"
+                                      Checked="AccountSecurityOption_Checked"
+                                      Unchecked="AccountSecurityOption_Unchecked"/>
+                        </StackPanel>
+                    </Expander.Content>
+                </Expander>
+
+                <!-- Service Hardening Category -->
+                <Expander Style="{StaticResource {x:Static ui:ThemeKeys.ExpanderCardStyleKey}}"
+                          Margin="0,0,0,10"
+                          HorizontalAlignment="Stretch"
+                          IsExpanded="False">
+                    <Expander.Header>
+                        <Grid HorizontalAlignment="Stretch" Background="Transparent">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" 
+                                       Text="⚙️" 
+                                       FontSize="20" 
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"/>
+
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Service Hardening" 
+                                           FontWeight="Bold" 
+                                           FontSize="16"/>
+                                <TextBlock Text="Disable unnecessary and potentially vulnerable services" 
+                                           FontSize="12" 
+                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+                            </StackPanel>
+
+                            <CheckBox Grid.Column="2"
+                                      x:Name="ServiceHardeningAllCheckBox"
+                                      Content="Select All"
+                                      IsThreeState="True"
+                                      VerticalAlignment="Center"
+                                      Margin="10,0,0,0"
+                                      Checked="ServiceHardeningAll_Checked"
+                                      Unchecked="ServiceHardeningAll_Unchecked"
+                                      Indeterminate="ServiceHardeningAll_Indeterminate"
+                                      Click="HeaderCheckBox_Click"/>
+                        </Grid>
+                    </Expander.Header>
+                    <Expander.Content>
+                        <StackPanel Margin="15,10,15,15">
+                            <CheckBox x:Name="ChkDisableRemoteRegistry"
+                                      Content="Disable Remote Registry"
+                                      Margin="4"
+                                      Checked="ServiceHardeningOption_Checked"
+                                      Unchecked="ServiceHardeningOption_Unchecked"/>
+                            <CheckBox x:Name="ChkDisableRemoteDesktop"
+                                      Content="Disable Remote Desktop"
+                                      Margin="4"
+                                      Checked="ServiceHardeningOption_Checked"
+                                      Unchecked="ServiceHardeningOption_Unchecked"/>
+                            <CheckBox x:Name="ChkDisablePrintSpooler"
+                                      Content="Disable Print Spooler"
+                                      Margin="4"
+                                      Checked="ServiceHardeningOption_Checked"
+                                      Unchecked="ServiceHardeningOption_Unchecked"/>
+                            <CheckBox x:Name="ChkDisableWindowsScriptHost"
+                                      Content="Disable Windows Script Host"
+                                      Margin="4"
+                                      Checked="ServiceHardeningOption_Checked"
+                                      Unchecked="ServiceHardeningOption_Unchecked"/>
+                            <CheckBox x:Name="ChkDisablePowerShellV2"
+                                      Content="Disable PowerShell v2"
+                                      Margin="4"
+                                      Checked="ServiceHardeningOption_Checked"
+                                      Unchecked="ServiceHardeningOption_Unchecked"/>
+                            <CheckBox x:Name="ChkDisableWindowsErrorReporting"
+                                      Content="Disable Windows Error Reporting"
+                                      Margin="4"
+                                      Checked="ServiceHardeningOption_Checked"
+                                      Unchecked="ServiceHardeningOption_Unchecked"/>
+                            <CheckBox x:Name="ChkDisableTelemetryServices"
+                                      Content="Disable Telemetry Services"
+                                      Margin="4"
+                                      Checked="ServiceHardeningOption_Checked"
+                                      Unchecked="ServiceHardeningOption_Unchecked"/>
+                            <CheckBox x:Name="ChkDisableXboxServices"
+                                      Content="Disable Xbox Services"
+                                      Margin="4"
+                                      Checked="ServiceHardeningOption_Checked"
+                                      Unchecked="ServiceHardeningOption_Unchecked"/>
+                            <CheckBox x:Name="ChkDisableBluetooth"
+                                      Content="Disable Bluetooth"
+                                      Margin="4"
+                                      Checked="ServiceHardeningOption_Checked"
+                                      Unchecked="ServiceHardeningOption_Unchecked"/>
+                            <CheckBox x:Name="ChkDisableSSDPDiscovery"
+                                      Content="Disable SSDP Discovery (UPnP)"
+                                      Margin="4"
+                                      Checked="ServiceHardeningOption_Checked"
+                                      Unchecked="ServiceHardeningOption_Unchecked"/>
+                        </StackPanel>
+                    </Expander.Content>
+                </Expander>
+
+                <!-- System Integrity Category -->
+                <Expander Style="{StaticResource {x:Static ui:ThemeKeys.ExpanderCardStyleKey}}"
+                          Margin="0,0,0,10"
+                          HorizontalAlignment="Stretch"
+                          IsExpanded="False">
+                    <Expander.Header>
+                        <Grid HorizontalAlignment="Stretch" Background="Transparent">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" 
+                                       Text="🔒" 
+                                       FontSize="20" 
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"/>
+
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="System Integrity" 
+                                           FontWeight="Bold" 
+                                           FontSize="16"/>
+                                <TextBlock Text="Code integrity, Credential Guard, and system protection" 
+                                           FontSize="12" 
+                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+                            </StackPanel>
+
+                            <CheckBox Grid.Column="2"
+                                      x:Name="SystemIntegrityAllCheckBox"
+                                      Content="Select All"
+                                      IsThreeState="True"
+                                      VerticalAlignment="Center"
+                                      Margin="10,0,0,0"
+                                      Checked="SystemIntegrityAll_Checked"
+                                      Unchecked="SystemIntegrityAll_Unchecked"
+                                      Indeterminate="SystemIntegrityAll_Indeterminate"
+                                      Click="HeaderCheckBox_Click"/>
+                        </Grid>
+                    </Expander.Header>
+                    <Expander.Content>
+                        <StackPanel Margin="15,10,15,15">
+                            <CheckBox x:Name="ChkEnableKernelModeCodeIntegrity"
+                                      Content="Enable Kernel-mode Code Integrity"
+                                      Margin="4"
+                                      Checked="SystemIntegrityOption_Checked"
+                                      Unchecked="SystemIntegrityOption_Unchecked"/>
+                            <CheckBox x:Name="ChkEnableCredentialGuard"
+                                      Content="Enable Credential Guard"
+                                      Margin="4"
+                                      Checked="SystemIntegrityOption_Checked"
+                                      Unchecked="SystemIntegrityOption_Unchecked"/>
+                            <CheckBox x:Name="ChkEnableMemoryIntegrity"
+                                      Content="Enable Memory Integrity (Core Isolation)"
+                                      Margin="4"
+                                      Checked="SystemIntegrityOption_Checked"
+                                      Unchecked="SystemIntegrityOption_Unchecked"/>
+                            <CheckBox x:Name="ChkDisableAutoRun"
+                                      Content="Disable AutoRun/AutoPlay"
+                                      Margin="4"
+                                      Checked="SystemIntegrityOption_Checked"
+                                      Unchecked="SystemIntegrityOption_Unchecked"/>
+                            <CheckBox x:Name="ChkDisable8Dot3Names"
+                                      Content="Disable 8.3 File Name Creation"
+                                      Margin="4"
+                                      Checked="SystemIntegrityOption_Checked"
+                                      Unchecked="SystemIntegrityOption_Unchecked"/>
+                            <CheckBox x:Name="ChkDisableRemoteAssistance"
+                                      Content="Disable Remote Assistance"
+                                      Margin="4"
+                                      Checked="SystemIntegrityOption_Checked"
+                                      Unchecked="SystemIntegrityOption_Unchecked"/>
+                            <CheckBox x:Name="ChkDisableHibernation"
+                                      Content="Disable Hibernation (prevent cold boot attacks)"
+                                      Margin="4"
+                                      Checked="SystemIntegrityOption_Checked"
+                                      Unchecked="SystemIntegrityOption_Unchecked"/>
+                            <CheckBox x:Name="ChkEnableTamperProtection"
+                                      Content="Enable Tamper Protection"
+                                      Margin="4"
+                                      Checked="SystemIntegrityOption_Checked"
+                                      Unchecked="SystemIntegrityOption_Unchecked"/>
+                        </StackPanel>
+                    </Expander.Content>
+                </Expander>
+
+                <!-- Privacy Hardening Category -->
+                <Expander Style="{StaticResource {x:Static ui:ThemeKeys.ExpanderCardStyleKey}}"
+                          Margin="0,0,0,10"
+                          HorizontalAlignment="Stretch"
+                          IsExpanded="False">
+                    <Expander.Header>
+                        <Grid HorizontalAlignment="Stretch" Background="Transparent">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" 
+                                       Text="🔐" 
+                                       FontSize="20" 
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"/>
+
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Privacy Hardening" 
+                                           FontWeight="Bold" 
+                                           FontSize="16"/>
+                                <TextBlock Text="Telemetry, Cortana, feedback, and data collection" 
+                                           FontSize="12" 
+                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+                            </StackPanel>
+
+                            <CheckBox Grid.Column="2"
+                                      x:Name="PrivacyHardeningAllCheckBox"
+                                      Content="Select All"
+                                      IsThreeState="True"
+                                      VerticalAlignment="Center"
+                                      Margin="10,0,0,0"
+                                      Checked="PrivacyHardeningAll_Checked"
+                                      Unchecked="PrivacyHardeningAll_Unchecked"
+                                      Indeterminate="PrivacyHardeningAll_Indeterminate"
+                                      Click="HeaderCheckBox_Click"/>
+                        </Grid>
+                    </Expander.Header>
+                    <Expander.Content>
+                        <StackPanel Margin="15,10,15,15">
+                            <CheckBox x:Name="ChkDisableTelemetryCompletely"
+                                      Content="Disable Telemetry completely"
+                                      Margin="4"
+                                      Checked="PrivacyHardeningOption_Checked"
+                                      Unchecked="PrivacyHardeningOption_Unchecked"/>
+                            <CheckBox x:Name="ChkDisableCortana"
+                                      Content="Disable Cortana"
+                                      Margin="4"
+                                      Checked="PrivacyHardeningOption_Checked"
+                                      Unchecked="PrivacyHardeningOption_Unchecked"/>
+                            <CheckBox x:Name="ChkDisableWindowsFeedback"
+                                      Content="Disable Windows Feedback"
+                                      Margin="4"
+                                      Checked="PrivacyHardeningOption_Checked"
+                                      Unchecked="PrivacyHardeningOption_Unchecked"/>
+                            <CheckBox x:Name="ChkDisableTimeline"
+                                      Content="Disable Timeline"
+                                      Margin="4"
+                                      Checked="PrivacyHardeningOption_Checked"
+                                      Unchecked="PrivacyHardeningOption_Unchecked"/>
+                            <CheckBox x:Name="ChkDisableCloudClipboard"
+                                      Content="Disable Cloud Clipboard"
+                                      Margin="4"
+                                      Checked="PrivacyHardeningOption_Checked"
+                                      Unchecked="PrivacyHardeningOption_Unchecked"/>
+                            <CheckBox x:Name="ChkDisableInputPersonalization"
+                                      Content="Disable Input Personalization"
+                                      Margin="4"
+                                      Checked="PrivacyHardeningOption_Checked"
+                                      Unchecked="PrivacyHardeningOption_Unchecked"/>
+                            <CheckBox x:Name="ChkDisableOneDrive"
+                                      Content="Disable OneDrive"
+                                      Margin="4"
+                                      Checked="PrivacyHardeningOption_Checked"
+                                      Unchecked="PrivacyHardeningOption_Unchecked"/>
+                        </StackPanel>
+                    </Expander.Content>
+                </Expander>
+
+                <!-- Attack Surface Reduction Category -->
+                <Expander Style="{StaticResource {x:Static ui:ThemeKeys.ExpanderCardStyleKey}}"
+                          Margin="0,0,0,10"
+                          HorizontalAlignment="Stretch"
+                          IsExpanded="False">
+                    <Expander.Header>
+                        <Grid HorizontalAlignment="Stretch" Background="Transparent">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" 
+                                       Text="🎯" 
+                                       FontSize="20" 
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"/>
+
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Attack Surface Reduction" 
+                                           FontWeight="Bold" 
+                                           FontSize="16"/>
+                                <TextBlock Text="Microsoft Defender ASR rules for enhanced protection" 
+                                           FontSize="12" 
+                                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+                            </StackPanel>
+
+                            <CheckBox Grid.Column="2"
+                                      x:Name="ASRAllCheckBox"
+                                      Content="Select All"
+                                      IsThreeState="True"
+                                      VerticalAlignment="Center"
+                                      Margin="10,0,0,0"
+                                      Checked="ASRAll_Checked"
+                                      Unchecked="ASRAll_Unchecked"
+                                      Indeterminate="ASRAll_Indeterminate"
+                                      Click="HeaderCheckBox_Click"/>
+                        </Grid>
+                    </Expander.Header>
+                    <Expander.Content>
+                        <StackPanel Margin="15,10,15,15">
+                            <CheckBox x:Name="ChkBlockExecutableContentFromEmailWebmail"
+                                      Content="Block executable content from email client and webmail"
+                                      Margin="4"
+                                      Checked="ASROption_Checked"
+                                      Unchecked="ASROption_Unchecked"/>
+                            <CheckBox x:Name="ChkBlockOfficeChildProcesses"
+                                      Content="Block all Office applications from creating child processes"
+                                      Margin="4"
+                                      Checked="ASROption_Checked"
+                                      Unchecked="ASROption_Unchecked"/>
+                            <CheckBox x:Name="ChkBlockOfficeExecutableContent"
+                                      Content="Block Office applications from creating executable content"
+                                      Margin="4"
+                                      Checked="ASROption_Checked"
+                                      Unchecked="ASROption_Unchecked"/>
+                            <CheckBox x:Name="ChkBlockOfficeInjection"
+                                      Content="Block Office applications from injecting code into other processes"
+                                      Margin="4"
+                                      Checked="ASROption_Checked"
+                                      Unchecked="ASROption_Unchecked"/>
+                            <CheckBox x:Name="ChkBlockScriptExecutableDownload"
+                                      Content="Block JavaScript/VBScript from launching downloaded executable content"
+                                      Margin="4"
+                                      Checked="ASROption_Checked"
+                                      Unchecked="ASROption_Unchecked"/>
+                        </StackPanel>
+                    </Expander.Content>
+                </Expander>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Action Buttons -->
+        <Grid Grid.Row="2" Margin="0,20,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+           
+            <Button Grid.Column="2"
+                       x:Name="BtnApplyHardening"
+                       Content="Apply Selected Hardening"
+                       Style="{StaticResource AccentButtonStyle}"
+                       Padding="20,10"
+                       Click="BtnApplyHardening_Click"/>
+        </Grid>
+    </Grid>
+</Page>

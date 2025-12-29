@@ -1,0 +1,585 @@
+﻿<Page x:Class="SecVers_Debloat.UI.Pages.DefenderPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:SecVers_Debloat.UI.Pages" 
+      xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern"
+      xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="DefenderPage">
+    <Grid>
+           <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="32" MaxWidth="1200">
+
+            <!-- Header -->
+            <StackPanel Margin="0,0,0,24">
+                <TextBlock 
+                    Text="Windows Defender Configuration" 
+                    FontSize="28" 
+                    FontWeight="SemiBold"
+                    Margin="0,0,0,8"/>
+                <TextBlock 
+                    Text="Configure Windows Defender settings and exclusions" 
+                    FontSize="14"
+                    Opacity="0.7"/>
+            </StackPanel>
+
+            <!-- Warning Banner -->
+            <Border 
+                Background="#FFF4CE"
+                BorderBrush="#FFE69A"
+                BorderThickness="1"
+                CornerRadius="4"
+                Padding="16"
+                Margin="0,0,0,24">
+                <StackPanel Orientation="Horizontal">
+                    <ui:FontIcon 
+                        Icon="{x:Static ui:SegoeFluentIcons.Warning}" 
+                        FontSize="20" 
+                        Foreground="#8A6D3B"
+                        Margin="0,0,12,0"
+                        VerticalAlignment="Top"/>
+                    <TextBlock 
+                        TextWrapping="Wrap" 
+                        Foreground="#8A6D3B"
+                        LineHeight="20">
+                        <Bold>Warning:</Bold> Disabling Windows Defender features may reduce your system's security. <LineBreak/>
+                        Only disable features if you understand the implications and have alternative security measures in place.
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <!-- Quick Presets -->
+            <Border 
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="24"
+                Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock 
+                        Text="⚡ Quick Presets" 
+                        FontSize="20" 
+                        FontWeight="SemiBold"
+                        Margin="0,0,0,16"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button 
+                            Grid.Column="0"
+                            Height="80"
+                            Margin="0,0,8,0"
+                            Click="BtnPresetDefault_Click"
+                            VerticalContentAlignment="Stretch">
+                            <StackPanel VerticalAlignment="Center">
+                                <ui:FontIcon Icon="{x:Static ui:SegoeFluentIcons.Shield}" FontSize="24" Margin="0,0,0,8"/>
+                                <TextBlock Text="Default" FontWeight="SemiBold" FontSize="14" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Recommended Settings" FontSize="11" Opacity="0.7" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button 
+                            Grid.Column="1"
+                            Height="80"
+                            Margin="4,0,4,0"
+                            Click="BtnPresetGaming_Click"
+                            VerticalContentAlignment="Stretch">
+                            <StackPanel VerticalAlignment="Center">
+                                <ui:FontIcon Icon="{x:Static ui:SegoeFluentIcons.Game}" FontSize="24" Margin="0,0,0,8"/>
+                                <TextBlock Text="Gaming" FontWeight="SemiBold" FontSize="14" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Optimized for Gaming" FontSize="11" Opacity="0.7" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button 
+                            Grid.Column="2"
+                            Height="80"
+                            Margin="8,0,0,0"
+                            Click="BtnPresetDisabled_Click"
+                            VerticalContentAlignment="Stretch">
+                            <StackPanel VerticalAlignment="Center">
+                                <ui:FontIcon Icon="{x:Static ui:SegoeFluentIcons.BlockContact}" FontSize="24" Margin="0,0,0,8"/>
+                                <TextBlock Text="Minimal" FontWeight="SemiBold" FontSize="14" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Maximum Performance" FontSize="11" Opacity="0.7" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Real-Time Protection -->
+            <Border 
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="24"
+                Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock 
+                        Text="🛡️ Real-Time Protection" 
+                        FontSize="20" 
+                        FontWeight="SemiBold"
+                        Margin="0,0,0,16"/>
+
+                    <!-- Real-Time Protection Toggle -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Real-Time Protection" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBlock Text="Continuously monitors and protects your device from threats" FontSize="12" Opacity="0.7"/>
+                        </StackPanel>
+                        <ui:ToggleSwitch x:Name="ToggleRealTimeProtection" Grid.Column="1" VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- Behavior Monitoring -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Behavior Monitoring" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBlock Text="Monitors program behavior for suspicious activities" FontSize="12" Opacity="0.7"/>
+                        </StackPanel>
+                        <ui:ToggleSwitch x:Name="ToggleBehaviorMonitoring" Grid.Column="1" VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- On Access Protection -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="On Access Protection" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBlock Text="Scans files when accessed" FontSize="12" Opacity="0.7"/>
+                        </StackPanel>
+                        <ui:ToggleSwitch x:Name="ToggleOnAccessProtection" Grid.Column="1" VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- Scan Scripts -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Script Scanning" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBlock Text="Scans scripts (PowerShell, VBS, etc.) for threats" FontSize="12" Opacity="0.7"/>
+                        </StackPanel>
+                        <ui:ToggleSwitch x:Name="ToggleScriptScanning" Grid.Column="1" VerticalAlignment="Center"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Cloud-Based Protection -->
+            <Border 
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="24"
+                Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock 
+                        Text="☁️ Cloud-Based Protection" 
+                        FontSize="20" 
+                        FontWeight="SemiBold"
+                        Margin="0,0,0,16"/>
+
+                    <!-- Cloud Protection -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Cloud-Delivered Protection" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBlock Text="Uses Microsoft cloud services for enhanced protection" FontSize="12" Opacity="0.7"/>
+                        </StackPanel>
+                        <ui:ToggleSwitch x:Name="ToggleCloudProtection" Grid.Column="1" VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- Automatic Sample Submission -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Automatic Sample Submission" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBlock Text="Automatically sends suspicious files to Microsoft for analysis" FontSize="12" Opacity="0.7"/>
+                        </StackPanel>
+                        <ui:ToggleSwitch x:Name="ToggleAutomaticSampleSubmission" Grid.Column="1" VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- Cloud Block Level -->
+                    <StackPanel>
+                        <TextBlock Text="Cloud Block Level" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                        <ComboBox x:Name="ComboCloudBlockLevel" SelectedIndex="0">
+                            <ComboBoxItem Content="Default"/>
+                            <ComboBoxItem Content="Moderate"/>
+                            <ComboBoxItem Content="High"/>
+                            <ComboBoxItem Content="High+"/>
+                            <ComboBoxItem Content="Zero Tolerance"/>
+                        </ComboBox>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Scanning Options -->
+            <Border 
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="24"
+                Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock 
+                        Text="🔍 Scanning Options" 
+                        FontSize="20" 
+                        FontWeight="SemiBold"
+                        Margin="0,0,0,16"/>
+
+                    <!-- Archive Scanning -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Scan Archive Files" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBlock Text="Scans .zip, .rar, and other archive files" FontSize="12" Opacity="0.7"/>
+                        </StackPanel>
+                        <ui:ToggleSwitch x:Name="ToggleArchiveScanning" Grid.Column="1" VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- Email Scanning -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Scan Email" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBlock Text="Scans email messages and attachments" FontSize="12" Opacity="0.7"/>
+                        </StackPanel>
+                        <ui:ToggleSwitch x:Name="ToggleEmailScanning" Grid.Column="1" VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- Removable Drives -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Scan Removable Drives" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBlock Text="Automatically scans USB drives and external storage" FontSize="12" Opacity="0.7"/>
+                        </StackPanel>
+                        <ui:ToggleSwitch x:Name="ToggleRemovableDriveScanning" Grid.Column="1" VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- Network Files -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Scan Network Files" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBlock Text="Scans files on network drives" FontSize="12" Opacity="0.7"/>
+                        </StackPanel>
+                        <ui:ToggleSwitch x:Name="ToggleNetworkScanning" Grid.Column="1" VerticalAlignment="Center"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Additional Protection Features -->
+            <Border 
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="24"
+                Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock 
+                        Text="🔒 Additional Protection" 
+                        FontSize="20" 
+                        FontWeight="SemiBold"
+                        Margin="0,0,0,16"/>
+
+                    <!-- Controlled Folder Access -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Controlled Folder Access" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBlock Text="Protects important folders from ransomware" FontSize="12" Opacity="0.7"/>
+                        </StackPanel>
+                        <ui:ToggleSwitch x:Name="ToggleControlledFolderAccess" Grid.Column="1" VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- PUA Protection -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Potentially Unwanted Application (PUA) Protection" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBlock Text="Blocks potentially unwanted applications" FontSize="12" Opacity="0.7"/>
+                        </StackPanel>
+                        <ui:ToggleSwitch x:Name="TogglePUAProtection" Grid.Column="1" VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- Network Protection -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Network Protection" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBlock Text="Blocks connections to malicious websites" FontSize="12" Opacity="0.7"/>
+                        </StackPanel>
+                        <ui:ToggleSwitch x:Name="ToggleNetworkProtection" Grid.Column="1" VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- Exploit Protection -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Exploit Protection" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBlock Text="Protects against exploit-based attacks" FontSize="12" Opacity="0.7"/>
+                        </StackPanel>
+                        <ui:ToggleSwitch x:Name="ToggleExploitProtection" Grid.Column="1" VerticalAlignment="Center"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Windows Security Features -->
+            <Border 
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="24"
+                Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock 
+                        Text="Windows Security Features" 
+                        FontSize="20" 
+                        FontWeight="SemiBold"
+                        Margin="0,0,0,16"/>
+
+                    <!-- SmartScreen -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="SmartScreen for Microsoft Edge" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBlock Text="Checks websites and downloads for threats" FontSize="12" Opacity="0.7"/>
+                        </StackPanel>
+                        <ui:ToggleSwitch x:Name="ToggleSmartScreen" Grid.Column="1" VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- SmartScreen Apps -->
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="SmartScreen for Apps and Files" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBlock Text="Checks unrecognized apps and files" FontSize="12" Opacity="0.7"/>
+                        </StackPanel>
+                        <ui:ToggleSwitch x:Name="ToggleSmartScreenApps" Grid.Column="1" VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- Tamper Protection -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Tamper Protection" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                            <TextBlock Text="Prevents malware from changing security settings" FontSize="12" Opacity="0.7"/>
+                        </StackPanel>
+                        <ui:ToggleSwitch x:Name="ToggleTamperProtection" Grid.Column="1" VerticalAlignment="Center"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Exclusions Management -->
+            <Border 
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="24"
+                Margin="0,0,0,16">
+                <StackPanel>
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock 
+                            Grid.Column="0"
+                            Text="📂 Exclusions" 
+                            FontSize="20" 
+                            FontWeight="SemiBold"
+                            VerticalAlignment="Center"/>
+                        <Button 
+                            Grid.Column="1"
+                            Content="Open Windows Security"
+                            Click="BtnOpenWindowsSecurity_Click"
+                            Height="32"/>
+                    </Grid>
+
+                    <!-- Exclusion Types Tabs -->
+                    <TabControl x:Name="TabExclusions" Height="400" Margin="0,0,0,16">
+                        
+                        <!-- Files/Folders Tab -->
+                        <TabItem Header="Files &amp; Folders">
+                            <Grid Margin="16">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+                                    <Button Content="Add File" Click="BtnAddFileExclusion_Click" Margin="0,0,8,0" Width="100"/>
+                                    <Button Content="Add Folder" Click="BtnAddFolderExclusion_Click" Width="100"/>
+                                </StackPanel>
+
+                                <ListBox x:Name="ListFileExclusions" Grid.Row="1" Margin="0,0,0,12">
+                                    <!-- Dynamically populated -->
+                                </ListBox>
+
+                                <Button 
+                                    Grid.Row="2" 
+                                    Content="Remove Selected" 
+                                    Click="BtnRemoveFileExclusion_Click"
+                                    HorizontalAlignment="Right"
+                                    Width="150"/>
+                            </Grid>
+                        </TabItem>
+
+                        <!-- File Types Tab -->
+                        <TabItem Header="File Types">
+                            <Grid Margin="16">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+                                    <TextBox x:Name="TxtFileExtension" Width="200" Margin="0,0,8,0" ui:ControlHelper.PlaceholderText=".exe"/>
+                                    <Button Content="Add Extension" Click="BtnAddExtensionExclusion_Click" Width="120"/>
+                                </StackPanel>
+
+                                <ListBox x:Name="ListExtensionExclusions" Grid.Row="1" Margin="0,0,0,12">
+                                    <!-- Dynamically populated -->
+                                </ListBox>
+
+                                <Button 
+                                    Grid.Row="2" 
+                                    Content="Remove Selected" 
+                                    Click="BtnRemoveExtensionExclusion_Click"
+                                    HorizontalAlignment="Right"
+                                    Width="150"/>
+                            </Grid>
+                        </TabItem>
+
+                        <!-- Processes Tab -->
+                        <TabItem Header="Processes">
+                            <Grid Margin="16">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+                                    <TextBox x:Name="TxtProcessName" Width="200" Margin="0,0,8,0" ui:ControlHelper.PlaceholderText="process.exe"/>
+                                    <Button Content="Add Process" Click="BtnAddProcessExclusion_Click" Width="120"/>
+                                </StackPanel>
+
+                                <ListBox x:Name="ListProcessExclusions" Grid.Row="1" Margin="0,0,0,12">
+                                    <!-- Dynamically populated -->
+                                </ListBox>
+
+                                <Button 
+                                    Grid.Row="2" 
+                                    Content="Remove Selected" 
+                                    Click="BtnRemoveProcessExclusion_Click"
+                                    HorizontalAlignment="Right"
+                                    Width="150"/>
+                            </Grid>
+                        </TabItem>
+
+                    </TabControl>
+
+                    <TextBlock 
+                        Text="Note: Exclusions allow you to specify files, folders, file types, or processes that Windows Defender should not scan." 
+                        TextWrapping="Wrap"
+                        FontSize="12"
+                        Opacity="0.7"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Action Buttons -->
+            <Grid Margin="0,8,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Button 
+                    Grid.Column="1"
+                    Content="Refresh Status"
+                    Width="150"
+                    Height="40"
+                    Margin="0,0,8,0"
+                    Click="BtnRefresh_Click"/>
+
+                <Button 
+                    Grid.Column="2"
+                    Content="Apply Settings"
+                    Width="150"
+                    Height="40"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Click="BtnApply_Click"/>
+            </Grid>
+
+        </StackPanel>
+    </ScrollViewer>
+    </Grid>
+</Page>

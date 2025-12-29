@@ -1,0 +1,162 @@
+﻿<Page x:Class="SecVers_Debloat.UI.Pages.DebloatPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:SecVers_Debloat.UI.Pages"
+      xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern"
+      xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
+      mc:Ignorable="d" 
+      d:DesignHeight="550" d:DesignWidth="680"
+      Title="Debloat">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Category Selection with Pivot TabControl -->
+        <TabControl Grid.Row="1" 
+                    x:Name="CategoryTabControl"
+                    Style="{StaticResource TabControlPivotStyle}"
+                    Margin="0,0,0,16"
+                    SelectionChanged="CategoryTabControl_SelectionChanged">
+
+            <TabItem x:Name="TabUWPApps" Header="UWP Apps">
+                <TextBlock Text="Loading UWP Apps..." 
+                           FontStyle="Italic" 
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+            </TabItem>
+
+            <TabItem x:Name="TabWinFeatures" Header="Win Features">
+                <TextBlock Text="Loading Windows Features..." 
+                           FontStyle="Italic" 
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+            </TabItem>
+
+            <TabItem x:Name="TabServices" Header="Services">
+                <TextBlock Text="Loading Services..." 
+                           FontStyle="Italic" 
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+            </TabItem>
+
+            <TabItem x:Name="TabTelemetry" Header="Telemetry">
+                <TextBlock Text="Loading Telemetry..." 
+                           FontStyle="Italic" 
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+            </TabItem>
+
+            <TabItem x:Name="TabOneDrive" Header="OneDrive">
+                <TextBlock Text="Loading OneDrive..." 
+                           FontStyle="Italic" 
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+            </TabItem>
+
+            <TabItem x:Name="TabEdge" Header="Edge">
+                <TextBlock Text="Loading Edge..." 
+                           FontStyle="Italic" 
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+            </TabItem>
+
+            <TabItem x:Name="TabContextMenu" Header="Context Menu">
+                <TextBlock Text="Loading Context Menu..." 
+                           FontStyle="Italic" 
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+            </TabItem>
+
+            <TabItem x:Name="TabStartup" Header="Startup">
+                <TextBlock Text="Loading Startup..." 
+                           FontStyle="Italic" 
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+            </TabItem>
+
+            <TabItem x:Name="TabUpdates" Header="Updates">
+                <TextBlock Text="Loading Updates..." 
+                           FontStyle="Italic" 
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+            </TabItem>
+        </TabControl>
+
+        <!-- Search Box -->
+        <ui:AutoSuggestBox Grid.Row="2" 
+                           x:Name="SearchBox"
+                           PlaceholderText="Search items in current category..."
+                           QueryIcon="Find"
+                           Margin="0,0,0,12"
+                           TextChanged="SearchBox_TextChanged"/>
+
+        <!-- Items List with Select All -->
+        <Border Grid.Row="3" 
+                BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="4"
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Select All Header -->
+                <Border Grid.Row="0" 
+                        Background="{DynamicResource CardBackgroundFillColorSecondaryBrush}"
+                        Padding="12,8"
+                        BorderBrush="{DynamicResource DividerStrokeColorDefaultBrush}"
+                        BorderThickness="0,0,0,1">
+                    <CheckBox x:Name="SelectAllCheckBox"
+                              Content="Select All"
+                              IsThreeState="True"
+                              FontWeight="SemiBold"
+                              Checked="SelectAll_Checked"
+                              Unchecked="SelectAll_Unchecked"
+                              Indeterminate="SelectAll_Indeterminate"/>
+                </Border>
+
+                <!-- Scrollable Items List -->
+                <ScrollViewer Grid.Row="1" 
+                              VerticalScrollBarVisibility="Auto"
+                              Padding="8">
+                    <StackPanel x:Name="ItemsPanel">
+                        <TextBlock Text="Select a category to view items" 
+                                   FontStyle="Italic"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                   Margin="12"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <!-- Progress Bar -->
+        <StackPanel Grid.Row="4" Margin="0,16,0,0" Visibility="Collapsed" x:Name="ProgressPanel">
+            <ui:ProgressBar x:Name="ProgressBar" 
+                            Height="4"
+                            Margin="0,0,0,8"/>
+            <TextBlock x:Name="ProgressText" 
+                       Text="Processing..." 
+                       FontSize="12"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                       HorizontalAlignment="Center"/>
+        </StackPanel>
+
+        <!-- Action Buttons -->
+        <StackPanel Grid.Row="5" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Right"
+                    Margin="0,16,0,0">
+            <Button Content="View Script" 
+                       x:Name="BtnViewScript"
+                       Style="{StaticResource DefaultButtonStyle}"
+                       Margin="0,0,8,0"
+                       Click="ViewScript_Click"/>
+            <Button Content="Execute Selected" 
+                       x:Name="BtnExecute"
+                       Style="{StaticResource AccentButtonStyle}"
+                       Click="Execute_Click"/>
+        </StackPanel>
+    </Grid>
+</Page>

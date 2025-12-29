@@ -1,0 +1,598 @@
+﻿<Page x:Class="SecVers_Debloat.UI.Pages.RegistryTweaksPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern"
+      xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
+      mc:Ignorable="d" 
+      d:DesignHeight="550" d:DesignWidth="680"
+      Title="Registry Tweaks"
+      Loaded="Page_Loaded">
+
+    <Page.Resources>
+        <!-- Category Header Style -->
+        <Style x:Key="CategoryHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,12,0,8"/>
+            <Setter Property="Foreground" Value="{DynamicResource SystemAccentColor}"/>
+        </Style>
+
+        <!-- Warning Style -->
+        <Style x:Key="WarningTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="#FF5722"/>
+            <Setter Property="FontStyle" Value="Italic"/>
+            <Setter Property="Margin" Value="24,2,0,0"/>
+        </Style>
+
+        <!-- Info Style -->
+        <Style x:Key="InfoTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="#757575"/>
+            <Setter Property="Margin" Value="24,2,0,0"/>
+        </Style>
+    </Page.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,16">
+            <TextBlock Text="Registry Tweaks" 
+                       FontSize="24" 
+                       FontWeight="Bold"
+                       Margin="0,0,0,8"/>
+            <ui:InfoBar 
+                Severity="Warning"
+                IsOpen="True"
+                IsClosable="False"
+                Title="Caution Required"
+                Message="These tweaks modify system registry. Some changes require restart and may affect system stability. Use at your own risk!"/>
+        </StackPanel>
+
+        <!-- Scrollable Content -->
+        <ScrollViewer Grid.Row="1" 
+                      VerticalScrollBarVisibility="Auto"
+                      Margin="0,0,-10,0">
+            <StackPanel Margin="0,0,10,0">
+
+                <!-- ============ PERFORMANCE TWEAKS ============ -->
+                <Expander Header="Performance Tweaks" 
+                          IsExpanded="True"
+                          Margin="0,0,0,12">
+                    <StackPanel Margin="16,8,0,8">
+                        <CheckBox x:Name="ChkPerformanceAll"
+                                  Content="Select all Performance Tweaks"
+                                  FontWeight="SemiBold"
+                                  IsThreeState="True"
+                                  Checked="PerformanceAll_Checked"
+                                  Unchecked="PerformanceAll_Unchecked"
+                                  Indeterminate="PerformanceAll_Indeterminate"
+                                  Margin="0,0,0,8"/>
+
+                        <CheckBox x:Name="ChkDisableSearchIndexing"
+                                  Content="Disable Windows Search Indexing"
+                                  Margin="24,4,0,2"
+                                  Checked="Performance_Checked"
+                                  Unchecked="Performance_Unchecked"/>
+                        <TextBlock Text="Impact: High | Risk: Low | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisableSuperfetch"
+                                  Content="Disable Superfetch/SysMain"
+                                  Margin="24,8,0,2"
+                                  Checked="Performance_Checked"
+                                  Unchecked="Performance_Unchecked"/>
+                        <TextBlock Text="Impact: Medium | Risk: Low | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisableWindowsTips"
+                                  Content="Disable Windows Tips and Suggestions"
+                                  Margin="24,8,0,2"
+                                  Checked="Performance_Checked"
+                                  Unchecked="Performance_Unchecked"/>
+                        <TextBlock Text="Impact: Low | Risk: None | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisableHibernation"
+                                  Content="Disable Hibernation (frees disk space)"
+                                  Margin="24,8,0,2"
+                                  Checked="Performance_Checked"
+                                  Unchecked="Performance_Unchecked"/>
+                        <TextBlock Text="Impact: High | Risk: Low | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisableFastStartup"
+                                  Content="Disable Fast Startup"
+                                  Margin="24,8,0,2"
+                                  Checked="Performance_Checked"
+                                  Unchecked="Performance_Unchecked"/>
+                        <TextBlock Text="Impact: Medium | Risk: Low | Restart: Recommended" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisableLastAccessTime"
+                                  Content="Disable LastAccess timestamp (SSD optimization)"
+                                  Margin="24,8,0,2"
+                                  Checked="Performance_Checked"
+                                  Unchecked="Performance_Unchecked"/>
+                        <TextBlock Text="Impact: Medium | Risk: Low | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisableErrorReporting"
+                                  Content="Disable Windows Error Reporting"
+                                  Margin="24,8,0,2"
+                                  Checked="Performance_Checked"
+                                  Unchecked="Performance_Unchecked"/>
+                        <TextBlock Text="Impact: Low | Risk: None | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisableCompatAssistant"
+                                  Content="Disable Program Compatibility Assistant"
+                                  Margin="24,8,0,2"
+                                  Checked="Performance_Checked"
+                                  Unchecked="Performance_Unchecked"/>
+                        <TextBlock Text="Impact: Low | Risk: Low | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkVisualEffectsBestPerf"
+                                  Content="Set Visual Effects to Best Performance"
+                                  Margin="24,8,0,2"
+                                  Checked="Performance_Checked"
+                                  Unchecked="Performance_Unchecked"/>
+                        <TextBlock Text="Impact: High | Risk: None | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisableTransparency"
+                                  Content="Disable Transparency Effects (Acrylic)"
+                                  Margin="24,8,0,2"
+                                  Checked="Performance_Checked"
+                                  Unchecked="Performance_Unchecked"/>
+                        <TextBlock Text="Impact: Medium | Risk: None | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisableAnimations"
+                                  Content="Disable Windows Animations"
+                                  Margin="24,8,0,2"
+                                  Checked="Performance_Checked"
+                                  Unchecked="Performance_Unchecked"/>
+                        <TextBlock Text="Impact: Medium | Risk: None | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+                    </StackPanel>
+                </Expander>
+
+                <!-- ============ GAMING OPTIMIZATIONS ============ -->
+                <Expander Header="Gaming Optimizations" 
+                          IsExpanded="False"
+                          Margin="0,0,0,12">
+                    <StackPanel Margin="16,8,0,8">
+                        <CheckBox x:Name="ChkGamingAll"
+                                  Content="Select all Gaming Tweaks"
+                                  FontWeight="SemiBold"
+                                  IsThreeState="True"
+                                  Checked="GamingAll_Checked"
+                                  Unchecked="GamingAll_Unchecked"
+                                  Indeterminate="GamingAll_Indeterminate"
+                                  Margin="0,0,0,8"/>
+
+                        <CheckBox x:Name="ChkDisableGameDVR"
+                                  Content="Disable Game DVR and Game Bar"
+                                  Margin="24,4,0,2"
+                                  Checked="Gaming_Checked"
+                                  Unchecked="Gaming_Unchecked"/>
+                        <TextBlock Text="Impact: Medium | Risk: None | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkEnableGameMode"
+                                  Content="Enable Game Mode"
+                                  Margin="24,8,0,2"
+                                  Checked="Gaming_Checked"
+                                  Unchecked="Gaming_Unchecked"/>
+                        <TextBlock Text="Impact: Low | Risk: None | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkOptimizeBackgroundServices"
+                                  Content="Optimize for Background Services"
+                                  Margin="24,8,0,2"
+                                  Checked="Gaming_Checked"
+                                  Unchecked="Gaming_Unchecked"/>
+                        <TextBlock Text="Impact: Medium | Risk: None | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisableFullscreenOpt"
+                                  Content="Disable Fullscreen Optimizations"
+                                  Margin="24,8,0,2"
+                                  Checked="Gaming_Checked"
+                                  Unchecked="Gaming_Unchecked"/>
+                        <TextBlock Text="Impact: Medium | Risk: Low | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkSetHighGPUPriority"
+                                  Content="Set High GPU Priority for Games"
+                                  Margin="24,8,0,2"
+                                  Checked="Gaming_Checked"
+                                  Unchecked="Gaming_Unchecked"/>
+                        <TextBlock Text="Impact: Medium | Risk: Low | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkOptimizeNetworkLatency"
+                                  Content="Optimize Network for Low Latency"
+                                  Margin="24,8,0,2"
+                                  Checked="Gaming_Checked"
+                                  Unchecked="Gaming_Unchecked"/>
+                        <TextBlock Text="Impact: High | Risk: Low | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisableNaglesAlgorithm"
+                                  Content="Disable Nagle's Algorithm"
+                                  Margin="24,8,0,2"
+                                  Checked="Gaming_Checked"
+                                  Unchecked="Gaming_Unchecked"/>
+                        <TextBlock Text="Impact: Medium | Risk: Low | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+                    </StackPanel>
+                </Expander>
+
+                <!-- ============ PRIVACY TWEAKS ============ -->
+                <Expander Header="Privacy Tweaks" 
+                          IsExpanded="False"
+                          Margin="0,0,0,12">
+                    <StackPanel Margin="16,8,0,8">
+                        <CheckBox x:Name="ChkPrivacyAll"
+                                  Content="Select all Privacy Tweaks"
+                                  FontWeight="SemiBold"
+                                  IsThreeState="True"
+                                  Checked="PrivacyAll_Checked"
+                                  Unchecked="PrivacyAll_Unchecked"
+                                  Indeterminate="PrivacyAll_Indeterminate"
+                                  Margin="0,0,0,8"/>
+
+                        <CheckBox x:Name="ChkDisableTelemetry"
+                                  Content="Disable Telemetry"
+                                  Margin="24,4,0,2"
+                                  Checked="Privacy_Checked"
+                                  Unchecked="Privacy_Unchecked"/>
+                        <TextBlock Text="Impact: Low | Risk: None | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisableActivityHistory"
+                                  Content="Disable Activity History"
+                                  Margin="24,8,0,2"
+                                  Checked="Privacy_Checked"
+                                  Unchecked="Privacy_Unchecked"/>
+                        <TextBlock Text="Impact: Low | Risk: None | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisableAdvertisingID"
+                                  Content="Disable Advertising ID"
+                                  Margin="24,8,0,2"
+                                  Checked="Privacy_Checked"
+                                  Unchecked="Privacy_Unchecked"/>
+                        <TextBlock Text="Impact: Low | Risk: None | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisableLocationTracking"
+                                  Content="Disable Location Tracking"
+                                  Margin="24,8,0,2"
+                                  Checked="Privacy_Checked"
+                                  Unchecked="Privacy_Unchecked"/>
+                        <TextBlock Text="Impact: Low | Risk: Low | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisableFeedback"
+                                  Content="Disable Feedback Requests"
+                                  Margin="24,8,0,2"
+                                  Checked="Privacy_Checked"
+                                  Unchecked="Privacy_Unchecked"/>
+                        <TextBlock Text="Impact: Low | Risk: None | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisableCortana"
+                                  Content="Disable Cortana"
+                                  Margin="24,8,0,2"
+                                  Checked="Privacy_Checked"
+                                  Unchecked="Privacy_Unchecked"/>
+                        <TextBlock Text="Impact: Low | Risk: Low | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisableWebSearchInStart"
+                                  Content="Disable Web Search in Start Menu"
+                                  Margin="24,8,0,2"
+                                  Checked="Privacy_Checked"
+                                  Unchecked="Privacy_Unchecked"/>
+                        <TextBlock Text="Impact: Low | Risk: None | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+                    </StackPanel>
+                </Expander>
+
+                <!-- ============ WINDOWS 11 SPECIFIC ============ -->
+                <Expander Header="Windows 11 Specific" 
+                          IsExpanded="False"
+                          Margin="0,0,0,12">
+                    <StackPanel Margin="16,8,0,8">
+                        <CheckBox x:Name="ChkWin11All"
+                                  Content="Select all Windows 11 Tweaks"
+                                  FontWeight="SemiBold"
+                                  IsThreeState="True"
+                                  Checked="Win11All_Checked"
+                                  Unchecked="Win11All_Unchecked"
+                                  Indeterminate="Win11All_Indeterminate"
+                                  Margin="0,0,0,8"/>
+
+                        <CheckBox x:Name="ChkRestoreOldContextMenu"
+                                  Content="Restore Windows 10 Context Menu"
+                                  Margin="24,4,0,2"
+                                  Checked="Win11_Checked"
+                                  Unchecked="Win11_Unchecked"/>
+                        <TextBlock Text="Impact: Low | Risk: None | Restart: Explorer" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisableWidgets"
+                                  Content="Disable Widgets"
+                                  Margin="24,8,0,2"
+                                  Checked="Win11_Checked"
+                                  Unchecked="Win11_Unchecked"/>
+                        <TextBlock Text="Impact: Low | Risk: None | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisableChatIcon"
+                                  Content="Disable Chat Icon on Taskbar"
+                                  Margin="24,8,0,2"
+                                  Checked="Win11_Checked"
+                                  Unchecked="Win11_Unchecked"/>
+                        <TextBlock Text="Impact: Low | Risk: None | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkAlignTaskbarLeft"
+                                  Content="Align Taskbar Icons to Left"
+                                  Margin="24,8,0,2"
+                                  Checked="Win11_Checked"
+                                  Unchecked="Win11_Unchecked"/>
+                        <TextBlock Text="Impact: None | Risk: None | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisableSnapAssist"
+                                  Content="Disable Snap Assist Flyout"
+                                  Margin="24,8,0,2"
+                                  Checked="Win11_Checked"
+                                  Unchecked="Win11_Unchecked"/>
+                        <TextBlock Text="Impact: Low | Risk: None | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkShowFileExtensions"
+                                  Content="Show File Extensions"
+                                  Margin="24,8,0,2"
+                                  Checked="Win11_Checked"
+                                  Unchecked="Win11_Unchecked"/>
+                        <TextBlock Text="Impact: None | Risk: None | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkShowHiddenFiles"
+                                  Content="Show Hidden Files"
+                                  Margin="24,8,0,2"
+                                  Checked="Win11_Checked"
+                                  Unchecked="Win11_Unchecked"/>
+                        <TextBlock Text="Impact: None | Risk: None | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+                    </StackPanel>
+                </Expander>
+
+                <!-- ============ POWER & CPU ============ -->
+                <Expander Header="Power and CPU Tweaks" 
+                          IsExpanded="False"
+                          Margin="0,0,0,12">
+                    <StackPanel Margin="16,8,0,8">
+                        <CheckBox x:Name="ChkPowerAll"
+                                  Content="Select all Power Tweaks"
+                                  FontWeight="SemiBold"
+                                  IsThreeState="True"
+                                  Checked="PowerAll_Checked"
+                                  Unchecked="PowerAll_Unchecked"
+                                  Indeterminate="PowerAll_Indeterminate"
+                                  Margin="0,0,0,8"/>
+
+                        <CheckBox x:Name="ChkDisableUSBSelectiveSuspend"
+                                  Content="Disable USB Selective Suspend"
+                                  Margin="24,4,0,2"
+                                  Checked="Power_Checked"
+                                  Unchecked="Power_Unchecked"/>
+                        <TextBlock Text="Impact: Low | Risk: None | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkEnableUltimatePerf"
+                                  Content="Enable Ultimate Performance Plan"
+                                  Margin="24,8,0,2"
+                                  Checked="Power_Checked"
+                                  Unchecked="Power_Unchecked"/>
+                        <TextBlock Text="Impact: High | Risk: None | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisableCPUParking"
+                                  Content="Disable CPU Parking (all cores active)"
+                                  Margin="24,8,0,2"
+                                  Checked="Power_Checked"
+                                  Unchecked="Power_Unchecked"/>
+                        <TextBlock Text="Impact: High | Risk: None | Restart: Recommended" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkSetCPUMaxPerf"
+                                  Content="Set CPU to Maximum Performance"
+                                  Margin="24,8,0,2"
+                                  Checked="Power_Checked"
+                                  Unchecked="Power_Unchecked"/>
+                        <TextBlock Text="Impact: Very High | Risk: Medium (Heat) | Restart: No" 
+                                   Style="{StaticResource WarningTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisablePCIExpressPM"
+                                  Content="Disable PCI Express Power Management"
+                                  Margin="24,8,0,2"
+                                  Checked="Power_Checked"
+                                  Unchecked="Power_Unchecked"/>
+                        <TextBlock Text="Impact: Medium | Risk: Low | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+                    </StackPanel>
+                </Expander>
+
+                <!-- ============ DISK PERFORMANCE ============ -->
+                <Expander Header="Disk Performance" 
+                          IsExpanded="False"
+                          Margin="0,0,0,12">
+                    <StackPanel Margin="16,8,0,8">
+                        <CheckBox x:Name="ChkDiskAll"
+                                  Content="Select all Disk Tweaks"
+                                  FontWeight="SemiBold"
+                                  IsThreeState="True"
+                                  Checked="DiskAll_Checked"
+                                  Unchecked="DiskAll_Unchecked"
+                                  Indeterminate="DiskAll_Indeterminate"
+                                  Margin="0,0,0,8"/>
+
+                        <CheckBox x:Name="ChkDisableWriteCacheFlush"
+                                  Content="Disable Write-Cache Buffer Flushing"
+                                  Margin="24,4,0,2"
+                                  Checked="Disk_Checked"
+                                  Unchecked="Disk_Unchecked"/>
+                        <TextBlock Text="Impact: High | Risk: MEDIUM | Restart: No" 
+                                   Style="{StaticResource WarningTextStyle}"/>
+                        <TextBlock Text="WARNING: Risk of data loss during power failure" 
+                                   Style="{StaticResource WarningTextStyle}"/>
+
+                        <CheckBox x:Name="ChkOptimizeNTFSForSSD"
+                                  Content="Optimize NTFS for SSDs"
+                                  Margin="24,8,0,2"
+                                  Checked="Disk_Checked"
+                                  Unchecked="Disk_Unchecked"/>
+                        <TextBlock Text="Impact: Medium | Risk: Low | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisableAutoDefrag"
+                                  Content="Disable Automatic Defragmentation"
+                                  Margin="24,8,0,2"
+                                  Checked="Disk_Checked"
+                                  Unchecked="Disk_Unchecked"/>
+                        <TextBlock Text="Impact: Low | Risk: None | Restart: No" 
+                                   Style="{StaticResource InfoTextStyle}"/>
+                    </StackPanel>
+                </Expander>
+
+                <!-- ============ EXPERIMENTAL (DANGER ZONE) ============ -->
+                <Expander Header="⚠️ EXPERIMENTAL TWEAKS (USE WITH EXTREME CAUTION!)" 
+                          IsExpanded="False"
+                          Margin="0,0,0,12"
+                          BorderBrush="#FF5722"
+                          BorderThickness="2">
+                    <StackPanel Margin="16,8,0,8">
+                        <ui:InfoBar 
+                            Severity="Error"
+                            IsOpen="True"
+                            IsClosable="False"
+                            Title="DANGER ZONE"
+                            Message="These tweaks can cause system instability, crashes, or security vulnerabilities. Only use if you know what you're doing!"
+                            Margin="0,0,0,12"/>
+
+                        <CheckBox x:Name="ChkExperimentalAll"
+                                  Content="Select all Experimental Tweaks"
+                                  FontWeight="SemiBold"
+                                  IsThreeState="True"
+                                  Checked="ExperimentalAll_Checked"
+                                  Unchecked="ExperimentalAll_Unchecked"
+                                  Indeterminate="ExperimentalAll_Indeterminate"
+                                  Foreground="#FF5722"
+                                  Margin="0,0,0,8"/>
+
+                        <CheckBox x:Name="ChkDisableMemoryCompression"
+                                  Content="Disable Memory Compression"
+                                  Margin="24,4,0,2"
+                                  Checked="Experimental_Checked"
+                                  Unchecked="Experimental_Unchecked"/>
+                        <TextBlock Text="Impact: Very High | Risk: HIGH | Restart: Yes" 
+                                   Style="{StaticResource WarningTextStyle}"/>
+                        <TextBlock Text="May cause instability on low RAM systems!" 
+                                   Style="{StaticResource WarningTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisablePagingExecutive"
+                                  Content="Disable Paging Executive"
+                                  Margin="24,8,0,2"
+                                  Checked="Experimental_Checked"
+                                  Unchecked="Experimental_Unchecked"/>
+                        <TextBlock Text="Impact: Very High | Risk: HIGH | Restart: Yes" 
+                                   Style="{StaticResource WarningTextStyle}"/>
+                        <TextBlock Text="Requires 16GB+ RAM" 
+                                   Style="{StaticResource WarningTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisableSpectreMeltdown"
+                                  Content="Disable Spectre/Meltdown Mitigations"
+                                  Margin="24,8,0,2"
+                                  Checked="Experimental_Checked"
+                                  Unchecked="Experimental_Unchecked"/>
+                        <TextBlock Text="Impact: Very High | Risk: CRITICAL | Restart: Yes" 
+                                   Style="{StaticResource WarningTextStyle}"/>
+                        <TextBlock Text="REMOVES SECURITY PROTECTIONS! Only for isolated systems!" 
+                                   Style="{StaticResource WarningTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisablePrefetcherCompletely"
+                                  Content="Disable Prefetcher and Superfetch Completely"
+                                  Margin="24,8,0,2"
+                                  Checked="Experimental_Checked"
+                                  Unchecked="Experimental_Unchecked"/>
+                        <TextBlock Text="Impact: High | Risk: MEDIUM | Restart: Yes" 
+                                   Style="{StaticResource WarningTextStyle}"/>
+                        <TextBlock Text="Can slow down application launches" 
+                                   Style="{StaticResource WarningTextStyle}"/>
+
+                        <CheckBox x:Name="ChkDisableCStates"
+                                  Content="Disable CPU C-States (CPU never sleeps)"
+                                  Margin="24,8,0,2"
+                                  Checked="Experimental_Checked"
+                                  Unchecked="Experimental_Unchecked"/>
+                        <TextBlock Text="Impact: Extreme | Risk: MEDIUM | Restart: Yes" 
+                                   Style="{StaticResource WarningTextStyle}"/>
+                        <TextBlock Text="Massive power consumption, high temperatures!" 
+                                   Style="{StaticResource WarningTextStyle}"/>
+                    </StackPanel>
+                </Expander>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Bottom Action Bar -->
+        <Border Grid.Row="2" 
+                Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+                Padding="12"
+                Margin="0,12,0,0"
+                CornerRadius="4">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" 
+                           VerticalAlignment="Center"
+                           FontSize="12"
+                           Foreground="#757575">
+                    <Run Text="Selected: "/>
+                    <Run x:Name="TxtSelectedCount" Text="0" FontWeight="SemiBold"/>
+                    <Run Text=" tweaks"/>
+                </TextBlock>
+
+                <Button Grid.Column="1"
+                           Content="Show Selected Script"
+                           Margin="0,0,8,0"
+                           Click="BtnShowScript_Click"/>
+
+                <Button Grid.Column="2"
+                           Content="Apply Selected Tweaks"
+                          
+                           Style="{StaticResource AccentButtonStyle}"
+                           Click="BtnApplyTweaks_Click"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Page>
