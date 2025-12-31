@@ -37,8 +37,6 @@ namespace SecVers_Debloat.UI.Pages
         private async void DebloatPage_Loaded(object sender, RoutedEventArgs e)
         {
             await LoadAllCategoriesAsync();
-
-            // Standard: Erste Kategorie laden
             CategoryTabControl.SelectedIndex = 0;
         }
 

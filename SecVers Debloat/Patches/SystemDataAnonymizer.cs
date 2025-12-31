@@ -1,9 +1,11 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Diagnostics;
 using System.Management;
 using System.Net.NetworkInformation;
 using System.Text;
-using Microsoft.Win32;
+using System.Threading.Tasks;
+using static SecVers_Debloat.Helper.ToolDownloader;
 
 namespace SecVers_Debloat.Patches
 {
@@ -11,9 +13,6 @@ namespace SecVers_Debloat.Patches
     {
         private readonly Random _random = new Random();
 
-        // ==================== MAC ADDRESS ====================
-
-        // Randomize MAC Address for all Network Adapters
         public void RandomizeAllMACAddresses()
         {
             ExecutePowerShell(@"
@@ -24,13 +23,13 @@ namespace SecVers_Debloat.Patches
             ");
         }
 
-        // Set specific MAC Address
+
         public void SetMACAddress(string adapterName, string macAddress)
         {
             ExecutePowerShell($"Set-NetAdapter -Name '{adapterName}' -MacAddress '{macAddress}' -Confirm:$false");
         }
 
-        // Spoof MAC via Registry (alternative method)
+        // Spoof MAC via Registry
         public void SpoofMACViaRegistry(string macAddress)
         {
             string basePath = @"SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002BE10318}";
@@ -52,7 +51,6 @@ namespace SecVers_Debloat.Patches
             }
         }
 
-        // ==================== COMPUTER NAME ====================
 
         // Randomize Computer Name
         public void RandomizeComputerName()
@@ -77,7 +75,6 @@ namespace SecVers_Debloat.Patches
                 "NV Hostname", newName, RegistryValueKind.String);
         }
 
-        // ==================== MACHINE GUID ====================
 
         // Randomize Machine GUID
         public void RandomizeMachineGUID()
@@ -87,13 +84,18 @@ namespace SecVers_Debloat.Patches
                 "MachineGuid", newGuid, RegistryValueKind.String);
         }
 
-        // ==================== DISK/VOLUME SERIAL ====================
-
-        // Change Volume Serial Number (requires VolumeID.exe from Sysinternals)
-        public void ChangeVolumeSerial(string drive, string newSerial)
+        public async void ChangeVolumeSerial(string drive, string newSerial)
         {
-            // Note: Requires VolumeID64.exe in PATH or specify full path
-            ExecuteCommand("volumeid64.exe", $"{drive}: {newSerial}");
+            try
+            {
+                string exePath = await VolumeIdHelper.EnsureVolumeIdExistsAsync();
+
+                string arguments = $"/accepteula {drive}: {newSerial}";
+                ExecuteCommand(exePath, arguments);
+            }
+            catch
+            {
+            }
         }
 
         // Randomize Volume Serial
@@ -103,7 +105,6 @@ namespace SecVers_Debloat.Patches
             ChangeVolumeSerial(drive, randomSerial);
         }
 
-        // ==================== HARDWARE IDs (SMBIOS/WMI) ====================
 
         // Spoof System Serial Number (BIOS)
         public void SpoofSystemSerialNumber(string newSerial)
@@ -149,7 +150,6 @@ namespace SecVers_Debloat.Patches
                 "SystemManufacturer", newManufacturer, RegistryValueKind.String);
         }
 
-        // ==================== DISK/HDD SERIAL ====================
         // This attempts registry-level changes
 
         public void SpoofDiskSerial(string newSerial)
@@ -158,7 +158,6 @@ namespace SecVers_Debloat.Patches
                 "SerialNumber", newSerial, RegistryValueKind.String);
         }
 
-        // ==================== GPU SERIAL/ID ====================
 
         public void SpoofGPUDeviceID(string newDeviceID)
         {
@@ -166,7 +165,7 @@ namespace SecVers_Debloat.Patches
             SetRegistryValue(gpuPath, "HardwareInformation.AdapterString", newDeviceID, RegistryValueKind.String);
         }
 
-        // ==================== INSTALLATION ID ====================
+
 
         public void RandomizeInstallationID()
         {
@@ -175,7 +174,6 @@ namespace SecVers_Debloat.Patches
                 "InstallationID", newInstallID, RegistryValueKind.String);
         }
 
-        // ==================== PRODUCT ID ====================
 
         public void SpoofProductID(string newProductID)
         {
@@ -189,7 +187,6 @@ namespace SecVers_Debloat.Patches
             SpoofProductID(newProductID);
         }
 
-        // ==================== WINDOWS INSTALLATION DATE ====================
 
         public void RandomizeInstallDate()
         {
@@ -201,8 +198,6 @@ namespace SecVers_Debloat.Patches
                 "InstallDate", unixTimestamp, RegistryValueKind.DWord);
         }
 
-        // ==================== SYSTEM BUILD INFO ====================
-
         public void SpoofBuildLab(string newBuildLab)
         {
             SetRegistryValue(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion",
@@ -211,7 +206,6 @@ namespace SecVers_Debloat.Patches
                 "BuildLabEx", newBuildLab, RegistryValueKind.String);
         }
 
-        // ==================== USER/OWNER INFO ====================
 
         public void RandomizeRegisteredOwner()
         {
@@ -226,8 +220,6 @@ namespace SecVers_Debloat.Patches
             SetRegistryValue(@"SOFTWARE\Microsoft\Windows NT\CurrentVersion",
                 "RegisteredOrganization", newOrg, RegistryValueKind.String);
         }
-
-        // ==================== TRACKING IDs ====================
 
         public void DisableAndClearAdvertisingID()
         {
@@ -246,7 +238,6 @@ namespace SecVers_Debloat.Patches
                 "MachineId", "{00000000-0000-0000-0000-000000000000}", RegistryValueKind.String);
         }
 
-        // ==================== ETHERNET ADAPTER INFO ====================
 
         public void SpoofNetworkAdapterInfo()
         {
@@ -258,8 +249,6 @@ namespace SecVers_Debloat.Patches
             ");
         }
 
-        // ==================== BLUETOOTH MAC ====================
-
         public void RandomizeBluetoothMAC()
         {
             string newMAC = GenerateRandomMAC();
@@ -267,19 +256,16 @@ namespace SecVers_Debloat.Patches
                 "BluetoothAddress", newMAC, RegistryValueKind.String);
         }
 
-        // ==================== TPM CLEARING (WARNING: DANGEROUS) ====================
 
         public void ClearTPM()
         {
-            // WARNING: This will reset BitLocker and other TPM-dependent features
+        
             ExecutePowerShell("Clear-Tpm -UsPhysicalPresence");
         }
 
-        // ==================== COMPREHENSIVE ANONYMIZATION ====================
-
+       
         public void AnonymizeEverything()
         {
-            // EXTREME CAUTION: This will change EVERYTHING
             RandomizeComputerName();
             RandomizeMachineGUID();
             RandomizeBIOSSerial();
@@ -292,11 +278,9 @@ namespace SecVers_Debloat.Patches
             RandomizeAllMACAddresses();
             DisableAndClearAdvertisingID();
             ClearTelemetryID();
-
-            Debug.WriteLine("SYSTEM FULLY ANONYMIZED - RESTART REQUIRED!");
         }
 
-        // ==================== HELPER METHODS ====================
+
 
         private string GenerateRandomHex(int length)
         {
@@ -319,8 +303,8 @@ namespace SecVers_Debloat.Patches
         {
             byte[] mac = new byte[6];
             _random.NextBytes(mac);
-            mac[0] = (byte)(mac[0] & 0xFE); // Ensure unicast
-            mac[0] = (byte)(mac[0] | 0x02);  // Ensure locally administered
+            mac[0] = (byte)(mac[0] & 0xFE);
+            mac[0] = (byte)(mac[0] | 0x02);  
 
             return string.Join("-", Array.ConvertAll(mac, b => b.ToString("X2")));
         }

@@ -18,12 +18,11 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using MessageBox = iNKORE.UI.WPF.Modern.Controls.MessageBox;
 
 namespace SecVers_Debloat.UI.Pages
 {
-    /// <summary>
-    /// Interaktionslogik für AnonymizerPage.xaml
-    /// </summary>
+
     public partial class AnonymizerPage : Page
     {
         private readonly SystemDataAnonymizer _anonymizer;
@@ -34,9 +33,7 @@ namespace SecVers_Debloat.UI.Pages
             _anonymizer = new SystemDataAnonymizer();
         }
 
-        // ================= BUTTON ACTIONS =================
-
-        private void BtnApplySelected_Click(object sender, RoutedEventArgs e)
+        private async void BtnApplySelected_Click(object sender, RoutedEventArgs e)
         {
             if (MessageBox.Show("Are you sure you want to randomize the selected identifiers?\n\nThis may affect software licenses.",
                                 "Confirm Anonymization",
@@ -48,27 +45,22 @@ namespace SecVers_Debloat.UI.Pages
 
             try
             {
-                // Network
                 if (ChkRandomizeHostname.IsChecked == true) _anonymizer.RandomizeComputerName();
                 if (ChkRandomizeMAC.IsChecked == true) _anonymizer.RandomizeAllMACAddresses();
-                // if (ChkDisableIPv6.IsChecked == true) ... add logic if available in your class, or generic reg tweak
-
-                // Hardware IDs
                 if (ChkRandomizeMachineGUID.IsChecked == true) _anonymizer.RandomizeMachineGUID();
                 if (ChkRandomizeBaseboard.IsChecked == true) _anonymizer.RandomizeBaseboardSerial();
                 if (ChkSpoofProductInfo.IsChecked == true)
                 {
-                    _anonymizer.SpoofSystemProductName("System Product Name"); // Or random string
-                    _anonymizer.SpoofSystemManufacturer("System Manufacturer");
+
+                    _anonymizer.SpoofSystemProductName(GenerateRandomString(10)); 
+                    _anonymizer.SpoofSystemManufacturer(GenerateRandomString(10));
                 }
                 if (ChkRandomizeBIOS.IsChecked == true) _anonymizer.RandomizeBIOSSerial();
                 if (ChkRandomizeInstallID.IsChecked == true) _anonymizer.RandomizeInstallationID();
                 if (ChkRandomizeProductID.IsChecked == true) _anonymizer.RandomizeProductID();
-                if (ChkSpoofGPU.IsChecked == true) _anonymizer.SpoofGPUDeviceID("PCI\\VEN_10DE&DEV_1C03&SUBSYS_1C0310DE"); // Example generic ID
-
-                // Storage
+                if (ChkSpoofGPU.IsChecked == true) _anonymizer.SpoofGPUDeviceID("PCI\\VEN_10DE&DEV_1C03&SUBSYS_1C0310DE"); 
                 if (ChkSpoofDiskSerial.IsChecked == true) _anonymizer.SpoofDiskSerial("S1D5-" + Guid.NewGuid().ToString().Substring(0, 8));
-                if (ChkChangeVolumeSerial.IsChecked == true) _anonymizer.ChangeVolumeSerial("C", "1234-5678"); // Ideally implement a random hex generator here
+                if (ChkChangeVolumeSerial.IsChecked == true) new Task(() => _anonymizer.ChangeVolumeSerial("C", GenerateRandomIntString(4) + "-" + GenerateRandomIntString(4)));
 
                 // Tracking
                 if (ChkResetAdID.IsChecked == true) _anonymizer.DisableAndClearAdvertisingID();
@@ -108,12 +100,10 @@ namespace SecVers_Debloat.UI.Pages
         }
 
 
-        // Handles the "Select All" checkbox in the headers
         private void HeaderCheckBox_Click(object sender, RoutedEventArgs e)
         {
             if (sender is CheckBox headerBox)
             {
-                // Determine which group we are in based on Name or mapping
                 string tagToFind = "";
                 if (headerBox == NetworkAllCheckBox) tagToFind = "Network";
                 else if (headerBox == HwidAllCheckBox) tagToFind = "HWID";
@@ -131,8 +121,6 @@ namespace SecVers_Debloat.UI.Pages
 
         private void SetCheckboxesByTag(string tag, bool isChecked)
         {
-            // Simple visual tree traversal or just iterate over known names if list is small.
-            // For robustness, let's look at the logical children of the Expander content panels.
             var allCheckBoxes = FindVisualChildren<CheckBox>(this);
             foreach (var box in allCheckBoxes)
             {
@@ -162,5 +150,24 @@ namespace SecVers_Debloat.UI.Pages
                 }
             }
         }
+
+        // Roandom String Generator
+        private string GenerateRandomString(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        //Raodoom Int-string Generator
+        private string GenerateRandomIntString(int length)
+        {
+            const string chars = "0123456789";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
     }
 }

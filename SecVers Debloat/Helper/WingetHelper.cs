@@ -1,271 +1,141 @@
-﻿using System;
+﻿using SecVers_Debloat.Extensions;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
-using System.Linq;
 
 namespace SecVers_Debloat.Helpers
 {
     public class WingetHelper
     {
         private static readonly HttpClient _httpClient = new HttpClient();
-        private const string WingetCheckCommand = "winget --version";
         private const string AppInstallerUrl = "https://aka.ms/getwinget";
+        private readonly string _localWingetPath;
 
         public bool IsWingetAvailable { get; private set; }
 
         public WingetHelper()
         {
+            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            _localWingetPath = Path.Combine(localAppData, @"Microsoft\WindowsApps\winget.exe");
+
             IsWingetAvailable = CheckWingetAvailability();
 
+            // Versuche Installation, falls nicht vorhanden
             if (!IsWingetAvailable)
             {
-                Console.WriteLine("Winget not found. Attempting to install...");
-                InstallWingetAsync().GetAwaiter().GetResult();
-                IsWingetAvailable = CheckWingetAvailability();
-
-                if (!IsWingetAvailable)
+                try
                 {
-                    throw new Exception("Failed to install Winget. Please install manually from Microsoft Store.");
+                    Task.Run(async () => await InstallWingetAsync()).Wait();
+                    IsWingetAvailable = CheckWingetAvailability();
+                }
+                catch
+                {
+                    IsWingetAvailable = false;
                 }
             }
-
-            Console.WriteLine($"Winget is available. Version: {GetWingetVersion()}");
         }
 
         private bool CheckWingetAvailability()
         {
-            try
-            {
-                var process = new Process
-                {
-                    StartInfo = new ProcessStartInfo
-                    {
-                        FileName = "cmd.exe",
-                        Arguments = $"/c {WingetCheckCommand}",
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true,
-                        UseShellExecute = false,
-                        CreateNoWindow = true
-                    }
-                };
-
-                process.Start();
-                string output = process.StandardOutput.ReadToEnd();
-                process.WaitForExit();
-
-                return process.ExitCode == 0 && !string.IsNullOrWhiteSpace(output);
-            }
-            catch
-            {
-                return false;
-            }
+            if (File.Exists(_localWingetPath)) return true;
+            return RunCommandBoolSync("winget", "--version"); // Benutze optimierte Sync Methode
         }
 
-        private string GetWingetVersion()
+        public string GetWingetVersion()
         {
-            try
-            {
-                var process = new Process
-                {
-                    StartInfo = new ProcessStartInfo
-                    {
-                        FileName = "cmd.exe",
-                        Arguments = $"/c {WingetCheckCommand}",
-                        RedirectStandardOutput = true,
-                        UseShellExecute = false,
-                        CreateNoWindow = true
-                    }
-                };
-
-                process.Start();
-                string version = process.StandardOutput.ReadToEnd().Trim();
-                process.WaitForExit();
-
-                return version;
-            }
-            catch
-            {
-                return "Unknown";
-            }
-        }
-
-        private async Task InstallWingetAsync()
-        {
-            try
-            {
-                Console.WriteLine("Downloading Winget installer...");
-
-                string tempPath = Path.Combine(Path.GetTempPath(), "Microsoft.DesktopAppInstaller.msixbundle");
-
-                using (var response = await _httpClient.GetAsync(AppInstallerUrl))
-                {
-                    response.EnsureSuccessStatusCode();
-                    var fileBytes = await response.Content.ReadAsByteArrayAsync();
-                    await WriteAllBytesAsync(tempPath, fileBytes); // Eigene Methode für .NET Framework
-                }
-
-                Console.WriteLine("Installing Winget...");
-
-                var process = new Process
-                {
-                    StartInfo = new ProcessStartInfo
-                    {
-                        FileName = "powershell.exe",
-                        Arguments = $"-Command \"Add-AppxPackage -Path '{tempPath}'\"",
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true,
-                        UseShellExecute = false,
-                        CreateNoWindow = true,
-                        Verb = "runas"
-                    }
-                };
-
-                process.Start();
-                string output = await ReadToEndAsync(process.StandardOutput);
-                string error = await ReadToEndAsync(process.StandardError);
-                await Task.Run(() => process.WaitForExit()); // .NET Framework kompatibel
-
-                if (process.ExitCode != 0)
-                {
-                    throw new Exception($"Installation failed: {error}");
-                }
-
-                File.Delete(tempPath);
-                Console.WriteLine("Winget installed successfully.");
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Failed to install Winget: {ex.Message}", ex);
-            }
-        }
-
-        public async Task<bool> InstallPackageAsync(string packageId, bool silent = true)
-        {
-            if (!IsWingetAvailable)
-            {
-                throw new InvalidOperationException("Winget is not available.");
-            }
-
-            try
-            {
-                string arguments = silent
-                    ? $"install --id {packageId} --silent --accept-package-agreements --accept-source-agreements"
-                    : $"install --id {packageId} --accept-package-agreements --accept-source-agreements";
-
-                var process = new Process
-                {
-                    StartInfo = new ProcessStartInfo
-                    {
-                        FileName = "winget",
-                        Arguments = arguments,
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true,
-                        UseShellExecute = false,
-                        CreateNoWindow = true
-                    }
-                };
-
-                process.Start();
-                string output = await ReadToEndAsync(process.StandardOutput);
-                string error = await ReadToEndAsync(process.StandardError);
-                await Task.Run(() => process.WaitForExit());
-
-                Console.WriteLine(output);
-
-                if (process.ExitCode != 0)
-                {
-                    Console.WriteLine($"Error installing {packageId}: {error}");
-                    return false;
-                }
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Exception during installation of {packageId}: {ex.Message}");
-                return false;
-            }
+            string exe = File.Exists(_localWingetPath) ? _localWingetPath : "winget";
+            string output = RunCommandStringSync(exe, "--version"); // Benutze die String-Methode
+            return string.IsNullOrWhiteSpace(output) ? "Unknown" : output.Trim();
         }
 
         public async Task<int> InstallPackagesAsync(string[] packageIds, bool silent = true)
         {
             int successCount = 0;
-
+            // Parallele Installationen vermeiden, Winget sperrt oft die DB. Sequential ist sicherer.
             foreach (var packageId in packageIds)
             {
-                Console.WriteLine($"Installing {packageId}...");
                 bool success = await InstallPackageAsync(packageId, silent);
-
                 if (success)
                 {
                     successCount++;
-                    Console.WriteLine($"✓ {packageId} installed successfully.");
-                }
-                else
-                {
-                    Console.WriteLine($"✗ {packageId} installation failed.");
                 }
             }
-
             return successCount;
         }
 
-        public async Task<string> SearchPackagesAsync(string query)
+        public async Task<bool> InstallPackageAsync(string packageId, bool silent = true)
         {
-            if (!IsWingetAvailable)
-            {
-                throw new InvalidOperationException("Winget is not available.");
-            }
+            if (!IsWingetAvailable) return false;
 
-            var process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "winget",
-                    Arguments = $"search {query}",
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                }
-            };
+            string exe = File.Exists(_localWingetPath) ? _localWingetPath : "winget";
 
-            process.Start();
-            string output = await ReadToEndAsync(process.StandardOutput);
-            await Task.Run(() => process.WaitForExit());
+            // WICHTIG: --force und --disable-interactivity verhindern Hänger bei Lizenzfragen
+            string args = silent
+                ? $"install --id {packageId} --silent --accept-package-agreements --accept-source-agreements --force --disable-interactivity --source winget"
+                : $"install --id {packageId} --accept-package-agreements --accept-source-agreements --force --disable-interactivity --source winget";
 
-            return output;
+            return await RunCommandBoolAsync(exe, args);
         }
 
-        public async Task<bool> UninstallPackageAsync(string packageId, bool silent = true)
+        private async Task InstallWingetAsync()
         {
-            if (!IsWingetAvailable)
-            {
-                throw new InvalidOperationException("Winget is not available.");
-            }
+            string tempPath = Path.Combine(Path.GetTempPath(), "Microsoft.DesktopAppInstaller.msixbundle");
 
             try
             {
-                string arguments = silent
-                    ? $"uninstall --id {packageId} --silent"
-                    : $"uninstall --id {packageId}";
-
-                var process = new Process
+                using (var response = await _httpClient.GetAsync(AppInstallerUrl))
                 {
-                    StartInfo = new ProcessStartInfo
+                    response.EnsureSuccessStatusCode();
+                    using (var fs = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None))
                     {
-                        FileName = "winget",
-                        Arguments = arguments,
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true,
-                        UseShellExecute = false,
-                        CreateNoWindow = true
+                        await response.Content.CopyToAsync(fs);
                     }
+                }
+
+                string psCommand = $"Add-AppxPackage -Path '{tempPath}' -ForceApplicationShutdown -ForceUpdateFromAnyVersion";
+
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = "powershell.exe",
+                    Arguments = $"-NoProfile -NonInteractive -Command \"{psCommand}\"",
+                    RedirectStandardOutput = false, // Hier nicht nötig
+                    RedirectStandardError = false,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
                 };
 
+                var process = new Process { StartInfo = startInfo };
                 process.Start();
-                await Task.Run(() => process.WaitForExit());
+                await process.WaitForExitAsync();
+
+                if (File.Exists(tempPath)) File.Delete(tempPath);
+            }
+            catch
+            {
+               
+            }
+        }
+
+
+        private async Task<bool> RunCommandBoolAsync(string fileName, string arguments)
+        {
+            try
+            {
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = fileName,
+                    Arguments = arguments,
+                    RedirectStandardOutput = false, // WICHTIGER FIX
+                    RedirectStandardError = false,  // WICHTIGER FIX
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                var process = new Process { StartInfo = startInfo };
+                process.Start();
+                await process.WaitForExitAsync();
 
                 return process.ExitCode == 0;
             }
@@ -275,14 +145,50 @@ namespace SecVers_Debloat.Helpers
             }
         }
 
-        private static async Task<string> ReadToEndAsync(StreamReader reader)
+        // Hilfsmethode: Sync check (nur false/true)
+        private bool RunCommandBoolSync(string fileName, string arguments)
         {
-            return await Task.Run(() => reader.ReadToEnd());
+            try
+            {
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = fileName,
+                    Arguments = arguments,
+                    RedirectStandardOutput = false,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+                using (var process = Process.Start(startInfo))
+                {
+                    process.WaitForExit();
+                    return process.ExitCode == 0;
+                }
+            }
+            catch { return false; }
         }
 
-        private static async Task WriteAllBytesAsync(string path, byte[] bytes)
+        private string RunCommandStringSync(string fileName, string arguments)
         {
-            await Task.Run(() => File.WriteAllBytes(path, bytes));
+            try
+            {
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = fileName,
+                    Arguments = arguments,
+                    RedirectStandardOutput = true, 
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    StandardOutputEncoding = System.Text.Encoding.UTF8 
+                };
+
+                using (var process = Process.Start(startInfo))
+                {
+                    string output = process.StandardOutput.ReadToEnd();
+                    process.WaitForExit();
+                    return output;
+                }
+            }
+            catch { return string.Empty; }
         }
     }
 }

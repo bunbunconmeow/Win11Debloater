@@ -488,130 +488,145 @@ namespace SecVers_Debloat.UI.Pages
             if (result != MessageBoxResult.Yes)
                 return;
 
+            bool useDEP = ChkEnableDEP.IsChecked == true;
+            bool useSEHOP = ChkEnableSEHOP.IsChecked == true;
+            bool useBottomUpASLR = ChkEnableBottomUpASLR.IsChecked == true;
+            bool useHighEntropyASLR = ChkEnableHighEntropyASLR.IsChecked == true;
+            bool useMandatoryASLR = ChkEnableMandatoryASLR.IsChecked == true;
+            bool useCFG = ChkEnableCFG.IsChecked == true;
+            bool useValidateExceptionChains = ChkEnableValidateExceptionChains.IsChecked == true;
+            bool useValidateHeapIntegrity = ChkEnableValidateHeapIntegrity.IsChecked == true;
+            bool blockUntrustedFonts = ChkBlockUntrustedFonts.IsChecked == true;
+            bool useCodeIntegrityGuard = ChkEnableCodeIntegrityGuard.IsChecked == true;
+            bool disableWin32kSystemCalls = ChkDisableWin32kSystemCalls.IsChecked == true;
+            bool useExportAddressFiltering = ChkEnableExportAddressFiltering.IsChecked == true;
+
+            // Network Hardening
+            bool disableSMBCompression = ChkDisableSMBCompression.IsChecked == true;
+            bool enableFirewallAllProfiles = ChkEnableFirewallAllProfiles.IsChecked == true;
+            bool setFirewallDefaultBlockInbound = ChkSetFirewallDefaultBlockInbound.IsChecked == true;
+            bool disableIPv6 = ChkDisableIPv6.IsChecked == true;
+
+            // Account Security
+            bool disableGuestAccount = ChkDisableGuestAccount.IsChecked == true;
+            bool enablePasswordComplexity = ChkEnablePasswordComplexity.IsChecked == true;
+            bool disableCredentialStorage = ChkDisableCredentialStorage.IsChecked == true;
+            bool enableUACMaximum = ChkEnableUACMaximum.IsChecked == true;
+            bool blockMicrosoftAccounts = ChkBlockMicrosoftAccounts.IsChecked == true;
+            bool limitBlankPasswordConsoleOnly = ChkLimitBlankPasswordConsoleOnly.IsChecked == true;
+
+            // Service Hardening
+            bool disableRemoteRegistry = ChkDisableRemoteRegistry.IsChecked == true;
+            bool disableRemoteDesktop = ChkDisableRemoteDesktop.IsChecked == true;
+            bool disablePrintSpooler = ChkDisablePrintSpooler.IsChecked == true;
+            bool disableWindowsScriptHost = ChkDisableWindowsScriptHost.IsChecked == true;
+            bool disablePowerShellV2 = ChkDisablePowerShellV2.IsChecked == true;
+            bool disableWindowsErrorReporting = ChkDisableWindowsErrorReporting.IsChecked == true;
+            bool disableTelemetryServices = ChkDisableTelemetryServices.IsChecked == true;
+            bool disableXboxServices = ChkDisableXboxServices.IsChecked == true;
+            bool disableBluetooth = ChkDisableBluetooth.IsChecked == true;
+            bool disableSSDPDiscovery = ChkDisableSSDPDiscovery.IsChecked == true;
+
+            // System Integrity
+            bool enableKernelModeCodeIntegrity = ChkEnableKernelModeCodeIntegrity.IsChecked == true;
+            bool enableCredentialGuard = ChkEnableCredentialGuard.IsChecked == true;
+            bool enableMemoryIntegrity = ChkEnableMemoryIntegrity.IsChecked == true;
+            bool disableAutoRun = ChkDisableAutoRun.IsChecked == true;
+            bool disable8Dot3Names = ChkDisable8Dot3Names.IsChecked == true;
+            bool disableRemoteAssistance = ChkDisableRemoteAssistance.IsChecked == true;
+            bool disableHibernation = ChkDisableHibernation.IsChecked == true;
+            bool enableTamperProtection = ChkEnableTamperProtection.IsChecked == true;
+
+            // Privacy Hardening
+            bool disableTelemetryCompletely = ChkDisableTelemetryCompletely.IsChecked == true;
+            bool disableCortana = ChkDisableCortana.IsChecked == true;
+            bool disableWindowsFeedback = ChkDisableWindowsFeedback.IsChecked == true;
+            bool disableTimeline = ChkDisableTimeline.IsChecked == true;
+            bool disableCloudClipboard = ChkDisableCloudClipboard.IsChecked == true;
+            bool disableInputPersonalization = ChkDisableInputPersonalization.IsChecked == true;
+            bool disableOneDrive = ChkDisableOneDrive.IsChecked == true;
+
+            // Attack Surface Reduction
+            bool blockExecContentEmail = ChkBlockExecutableContentFromEmailWebmail.IsChecked == true;
+            bool blockOfficeChildProc = ChkBlockOfficeChildProcesses.IsChecked == true;
+            bool blockOfficeExecContent = ChkBlockOfficeExecutableContent.IsChecked == true;
+            bool blockOfficeInjection = ChkBlockOfficeInjection.IsChecked == true;
+            bool blockScriptExecDownload = ChkBlockScriptExecutableDownload.IsChecked == true;
+
+
             BtnApplyHardening.IsEnabled = false;
             BtnApplyHardening.Content = "Applying...";
 
             try
             {
+               
                 await Task.Run(() =>
                 {
-                    // Exploit Protection
-                    if (ChkEnableDEP.IsChecked == true)
-                        _hardeningManager.Exploit.EnableDEPForAllProcesses();
-                    if (ChkEnableSEHOP.IsChecked == true)
-                        _hardeningManager.Exploit.EnableSEHOP();
-                    if (ChkEnableBottomUpASLR.IsChecked == true)
-                        _hardeningManager.Exploit.EnableBottomUpASLR();
-                    if (ChkEnableHighEntropyASLR.IsChecked == true)
-                        _hardeningManager.Exploit.EnableHighEntropyASLR();
-                    if (ChkEnableMandatoryASLR.IsChecked == true)
-                        _hardeningManager.Exploit.EnableMandatoryASLR();
-                    if (ChkEnableCFG.IsChecked == true)
-                        _hardeningManager.Exploit.EnableControlFlowGuard();
-                    if (ChkEnableValidateExceptionChains.IsChecked == true)
-                        _hardeningManager.Exploit.EnableValidateExceptionChains();
-                    if (ChkEnableValidateHeapIntegrity.IsChecked == true)
-                        _hardeningManager.Exploit.EnableValidateHeapIntegrity();
-                    if (ChkBlockUntrustedFonts.IsChecked == true)
-                        _hardeningManager.Exploit.BlockUntrustedFonts();
-                    if (ChkEnableCodeIntegrityGuard.IsChecked == true)
-                        _hardeningManager.Exploit.EnableCodeIntegrityGuard();
-                    if (ChkDisableWin32kSystemCalls.IsChecked == true)
-                        _hardeningManager.Exploit.DisableWin32kSystemCalls();
-                    if (ChkEnableExportAddressFiltering.IsChecked == true)
-                        _hardeningManager.Exploit.EnableExportAddressFiltering();
+                    // Exploit
+                    if (useDEP) _hardeningManager.Exploit.EnableDEPForAllProcesses();
+                    if (useSEHOP) _hardeningManager.Exploit.EnableSEHOP();
+                    if (useBottomUpASLR) _hardeningManager.Exploit.EnableBottomUpASLR();
+                    if (useHighEntropyASLR) _hardeningManager.Exploit.EnableHighEntropyASLR();
+                    if (useMandatoryASLR) _hardeningManager.Exploit.EnableMandatoryASLR();
+                    if (useCFG) _hardeningManager.Exploit.EnableControlFlowGuard();
+                    if (useValidateExceptionChains) _hardeningManager.Exploit.EnableValidateExceptionChains();
+                    if (useValidateHeapIntegrity) _hardeningManager.Exploit.EnableValidateHeapIntegrity();
+                    if (blockUntrustedFonts) _hardeningManager.Exploit.BlockUntrustedFonts();
+                    if (useCodeIntegrityGuard) _hardeningManager.Exploit.EnableCodeIntegrityGuard();
+                    if (disableWin32kSystemCalls) _hardeningManager.Exploit.DisableWin32kSystemCalls();
+                    if (useExportAddressFiltering) _hardeningManager.Exploit.EnableExportAddressFiltering();
 
                     // Network Hardening
-                    if (ChkDisableSMBCompression.IsChecked == true)
-                        _hardeningManager.Network.DisableSMBCompression();
-                    if (ChkEnableFirewallAllProfiles.IsChecked == true)
-                        _hardeningManager.Network.EnableFirewallAllProfiles();
-                    if (ChkSetFirewallDefaultBlockInbound.IsChecked == true)
-                        _hardeningManager.Network.SetFirewallDefaultBlockInbound();
-                    if (ChkDisableIPv6.IsChecked == true)
-                        _hardeningManager.Network.DisableIPv6();
+                    if (disableSMBCompression) _hardeningManager.Network.DisableSMBCompression();
+                    if (enableFirewallAllProfiles) _hardeningManager.Network.EnableFirewallAllProfiles();
+                    if (setFirewallDefaultBlockInbound) _hardeningManager.Network.SetFirewallDefaultBlockInbound();
+                    if (disableIPv6) _hardeningManager.Network.DisableIPv6();
 
                     // Account Security
-                    if (ChkDisableGuestAccount.IsChecked == true)
-                        _hardeningManager.Accounts.DisableGuestAccount();
-                    if (ChkEnablePasswordComplexity.IsChecked == true)
-                        _hardeningManager.Accounts.EnablePasswordComplexity();
-                    if (ChkDisableCredentialStorage.IsChecked == true)
-                        _hardeningManager.Accounts.DisableCredentialStorage();
-                    if (ChkEnableUACMaximum.IsChecked == true)
-                        _hardeningManager.Accounts.EnableUACMaximum();
-                    if (ChkBlockMicrosoftAccounts.IsChecked == true)
-                        _hardeningManager.Accounts.BlockMicrosoftAccounts();
-                    if (ChkLimitBlankPasswordConsoleOnly.IsChecked == true)
-                        _hardeningManager.Accounts.LimitBlankPasswordConsoleOnly();
+                    if (disableGuestAccount) _hardeningManager.Accounts.DisableGuestAccount();
+                    if (enablePasswordComplexity) _hardeningManager.Accounts.EnablePasswordComplexity();
+                    if (disableCredentialStorage) _hardeningManager.Accounts.DisableCredentialStorage();
+                    if (enableUACMaximum) _hardeningManager.Accounts.EnableUACMaximum();
+                    if (blockMicrosoftAccounts) _hardeningManager.Accounts.BlockMicrosoftAccounts();
+                    if (limitBlankPasswordConsoleOnly) _hardeningManager.Accounts.LimitBlankPasswordConsoleOnly();
 
                     // Service Hardening
-                    if (ChkDisableRemoteRegistry.IsChecked == true)
-                        _hardeningManager.Services.DisableRemoteRegistry();
-                    if (ChkDisableRemoteDesktop.IsChecked == true)
-                        _hardeningManager.Services.DisableRemoteDesktop();
-                    if (ChkDisablePrintSpooler.IsChecked == true)
-                        _hardeningManager.Services.DisablePrintSpooler();
-                    if (ChkDisableWindowsScriptHost.IsChecked == true)
-                        _hardeningManager.Services.DisableWindowsScriptHost();
-                    if (ChkDisablePowerShellV2.IsChecked == true)
-                        _hardeningManager.Services.DisablePowerShellV2();
-                    if (ChkDisableWindowsErrorReporting.IsChecked == true)
-                        _hardeningManager.Services.DisableWindowsErrorReporting();
-                    if (ChkDisableTelemetryServices.IsChecked == true)
-                        _hardeningManager.Services.DisableTelemetryServices();
-                    if (ChkDisableXboxServices.IsChecked == true)
-                        _hardeningManager.Services.DisableXboxServices();
-                    if (ChkDisableBluetooth.IsChecked == true)
-                        _hardeningManager.Services.DisableBluetooth();
-                    if (ChkDisableSSDPDiscovery.IsChecked == true)
-                        _hardeningManager.Services.DisableSSDPDiscovery();
+                    if (disableRemoteRegistry) _hardeningManager.Services.DisableRemoteRegistry();
+                    if (disableRemoteDesktop) _hardeningManager.Services.DisableRemoteDesktop();
+                    if (disablePrintSpooler) _hardeningManager.Services.DisablePrintSpooler();
+                    if (disableWindowsScriptHost) _hardeningManager.Services.DisableWindowsScriptHost();
+                    if (disablePowerShellV2) _hardeningManager.Services.DisablePowerShellV2();
+                    if (disableWindowsErrorReporting) _hardeningManager.Services.DisableWindowsErrorReporting();
+                    if (disableTelemetryServices) _hardeningManager.Services.DisableTelemetryServices();
+                    if (disableXboxServices) _hardeningManager.Services.DisableXboxServices();
+                    if (disableBluetooth) _hardeningManager.Services.DisableBluetooth();
+                    if (disableSSDPDiscovery) _hardeningManager.Services.DisableSSDPDiscovery();
 
                     // System Integrity
-                    if (ChkEnableKernelModeCodeIntegrity.IsChecked == true)
-                        _hardeningManager.System.EnableKernelModeCodeIntegrity();
-                    if (ChkEnableCredentialGuard.IsChecked == true)
-                        _hardeningManager.System.EnableCredentialGuard();
-                    if (ChkEnableMemoryIntegrity.IsChecked == true)
-                        _hardeningManager.System.EnableMemoryIntegrity();
-                    if (ChkDisableAutoRun.IsChecked == true)
-                        _hardeningManager.System.DisableAutoRun();
-                    if (ChkDisable8Dot3Names.IsChecked == true)
-                        _hardeningManager.System.Disable8Dot3Names();
-                    if (ChkDisableRemoteAssistance.IsChecked == true)
-                        _hardeningManager.System.DisableRemoteAssistance();
-                    if (ChkDisableHibernation.IsChecked == true)
-                        _hardeningManager.System.DisableHibernation();
-                    if (ChkEnableTamperProtection.IsChecked == true)
-                        _hardeningManager.System.EnableTamperProtection();
+                    if (enableKernelModeCodeIntegrity) _hardeningManager.System.EnableKernelModeCodeIntegrity();
+                    if (enableCredentialGuard) _hardeningManager.System.EnableCredentialGuard();
+                    if (enableMemoryIntegrity) _hardeningManager.System.EnableMemoryIntegrity();
+                    if (disableAutoRun) _hardeningManager.System.DisableAutoRun();
+                    if (disable8Dot3Names) _hardeningManager.System.Disable8Dot3Names();
+                    if (disableRemoteAssistance) _hardeningManager.System.DisableRemoteAssistance();
+                    if (disableHibernation) _hardeningManager.System.DisableHibernation();
+                    if (enableTamperProtection) _hardeningManager.System.EnableTamperProtection();
 
                     // Privacy Hardening
-                    if (ChkDisableTelemetryCompletely.IsChecked == true)
-                        _hardeningManager.Privacy.DisableTelemetryCompletely();
-                    if (ChkDisableCortana.IsChecked == true)
-                        _hardeningManager.Privacy.DisableCortana();
-                    if (ChkDisableWindowsFeedback.IsChecked == true)
-                        _hardeningManager.Privacy.DisableWindowsFeedback();
-                    if (ChkDisableTimeline.IsChecked == true)
-                        _hardeningManager.Privacy.DisableTimeline();
-                    if (ChkDisableCloudClipboard.IsChecked == true)
-                        _hardeningManager.Privacy.DisableCloudClipboard();
-                    if (ChkDisableInputPersonalization.IsChecked == true)
-                        _hardeningManager.Privacy.DisableInputPersonalization();
-                    if (ChkDisableOneDrive.IsChecked == true)
-                        _hardeningManager.Privacy.DisableOneDrive();
+                    if (disableTelemetryCompletely) _hardeningManager.Privacy.DisableTelemetryCompletely();
+                    if (disableCortana) _hardeningManager.Privacy.DisableCortana();
+                    if (disableWindowsFeedback) _hardeningManager.Privacy.DisableWindowsFeedback();
+                    if (disableTimeline) _hardeningManager.Privacy.DisableTimeline();
+                    if (disableCloudClipboard) _hardeningManager.Privacy.DisableCloudClipboard();
+                    if (disableInputPersonalization) _hardeningManager.Privacy.DisableInputPersonalization();
+                    if (disableOneDrive) _hardeningManager.Privacy.DisableOneDrive();
 
                     // Attack Surface Reduction
-                    if (ChkBlockExecutableContentFromEmailWebmail.IsChecked == true)
-                        _hardeningManager.ASR.BlockExecutableContentFromEmailWebmail();
-                    if (ChkBlockOfficeChildProcesses.IsChecked == true)
-                        _hardeningManager.ASR.BlockOfficeChildProcesses();
-                    if (ChkBlockOfficeExecutableContent.IsChecked == true)
-                        _hardeningManager.ASR.BlockOfficeExecutableContent();
-                    if (ChkBlockOfficeInjection.IsChecked == true)
-                        _hardeningManager.ASR.BlockOfficeInjection();
-                    if (ChkBlockScriptExecutableDownload.IsChecked == true)
-                        _hardeningManager.ASR.BlockScriptExecutableDownload();
+                    if (blockExecContentEmail) _hardeningManager.ASR.BlockExecutableContentFromEmailWebmail();
+                    if (blockOfficeChildProc) _hardeningManager.ASR.BlockOfficeChildProcesses();
+                    if (blockOfficeExecContent) _hardeningManager.ASR.BlockOfficeExecutableContent();
+                    if (blockOfficeInjection) _hardeningManager.ASR.BlockOfficeInjection();
+                    if (blockScriptExecDownload) _hardeningManager.ASR.BlockScriptExecutableDownload();
                 });
 
                 MessageBox.Show(

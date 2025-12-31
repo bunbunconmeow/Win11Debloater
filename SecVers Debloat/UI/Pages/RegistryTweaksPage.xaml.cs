@@ -36,7 +36,6 @@ namespace SecVers_Debloat.UI.Pages
 
         private void InitializeTweakMappings()
         {
-            // ============ PERFORMANCE TWEAKS ============
             _performanceCheckBoxes.AddRange(new[]
             {
                 ChkDisableSearchIndexing,
