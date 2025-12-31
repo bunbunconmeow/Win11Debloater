@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using SecVers_Debloat.Helpers;
+using MessageBox = iNKORE.UI.WPF.Modern.Controls.MessageBox;
 
 namespace SecVers_Debloat.UI.Pages
 {
@@ -87,7 +88,6 @@ namespace SecVers_Debloat.UI.Pages
         {
             if (_isInstalling || _wingetHelper == null) return;
 
-            // 1. Automatische Sammlung aller Checkboxen in ALLEN Expandern
             List<string> packagesToInstall = GetAllSelectedPackages();
 
             if (packagesToInstall.Count == 0)
@@ -96,7 +96,7 @@ namespace SecVers_Debloat.UI.Pages
                 return;
             }
 
-            // 2. UI sperren
+           
             _isInstalling = true;
             BtnInstall.IsEnabled = false;
             InstallProgress.Visibility = Visibility.Visible;
@@ -106,10 +106,7 @@ namespace SecVers_Debloat.UI.Pages
             {
                 string[] packageArray = packagesToInstall.ToArray();
                 InfoText.Text = $"Installing {packageArray.Length} applications...";
-
-                // Silent Install
                 int successCount = await Task.Run(() => _wingetHelper.InstallPackagesAsync(packageArray, silent: true));
-
                 MessageBox.Show($"Installation Finished.\nSuccess: {successCount} / {packageArray.Length}", "Complete", MessageBoxButton.OK, MessageBoxImage.Information);
                 InfoText.Text = "Done.";
             }
@@ -127,7 +124,7 @@ namespace SecVers_Debloat.UI.Pages
             }
         }
 
-        // Hilfsfunktion: Durchsucht automatisch das gesamte MainContainer Panel
+
         private List<string> GetAllSelectedPackages()
         {
             List<string> list = new List<string>();
@@ -136,10 +133,9 @@ namespace SecVers_Debloat.UI.Pages
 
             foreach (var child in MainContainer.Children)
             {
-                // Prüfen ob es ein Expander ist
+
                 if (child is Expander exp && exp.Content is StackPanel innerPanel)
                 {
-                    // Durchsuche die Checkboxen im Inneren
                     foreach (var innerChild in innerPanel.Children)
                     {
                         if (innerChild is CheckBox ck && ck.IsChecked == true && ck.Tag != null)

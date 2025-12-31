@@ -1,4 +1,5 @@
 ﻿using Hardware.Info;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -51,7 +52,6 @@ namespace SecVers_Debloat.UI.Pages
         }
         private void BtnQuickStart_Click(object sender, RoutedEventArgs e)
         {
-            // Show confirmation dialog
             var result = MessageBox.Show(
                 "This will run a preset configuration. Create a restore point first!\n\nContinue?",
                 "Quick Start",
@@ -145,54 +145,45 @@ namespace SecVers_Debloat.UI.Pages
         {
             try
             {
+                string regPath = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemRestore";
+                using (RegistryKey key = Registry.LocalMachine.OpenSubKey(regPath, true))
+                {
+                    if (key != null)
+                    {
+                        key.SetValue("SystemRestorePointCreationFrequency", 0, RegistryValueKind.DWord);
+                    }
+                }
+
                 var scope = new ManagementScope("\\\\localhost\\root\\default");
                 var path = new ManagementPath("SystemRestore");
                 var options = new ObjectGetOptions();
 
-                using (var mClass = new ManagementClass(scope, path, options))
+                using (var restoreClass = new ManagementClass(scope, path, options))
                 {
-                    var inParams = mClass.GetMethodParameters("CreateRestorePoint");
-                    inParams["Description"] = $"SecVers Debloat - {DateTime.Now:yyyy-MM-dd HH:mm}";
-                    inParams["RestorePointType"] = 12; 
-                    inParams["EventType"] = 100; 
+                    var parameters = restoreClass.GetMethodParameters("CreateRestorePoint");
+                    string description = $"SecVers Debloat - {DateTime.Now:yyyy-MM-dd HH:mm}";
 
-                    var outParams = mClass.InvokeMethod("CreateRestorePoint", inParams, null);
+                    parameters["Description"] = description;
+                    parameters["RestorePointType"] = 12;
+                    parameters["EventType"] = 100;
 
-                    if (outParams == null)
-                        throw new Exception("Failed to invoke CreateRestorePoint method");
+                    var result = restoreClass.InvokeMethod("CreateRestorePoint", parameters, null);
+                    int statusCode = Convert.ToInt32(result["ReturnValue"]);
+
+                    if (statusCode != 0)
+                    {
+                        throw new Exception($"WMI Error Code: {statusCode}");
+                    }
                 }
             }
             catch (Exception ex)
             {
-                try
-                {
-                    var psi = new ProcessStartInfo
-                    {
-                        FileName = "powershell.exe",
-                        Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"Checkpoint-Computer -Description 'SecVers Debloat - {DateTime.Now:yyyy-MM-dd HH:mm}' -RestorePointType MODIFY_SETTINGS\"",
-                        UseShellExecute = false,
-                        CreateNoWindow = true,
-                        RedirectStandardError = true,
-                        RedirectStandardOutput = true,
-                        Verb = "runas"
-                    };
-
-                    using (var process = Process.Start(psi))
-                    {
-                        process.WaitForExit(30000);
-
-                        if (process.ExitCode != 0)
-                        {
-                            var error = process.StandardError.ReadToEnd();
-                            throw new Exception($"PowerShell execution failed: {error}");
-                        }
-                    }
-                }
-                catch (Exception psEx)
-                {
-                    throw new Exception($"Primary method failed: {ex.Message}\nFallback method failed: {psEx.Message}");
-                }
+                MessageBox.Show($"Failed to create a System Restore Point.\n\nError: {ex.Message}\n\nPlease ensure the application is running as Administrator and System Restore is enabled.",
+                                "Error",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error);
             }
         }
+
     }
 }

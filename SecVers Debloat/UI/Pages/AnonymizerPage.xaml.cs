@@ -18,12 +18,11 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using MessageBox = iNKORE.UI.WPF.Modern.Controls.MessageBox;
 
 namespace SecVers_Debloat.UI.Pages
 {
-    /// <summary>
-    /// Interaktionslogik für AnonymizerPage.xaml
-    /// </summary>
+
     public partial class AnonymizerPage : Page
     {
         private readonly SystemDataAnonymizer _anonymizer;
@@ -33,8 +32,6 @@ namespace SecVers_Debloat.UI.Pages
             InitializeComponent();
             _anonymizer = new SystemDataAnonymizer();
         }
-
-        // ================= BUTTON ACTIONS =================
 
         private void BtnApplySelected_Click(object sender, RoutedEventArgs e)
         {
@@ -48,12 +45,8 @@ namespace SecVers_Debloat.UI.Pages
 
             try
             {
-                // Network
                 if (ChkRandomizeHostname.IsChecked == true) _anonymizer.RandomizeComputerName();
                 if (ChkRandomizeMAC.IsChecked == true) _anonymizer.RandomizeAllMACAddresses();
-                // if (ChkDisableIPv6.IsChecked == true) ... add logic if available in your class, or generic reg tweak
-
-                // Hardware IDs
                 if (ChkRandomizeMachineGUID.IsChecked == true) _anonymizer.RandomizeMachineGUID();
                 if (ChkRandomizeBaseboard.IsChecked == true) _anonymizer.RandomizeBaseboardSerial();
                 if (ChkSpoofProductInfo.IsChecked == true)
@@ -108,12 +101,10 @@ namespace SecVers_Debloat.UI.Pages
         }
 
 
-        // Handles the "Select All" checkbox in the headers
         private void HeaderCheckBox_Click(object sender, RoutedEventArgs e)
         {
             if (sender is CheckBox headerBox)
             {
-                // Determine which group we are in based on Name or mapping
                 string tagToFind = "";
                 if (headerBox == NetworkAllCheckBox) tagToFind = "Network";
                 else if (headerBox == HwidAllCheckBox) tagToFind = "HWID";
@@ -131,8 +122,6 @@ namespace SecVers_Debloat.UI.Pages
 
         private void SetCheckboxesByTag(string tag, bool isChecked)
         {
-            // Simple visual tree traversal or just iterate over known names if list is small.
-            // For robustness, let's look at the logical children of the Expander content panels.
             var allCheckBoxes = FindVisualChildren<CheckBox>(this);
             foreach (var box in allCheckBoxes)
             {
