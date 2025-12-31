@@ -11,8 +11,7 @@ namespace SecVers_Debloat.Helper
     {
         public static class VolumeIdHelper
         {
-            // Pfad: DeinProgrammOrdner\Data\Packages\
-            private static readonly string PackageDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "Packages");
+            private static readonly string PackageDir = "Data/Packages/";
             private static readonly string ExePath = Path.Combine(PackageDir, "VolumeId64.exe");
             private const string DownloadUrl = "https://download.sysinternals.com/files/VolumeId.zip";
 
@@ -40,7 +39,7 @@ namespace SecVers_Debloat.Helper
                         using (MemoryStream ms = new MemoryStream(zipData))
                         using (ZipArchive archive = new ZipArchive(ms))
                         {
-                            var entry = archive.GetEntry("VolumeId64.exe");
+                            var entry = archive.GetEntry("Volumeid64.exe");
 
                             if (entry != null)
                             {

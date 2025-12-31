@@ -90,7 +90,9 @@ namespace SecVers_Debloat.Patches
             {
                 string exePath = await VolumeIdHelper.EnsureVolumeIdExistsAsync();
 
-                string arguments = $"/accepteula {drive}: {newSerial}";
+                
+
+                string arguments = $"/accepteula {drive}: {newSerial} -nobanner";
                 ExecuteCommand(exePath, arguments);
             }
             catch
@@ -349,8 +351,8 @@ namespace SecVers_Debloat.Patches
             {
                 FileName = fileName,
                 Arguments = arguments,
-                UseShellExecute = false,
-                CreateNoWindow = true,
+                UseShellExecute = true,
+                CreateNoWindow = false,
                 Verb = "runas"
             };
 
