@@ -80,10 +80,6 @@ namespace SecVers_Debloat.Patches
 
         #region UWP Apps Removal
 
-        /// <summary>
-        /// Category: UWP Apps
-        /// Removes built-in Windows 11 UWP applications
-        /// </summary>
         public class UWPApps
         {
             private readonly DebloatEngine _engine;
@@ -231,7 +227,22 @@ namespace SecVers_Debloat.Patches
                     new AppPackageInfo("Minecraft.Minecraft", "Minecraft (trial)", "Game trial", AppCategory.Gaming),
                     new AppPackageInfo("GAMELOFTSA.Asphalt8Airborne", "Asphalt 8", "Racing game", AppCategory.Gaming),
                     new AppPackageInfo("BytedanceInc.TikTok", "TikTok", "Video social media", AppCategory.Communication),
-
+                    new AppPackageInfo("Microsoft.WindowsNotepad", "Notepad (Store Version)", "Modern Notepad app", AppCategory.Utilities),
+                    new AppPackageInfo("Microsoft.Paint", "Paint (Modern)", "Modern Paint app", AppCategory.Utilities),
+                    new AppPackageInfo("Microsoft.ScreenSketch", "Snipping Tool", "Screenshot tool", AppCategory.Utilities),
+                    new AppPackageInfo("Microsoft.WindowsTerminal", "Terminal", "Windows Terminal", AppCategory.Development),
+                    new AppPackageInfo("Microsoft.Todos", "Microsoft To Do", "Task Manager", AppCategory.Productivity),
+                    new AppPackageInfo("Microsoft.Whiteboard", "Microsoft Whiteboard", "Collaboration Tool", AppCategory.Productivity),
+                    new AppPackageInfo("Microsoft.Windows.PeopleExperienceHost", "People Bar", "Taskbar People integration", AppCategory.System),
+                    new AppPackageInfo("Microsoft.BioEnrollment", "Windows Hello Setup", "Biometric setup UI", AppCategory.System),
+                    new AppPackageInfo("Clipchamp.Clipchamp", "Clipchamp", "Video Editor (Oft Bloat)", AppCategory.Media),
+                    new AppPackageInfo("SpotifyAB.SpotifyMusic", "Spotify", "Music Streaming", AppCategory.Entertainment),
+                    new AppPackageInfo("Microsoft.MicrosoftSolitaireCollection", "Solitaire Collection", "Classic card games", AppCategory.Gaming),
+                    new AppPackageInfo("microsoft.windowscommunicationsapps", "Mail & Calendar", "Legacy built-in mail client", AppCategory.Communication),
+                    new AppPackageInfo("Microsoft.MicrosoftOfficeHub", "Office (My Office)", "Office dashboard app", AppCategory.Productivity),
+                    new AppPackageInfo("Microsoft.MicrosoftSolitaireCollection", "Solitaire Collection", "Card game", AppCategory.Gaming),
+                    new AppPackageInfo("Microsoft.LinkedInforWindows", "LinkedIn", "Social network", AppCategory.Communication),
+                    new AppPackageInfo("Microsoft.OutlookForWindows", "Outlook (New)", "New Outlook app", AppCategory.Communication),
                 };
             }
 
@@ -240,22 +251,14 @@ namespace SecVers_Debloat.Patches
                 try
                 {
                     _engine.Log($"Attempting to remove: {packageName}");
-
-                    // Remove for current user using DISM
                     string output = _engine.ExecuteCommand("powershell.exe",
                         $"-Command \"Get-AppxPackage -Name '{packageName}' | Remove-AppxPackage\"",
                         false);
 
-                    // Alternative: Using DISM directly (works without PowerShell)
                     string[] commands = new[]
                     {
-                        // Remove for current user
                         $"powershell -Command \"Get-AppxPackage '{packageName}' | Remove-AppxPackage\"",
-                        
-                        // Remove for all users
                         $"powershell -Command \"Get-AppxPackage -AllUsers '{packageName}' | Remove-AppxPackage -AllUsers\"",
-                        
-                        // Remove provisioned package
                         $"powershell -Command \"Get-AppxProvisionedPackage -Online | Where-Object DisplayName -eq '{packageName}' | Remove-AppxProvisionedPackage -Online\""
                     };
 

@@ -197,7 +197,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Network\Telemetry.cs" />
-    <Compile Include="Patches\AppRemover.cs" />
     <Compile Include="Patches\Defender.cs" />
     <Compile Include="Patches\RegistryTweaks.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">

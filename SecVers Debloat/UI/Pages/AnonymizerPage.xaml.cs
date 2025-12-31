@@ -60,7 +60,7 @@ namespace SecVers_Debloat.UI.Pages
                 if (ChkRandomizeProductID.IsChecked == true) _anonymizer.RandomizeProductID();
                 if (ChkSpoofGPU.IsChecked == true) _anonymizer.SpoofGPUDeviceID("PCI\\VEN_10DE&DEV_1C03&SUBSYS_1C0310DE"); 
                 if (ChkSpoofDiskSerial.IsChecked == true) _anonymizer.SpoofDiskSerial("S1D5-" + Guid.NewGuid().ToString().Substring(0, 8));
-                if (ChkChangeVolumeSerial.IsChecked == true) new Task(() => _anonymizer.ChangeVolumeSerial("C", GenerateRandomIntString(4) + "-" + GenerateRandomIntString(4)));
+                if (ChkChangeVolumeSerial.IsChecked == true) await new Task(() => _anonymizer.ChangeVolumeSerial("C", GenerateRandomIntString(4) + "-" + GenerateRandomIntString(4)));
 
                 // Tracking
                 if (ChkResetAdID.IsChecked == true) _anonymizer.DisableAndClearAdvertisingID();
