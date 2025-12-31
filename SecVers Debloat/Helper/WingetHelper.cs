@@ -22,6 +22,7 @@ namespace SecVers_Debloat.Helpers
 
             IsWingetAvailable = CheckWingetAvailability();
 
+            // Versuche Installation, falls nicht vorhanden
             if (!IsWingetAvailable)
             {
                 try
@@ -39,17 +40,43 @@ namespace SecVers_Debloat.Helpers
         private bool CheckWingetAvailability()
         {
             if (File.Exists(_localWingetPath)) return true;
-            return RunCommand("winget", "--version", out _);
+            return RunCommandBoolSync("winget", "--version"); // Benutze optimierte Sync Methode
         }
 
         public string GetWingetVersion()
         {
             string exe = File.Exists(_localWingetPath) ? _localWingetPath : "winget";
-            if (RunCommand(exe, "--version", out string output))
+            string output = RunCommandStringSync(exe, "--version"); // Benutze die String-Methode
+            return string.IsNullOrWhiteSpace(output) ? "Unknown" : output.Trim();
+        }
+
+        public async Task<int> InstallPackagesAsync(string[] packageIds, bool silent = true)
+        {
+            int successCount = 0;
+            // Parallele Installationen vermeiden, Winget sperrt oft die DB. Sequential ist sicherer.
+            foreach (var packageId in packageIds)
             {
-                return output.Trim();
+                bool success = await InstallPackageAsync(packageId, silent);
+                if (success)
+                {
+                    successCount++;
+                }
             }
-            return "Unknown";
+            return successCount;
+        }
+
+        public async Task<bool> InstallPackageAsync(string packageId, bool silent = true)
+        {
+            if (!IsWingetAvailable) return false;
+
+            string exe = File.Exists(_localWingetPath) ? _localWingetPath : "winget";
+
+            // WICHTIG: --force und --disable-interactivity verhindern Hänger bei Lizenzfragen
+            string args = silent
+                ? $"install --id {packageId} --silent --accept-package-agreements --accept-source-agreements --force --disable-interactivity --source winget"
+                : $"install --id {packageId} --accept-package-agreements --accept-source-agreements --force --disable-interactivity --source winget";
+
+            return await RunCommandBoolAsync(exe, args);
         }
 
         private async Task InstallWingetAsync()
@@ -73,8 +100,8 @@ namespace SecVers_Debloat.Helpers
                 {
                     FileName = "powershell.exe",
                     Arguments = $"-NoProfile -NonInteractive -Command \"{psCommand}\"",
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
+                    RedirectStandardOutput = false, // Hier nicht nötig
+                    RedirectStandardError = false,
                     UseShellExecute = false,
                     CreateNoWindow = true
                 };
@@ -84,47 +111,15 @@ namespace SecVers_Debloat.Helpers
                 await process.WaitForExitAsync();
 
                 if (File.Exists(tempPath)) File.Delete(tempPath);
-
-                if (process.ExitCode != 0)
-                {
-                    throw new Exception("Installation failed.");
-                }
             }
-            catch (Exception ex)
+            catch
             {
-                throw new Exception($"Winget Install Exception: {ex.Message}");
+               
             }
         }
 
-        public async Task<bool> InstallPackageAsync(string packageId, bool silent = true)
-        {
-            if (!IsWingetAvailable) return false;
 
-            string exe = File.Exists(_localWingetPath) ? _localWingetPath : "winget";
-            string args = silent
-                ? $"install --id {packageId} --silent --accept-package-agreements --accept-source-agreements --force"
-                : $"install --id {packageId} --accept-package-agreements --accept-source-agreements";
-
-            return await RunCommandAsync(exe, args);
-        }
-
-        public async Task<int> InstallPackagesAsync(string[] packageIds, bool silent = true)
-        {
-            int successCount = 0;
-
-            foreach (var packageId in packageIds)
-            {
-                bool success = await InstallPackageAsync(packageId, silent);
-                if (success)
-                {
-                    successCount++;
-                }
-            }
-
-            return successCount;
-        }
-
-        private async Task<bool> RunCommandAsync(string fileName, string arguments)
+        private async Task<bool> RunCommandBoolAsync(string fileName, string arguments)
         {
             try
             {
@@ -132,11 +127,10 @@ namespace SecVers_Debloat.Helpers
                 {
                     FileName = fileName,
                     Arguments = arguments,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
+                    RedirectStandardOutput = false, // WICHTIGER FIX
+                    RedirectStandardError = false,  // WICHTIGER FIX
                     UseShellExecute = false,
-                    CreateNoWindow = true,
-                    StandardOutputEncoding = System.Text.Encoding.UTF8
+                    CreateNoWindow = true
                 };
 
                 var process = new Process { StartInfo = startInfo };
@@ -151,32 +145,50 @@ namespace SecVers_Debloat.Helpers
             }
         }
 
-        private bool RunCommand(string fileName, string arguments, out string output)
+        // Hilfsmethode: Sync check (nur false/true)
+        private bool RunCommandBoolSync(string fileName, string arguments)
         {
-            output = "";
             try
             {
                 var startInfo = new ProcessStartInfo
                 {
                     FileName = fileName,
                     Arguments = arguments,
-                    RedirectStandardOutput = true,
+                    RedirectStandardOutput = false,
                     UseShellExecute = false,
-                    CreateNoWindow = true,
-                    StandardOutputEncoding = System.Text.Encoding.UTF8
+                    CreateNoWindow = true
                 };
-
                 using (var process = Process.Start(startInfo))
                 {
-                    output = process.StandardOutput.ReadToEnd();
                     process.WaitForExit();
                     return process.ExitCode == 0;
                 }
             }
-            catch
+            catch { return false; }
+        }
+
+        private string RunCommandStringSync(string fileName, string arguments)
+        {
+            try
             {
-                return false;
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = fileName,
+                    Arguments = arguments,
+                    RedirectStandardOutput = true, 
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    StandardOutputEncoding = System.Text.Encoding.UTF8 
+                };
+
+                using (var process = Process.Start(startInfo))
+                {
+                    string output = process.StandardOutput.ReadToEnd();
+                    process.WaitForExit();
+                    return output;
+                }
             }
+            catch { return string.Empty; }
         }
     }
 }

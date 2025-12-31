@@ -28,7 +28,6 @@ namespace SecVers_Debloat.UI.Pages
 
         private async void CheckWingetStatus()
         {
-            // Set visuals to loading
             StatusIcon.Text = "⏳";
             InfoText.Text = "Checking Winget availability...";
 
@@ -106,7 +105,7 @@ namespace SecVers_Debloat.UI.Pages
             {
                 string[] packageArray = packagesToInstall.ToArray();
                 InfoText.Text = $"Installing {packageArray.Length} applications...";
-                int successCount = await Task.Run(() => _wingetHelper.InstallPackagesAsync(packageArray, silent: true));
+                int successCount = await _wingetHelper.InstallPackagesAsync(packageArray);
                 MessageBox.Show($"Installation Finished.\nSuccess: {successCount} / {packageArray.Length}", "Complete", MessageBoxButton.OK, MessageBoxImage.Information);
                 InfoText.Text = "Done.";
             }

@@ -292,7 +292,7 @@ namespace SecVers_Debloat.UI.Pages
 
         private void BtnAddFolderExclusion_Click(object sender, RoutedEventArgs e)
         {
-            
+
         }
 
         private void BtnRemoveFileExclusion_Click(object sender, RoutedEventArgs e)
@@ -422,7 +422,7 @@ namespace SecVers_Debloat.UI.Pages
             MessageBox.Show("Settings refreshed successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
-        private void BtnApply_Click(object sender, RoutedEventArgs e)
+        private async void BtnApply_Click(object sender, RoutedEventArgs e)
         {
             var result = MessageBox.Show(
                 "Apply current Defender settings?\n\nThis will modify Windows Defender configuration.",
@@ -435,7 +435,7 @@ namespace SecVers_Debloat.UI.Pages
             {
                 try
                 {
-                    ApplyAllSettings();
+                    await new Task(() => { ApplyAllSettings(); });
                     MessageBox.Show("Settings applied successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)
@@ -504,34 +504,25 @@ namespace SecVers_Debloat.UI.Pages
 
         private void ApplyAllSettings()
         {
-            // Real-Time Protection
-            defenderPatches.SetRealTimeProtection(ToggleRealTimeProtection.IsOn);
-            defenderPatches.SetBehaviorMonitoring(ToggleBehaviorMonitoring.IsOn);
-            defenderPatches.SetOnAccessProtection(ToggleOnAccessProtection.IsOn);
-            defenderPatches.SetScriptScanning(ToggleScriptScanning.IsOn);
-
-            // Cloud Protection
-            defenderPatches.SetCloudProtection(ToggleCloudProtection.IsOn);
-            defenderPatches.SetAutomaticSampleSubmission(ToggleAutomaticSampleSubmission.IsOn);
-            defenderPatches.SetCloudBlockLevel(ComboCloudBlockLevel.SelectedIndex);
-
-            // Scanning
-            defenderPatches.SetArchiveScanning(ToggleArchiveScanning.IsOn);
-            defenderPatches.SetEmailScanning(ToggleEmailScanning.IsOn);
-            defenderPatches.SetRemovableDriveScanning(ToggleRemovableDriveScanning.IsOn);
-            defenderPatches.SetNetworkScanning(ToggleNetworkScanning.IsOn);
-
-            // Additional Protection
-            defenderPatches.SetControlledFolderAccess(ToggleControlledFolderAccess.IsOn);
-            defenderPatches.SetPUAProtection(TogglePUAProtection.IsOn);
-            defenderPatches.SetNetworkProtection(ToggleNetworkProtection.IsOn);
-            defenderPatches.SetExploitProtection(ToggleExploitProtection.IsOn);
-
-            // Windows Security
-            defenderPatches.SetSmartScreen(ToggleSmartScreen.IsOn);
-            defenderPatches.SetSmartScreenApps(ToggleSmartScreenApps.IsOn);
-            defenderPatches.SetTamperProtection(ToggleTamperProtection.IsOn);
+            TryCatchHelp(() => defenderPatches.SetRealTimeProtection(ToggleRealTimeProtection.IsOn));
+            TryCatchHelp(() => defenderPatches.SetBehaviorMonitoring(ToggleBehaviorMonitoring.IsOn));
+            TryCatchHelp(() => defenderPatches.SetOnAccessProtection(ToggleOnAccessProtection.IsOn));
+            TryCatchHelp(() => defenderPatches.SetScriptScanning(ToggleScriptScanning.IsOn));
+            TryCatchHelp(() => defenderPatches.SetCloudProtection(ToggleCloudProtection.IsOn));
+            TryCatchHelp(() => defenderPatches.SetAutomaticSampleSubmission(ToggleAutomaticSampleSubmission.IsOn));
+            TryCatchHelp(() => defenderPatches.SetCloudBlockLevel(ComboCloudBlockLevel.SelectedIndex));
+            TryCatchHelp(() => defenderPatches.SetArchiveScanning(ToggleArchiveScanning.IsOn));
+            TryCatchHelp(() => defenderPatches.SetEmailScanning(ToggleEmailScanning.IsOn));
+            TryCatchHelp(() => defenderPatches.SetRemovableDriveScanning(ToggleRemovableDriveScanning.IsOn));
+            TryCatchHelp(() => defenderPatches.SetNetworkScanning(ToggleNetworkScanning.IsOn));
+            TryCatchHelp(() => defenderPatches.SetControlledFolderAccess(ToggleControlledFolderAccess.IsOn));
+            TryCatchHelp(() => defenderPatches.SetPUAProtection(TogglePUAProtection.IsOn));
+            TryCatchHelp(() => defenderPatches.SetNetworkProtection(ToggleNetworkProtection.IsOn));
+            TryCatchHelp(() => defenderPatches.SetSmartScreen(ToggleSmartScreen.IsOn));
+            TryCatchHelp(() => defenderPatches.SetSmartScreenApps(ToggleSmartScreenApps.IsOn));
+            TryCatchHelp(() => defenderPatches.SetTamperProtection(ToggleTamperProtection.IsOn));
         }
+
 
         private void LoadExclusions()
         {
@@ -559,6 +550,34 @@ namespace SecVers_Debloat.UI.Pages
                 ListProcessExclusions.Items.Add(exclusion);
             }
         }
+        private void TryCatchHelp(Action action, string errorMessage = "Error")
+        {
+            try
+            {
+                action();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                
+            }
+            catch (Exception ex)
+            {
+                
+            }
+        }
+        private T TryGetHelp<T>(Func<T> action, T defaultValue)
+        {
+            try
+            {
+                return action();
+            }
+            catch (Exception ex)
+            {
+              
+                return defaultValue; 
+            }
+        }
+
 
         #endregion
     }

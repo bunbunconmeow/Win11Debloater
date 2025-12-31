@@ -11,7 +11,7 @@
         ResizeMode="NoResize"
         mc:Ignorable="d"
         Height="450" Width="360"
-        Title="Allow Telemetry">
+        Title="Allow Telemetry" WindowStyle="None">
     <Grid Margin="15">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

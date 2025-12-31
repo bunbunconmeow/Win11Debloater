@@ -33,7 +33,7 @@ namespace SecVers_Debloat.UI.Pages
             _anonymizer = new SystemDataAnonymizer();
         }
 
-        private void BtnApplySelected_Click(object sender, RoutedEventArgs e)
+        private async void BtnApplySelected_Click(object sender, RoutedEventArgs e)
         {
             if (MessageBox.Show("Are you sure you want to randomize the selected identifiers?\n\nThis may affect software licenses.",
                                 "Confirm Anonymization",
@@ -51,17 +51,16 @@ namespace SecVers_Debloat.UI.Pages
                 if (ChkRandomizeBaseboard.IsChecked == true) _anonymizer.RandomizeBaseboardSerial();
                 if (ChkSpoofProductInfo.IsChecked == true)
                 {
-                    _anonymizer.SpoofSystemProductName("System Product Name"); // Or random string
-                    _anonymizer.SpoofSystemManufacturer("System Manufacturer");
+
+                    _anonymizer.SpoofSystemProductName(GenerateRandomString(10)); 
+                    _anonymizer.SpoofSystemManufacturer(GenerateRandomString(10));
                 }
                 if (ChkRandomizeBIOS.IsChecked == true) _anonymizer.RandomizeBIOSSerial();
                 if (ChkRandomizeInstallID.IsChecked == true) _anonymizer.RandomizeInstallationID();
                 if (ChkRandomizeProductID.IsChecked == true) _anonymizer.RandomizeProductID();
-                if (ChkSpoofGPU.IsChecked == true) _anonymizer.SpoofGPUDeviceID("PCI\\VEN_10DE&DEV_1C03&SUBSYS_1C0310DE"); // Example generic ID
-
-                // Storage
+                if (ChkSpoofGPU.IsChecked == true) _anonymizer.SpoofGPUDeviceID("PCI\\VEN_10DE&DEV_1C03&SUBSYS_1C0310DE"); 
                 if (ChkSpoofDiskSerial.IsChecked == true) _anonymizer.SpoofDiskSerial("S1D5-" + Guid.NewGuid().ToString().Substring(0, 8));
-                if (ChkChangeVolumeSerial.IsChecked == true) _anonymizer.ChangeVolumeSerial("C", "1234-5678"); // Ideally implement a random hex generator here
+                if (ChkChangeVolumeSerial.IsChecked == true) new Task(() => _anonymizer.ChangeVolumeSerial("C", GenerateRandomIntString(4) + "-" + GenerateRandomIntString(4)));
 
                 // Tracking
                 if (ChkResetAdID.IsChecked == true) _anonymizer.DisableAndClearAdvertisingID();
@@ -151,5 +150,24 @@ namespace SecVers_Debloat.UI.Pages
                 }
             }
         }
+
+        // Roandom String Generator
+        private string GenerateRandomString(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        //Raodoom Int-string Generator
+        private string GenerateRandomIntString(int length)
+        {
+            const string chars = "0123456789";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
     }
 }
