@@ -1,8 +1,9 @@
-﻿using RestSharp;
+﻿using Hardware.Info;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Management; // Für WMI-Abfragen (CPU, GPU, RAM, etc.)
+using System.Management;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 
@@ -11,6 +12,7 @@ namespace SecVers_Debloat.Network
     internal class Telemetry
     {
         private const string TelemetryUrl = "https://dein-server.de/api/telemetry";
+        private const string InstallationUrl = "https://dein-server.de/api/installation";
         private const string UserAgent = "SecVersDebloater/1.0";
 
         public static async Task<bool> SendTelemetryDataAsync()
@@ -25,27 +27,50 @@ namespace SecVers_Debloat.Network
                 request.AddJsonBody(systemInfo);
                 var response = await client.ExecuteAsync(request);
                 return response.IsSuccessful;
-            }
-            catch (Exception ex)
+            } catch { return false; }
+        }
+
+
+        public static async Task<bool> SendInstallationAsync()
+        {
+            try
             {
-                Console.WriteLine($"Telemetrie-Fehler: {ex.Message}");
-                return false;
-            }
+                var installationJSON = CreateInstallationJSON();
+                var client = new RestClient(InstallationUrl);
+                var request = new RestRequest("", Method.Post);
+                request.AddHeader("User-Agent", UserAgent);
+                request.AddHeader("Content-Type", "application/json");
+                request.AddJsonBody(installationJSON);
+                var response = await client.ExecuteAsync(request);
+                return response.IsSuccessful;
+            } catch { return false; }
+            
         }
 
         private static Dictionary<string, object> GetSystemInformation()
         {
+            var hardwareInfo = new HardwareInfo();
+            hardwareInfo.RefreshAll();
             var systemInfo = new Dictionary<string, object>
             {
                 { "Timestamp", DateTime.UtcNow.ToString("o") },
                 { "Username", Environment.UserName },
                 { "MachineName", Environment.MachineName },
-                { "OSVersion", Environment.OSVersion.ToString() },
+                { "OSVersion", hardwareInfo.OperatingSystem.Name },
                 { "HWID", GetHardwareId() },
-                { "CPU", GetCpuInfo() },
-                { "TotalRAM_GB", Math.Round((double)GetTotalRamInBytes() / (1024 * 1024 * 1024), 2) },
-                { "GPU", GetGpuInfo() },
-                { "FreeSpace_C_GB", Math.Round((double)GetFreeSpaceOnDrive("C") / (1024 * 1024 * 1024), 2) },
+                { "CPU", hardwareInfo.CpuList.Count },
+            };
+
+            return systemInfo;
+        }
+
+        private static Dictionary<string, object> CreateInstallationJSON()
+        {
+            var hardwareInfo = new HardwareInfo();
+            hardwareInfo.RefreshAll();
+            var systemInfo = new Dictionary<string, object>
+            {
+                { "HWID", GetHardwareId() },
             };
 
             return systemInfo;
@@ -70,88 +95,6 @@ namespace SecVers_Debloat.Network
             {
                 return "Unknown-HWID";
             }
-        }
-
-        private static Dictionary<string, string> GetCpuInfo()
-        {
-            var cpuInfo = new Dictionary<string, string>();
-
-            try
-            {
-                using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_Processor"))
-                {
-                    foreach (var obj in searcher.Get())
-                    {
-                        cpuInfo["Name"] = obj["Name"]?.ToString() ?? "Unknown";
-                        cpuInfo["Cores"] = obj["NumberOfCores"]?.ToString() ?? "0";
-                        cpuInfo["LogicalProcessors"] = obj["NumberOfLogicalProcessors"]?.ToString() ?? "0";
-                        break;
-                    }
-                }
-            }
-            catch
-            {
-                cpuInfo["Name"] = "Unknown";
-                cpuInfo["Cores"] = "0";
-                cpuInfo["LogicalProcessors"] = "0";
-            }
-
-            return cpuInfo;
-        }
-        private static long GetTotalRamInBytes()
-        {
-            try
-            {
-                using (var searcher = new ManagementObjectSearcher("SELECT TotalPhysicalMemory FROM Win32_ComputerSystem"))
-                {
-                    foreach (var obj in searcher.Get())
-                    {
-                        return Convert.ToInt64(obj["TotalPhysicalMemory"]);
-                    }
-                }
-            }
-            catch
-            {
-                return 0;
-            }
-            return 0;
-        }
-
-        private static Dictionary<string, string> GetGpuInfo()
-        {
-            var gpuInfo = new Dictionary<string, string> { { "Name", "Unknown" }, { "VRAM_MB", "0" } };
-
-            try
-            {
-                using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_VideoController"))
-                {
-                    foreach (var obj in searcher.Get())
-                    {
-                        gpuInfo["Name"] = obj["Name"]?.ToString() ?? "Unknown";
-                        gpuInfo["VRAM_MB"] = (Convert.ToUInt64(obj["AdapterRAM"]) / (1024 * 1024)).ToString();
-                        break;
-                    }
-                }
-            } catch {}
-
-            return gpuInfo;
-        }
-
-        private static long GetFreeSpaceOnDrive(string driveLetter)
-        {
-            try
-            {
-                var drive = new System.IO.DriveInfo(driveLetter);
-                if (drive.IsReady)
-                {
-                    return drive.AvailableFreeSpace;
-                }
-            }
-            catch
-            {
-                return 0;
-            }
-            return 0;
         }
     }
 }
