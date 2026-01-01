@@ -11,7 +11,7 @@
         ui:TitleBar.Height="36"
         ui:ThemeManager.RequestedTheme="Dark"
         mc:Ignorable="d"
-        ResizeMode="CanMinimize"
+        
         MinHeight="550"
         MinWidth="900"
         Title="SecVers Debloat" 

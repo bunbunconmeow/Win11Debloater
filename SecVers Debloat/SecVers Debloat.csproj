@@ -99,7 +99,6 @@
     <Compile Include="Helper\Config.cs" />
     <Compile Include="Helper\ToolDownloader.cs" />
     <Compile Include="Helper\WingetHelper.cs" />
-    <Compile Include="Network\GET\LoadPowerShell.cs" />
     <Compile Include="Patches\Debloat.cs" />
     <Compile Include="Patches\Hardening\AccountSecurity.cs" />
     <Compile Include="Patches\Hardening\AttackSurfaceReduction.cs" />

@@ -15,44 +15,31 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using SecVers_Debloat.Extensions;
+using SecVers_Debloat.Network;
+using System.Windows.Media.Animation;
 
 namespace SecVers_Debloat
 {
     public partial class MainWindow : Window
     {
         UI.Popup.Telemetry_Popup popup = new UI.Popup.Telemetry_Popup();
+
         public MainWindow()
         {
             InitializeComponent();
             NavigateToPage("WelcomePage");
             popup.TelemetryChoiceMade += OnTelemetryChoiceMade;
             popup.ShowDialog();
+
+          
         }
 
         private void OnTelemetryChoiceMade(object sender, TelemetryChoiceEventArgs e)
         {
-            if (e.TelemetryEnabled)
-            {
-                InitializeTelemetryServices();
-            }
-            else
-            {
-                DisableTelemetryServices();
-            }
+          
         }
 
-
-
-        private void InitializeTelemetryServices()
-        {
-            
-        }
-
-        private void DisableTelemetryServices()
-        {
-            
-        }
-
+      
 
         private void NavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
