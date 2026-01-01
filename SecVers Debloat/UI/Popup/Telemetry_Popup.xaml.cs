@@ -1,8 +1,14 @@
-﻿using System;
+﻿using iNKORE.UI.WPF.Modern.Controls;
+using SecVers_Debloat.Cache;
+using SecVers_Debloat.Extensions;
+using SecVers_Debloat.Helper;
+using SecVers_Debloat.Network;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -10,14 +16,11 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using static SecVers_Debloat.Cache.Popup;
 using static SecVers_Debloat.Cache.Global;
-using SecVers_Debloat.Helper;
-using SecVers_Debloat.Cache;
-using iNKORE.UI.WPF.Modern.Controls;
-using System.Windows;
+using static SecVers_Debloat.Cache.Popup;
+
+        
 using MessageBox = iNKORE.UI.WPF.Modern.Controls.MessageBox;
-using SecVers_Debloat.Extensions;
 
 namespace SecVers_Debloat.UI.Popup
 {
@@ -27,12 +30,13 @@ namespace SecVers_Debloat.UI.Popup
     public partial class Telemetry_Popup : Window
     {
         public event EventHandler<TelemetryChoiceEventArgs> TelemetryChoiceMade;
-
+        private Telemetry TelemetryService;
         public Telemetry_Popup()
         {
             InitializeComponent();
+            TelemetryService = new Telemetry();
         }
-        private void BtnAllow_Click(object sender, RoutedEventArgs e)
+        private async void BtnAllow_Click(object sender, RoutedEventArgs e)
         {
             Cache.Popup.Set_AllowTelemetry(true);
 
@@ -41,6 +45,17 @@ namespace SecVers_Debloat.UI.Popup
                           MessageBoxButton.OK,
                           MessageBoxImage.Information);
 
+
+            
+            await TelemetryService.SendTelemetryAsync();
+            var (updateAvailable, remoteVersion) = await TelemetryService.CheckForUpdateAsync();
+            if (updateAvailable)
+            {
+                this.Dispatcher.Invoke(() =>
+                {
+                    iNKORE.UI.WPF.Modern.Controls.MessageBox.Show($"A new version ({remoteVersion}) is available! Please visit the SecVers website to download the latest version.", "Update Available", MessageBoxButton.OK, MessageBoxImage.Information);
+                });
+            }
             TelemetryChoiceMade?.Invoke(this, new TelemetryChoiceEventArgs(true));
             this.DialogResult = true;
             this.Close();
@@ -50,9 +65,9 @@ namespace SecVers_Debloat.UI.Popup
         {
             Cache.Popup.Set_AllowTelemetry(false);
             TelemetryChoiceMade?.Invoke(this, new TelemetryChoiceEventArgs(false));
-
-            this.DialogResult = false;
             this.Close();
         }
+
+  
     }
 }
