@@ -60,6 +60,7 @@ namespace SecVers_Debloat.UI.Pages
             ChkEnableCodeIntegrityGuard.IsChecked = true;
             ChkDisableWin32kSystemCalls.IsChecked = true;
             ChkEnableExportAddressFiltering.IsChecked = true;
+            ChkEnableAntiScreenshot.IsChecked = true;
         }
 
         private void ExploitProtectionAll_Unchecked(object sender, RoutedEventArgs e)
@@ -76,6 +77,7 @@ namespace SecVers_Debloat.UI.Pages
             ChkEnableCodeIntegrityGuard.IsChecked = false;
             ChkDisableWin32kSystemCalls.IsChecked = false;
             ChkEnableExportAddressFiltering.IsChecked = false;
+            ChkEnableAntiScreenshot.IsChecked = false;
         }
 
         private void ExploitProtectionAll_Indeterminate(object sender, RoutedEventArgs e)
@@ -103,7 +105,7 @@ namespace SecVers_Debloat.UI.Pages
                 ChkEnableDEP, ChkEnableSEHOP, ChkEnableBottomUpASLR, ChkEnableHighEntropyASLR,
                 ChkEnableMandatoryASLR, ChkEnableCFG, ChkEnableValidateExceptionChains,
                 ChkEnableValidateHeapIntegrity, ChkBlockUntrustedFonts, ChkEnableCodeIntegrityGuard,
-                ChkDisableWin32kSystemCalls, ChkEnableExportAddressFiltering
+                ChkDisableWin32kSystemCalls, ChkEnableExportAddressFiltering, ChkEnableAntiScreenshot
             };
         }
 
@@ -500,6 +502,7 @@ namespace SecVers_Debloat.UI.Pages
             bool useCodeIntegrityGuard = ChkEnableCodeIntegrityGuard.IsChecked == true;
             bool disableWin32kSystemCalls = ChkDisableWin32kSystemCalls.IsChecked == true;
             bool useExportAddressFiltering = ChkEnableExportAddressFiltering.IsChecked == true;
+            bool enableAntiScreenshot = ChkEnableAntiScreenshot.IsChecked == true;
 
             // Network Hardening
             bool disableSMBCompression = ChkDisableSMBCompression.IsChecked == true;
@@ -575,6 +578,8 @@ namespace SecVers_Debloat.UI.Pages
                     if (useCodeIntegrityGuard) _hardeningManager.Exploit.EnableCodeIntegrityGuard();
                     if (disableWin32kSystemCalls) _hardeningManager.Exploit.DisableWin32kSystemCalls();
                     if (useExportAddressFiltering) _hardeningManager.Exploit.EnableExportAddressFiltering();
+                    if(enableAntiScreenshot) DisableScreenshots.Execute();
+
 
                     // Network Hardening
                     if (disableSMBCompression) _hardeningManager.Network.DisableSMBCompression();

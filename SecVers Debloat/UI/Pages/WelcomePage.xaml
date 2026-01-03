@@ -296,10 +296,10 @@
                     </TextBlock>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <ui:HyperlinkButton Content="GitHub" 
-                                          NavigateUri="https://github.com/yourusername/secvers-debloat"
+                                          NavigateUri="https://github.com/bunbunconmeow/Win11Debloater/"
                                           Margin="0,0,16,0"/>
                         <ui:HyperlinkButton Content="Report Issue" 
-                                          NavigateUri="https://github.com/yourusername/secvers-debloat/issues"/>
+                                          NavigateUri="https://github.com/bunbunconmeow/Win11Debloater/issues"/>
                     </StackPanel>
                 </StackPanel>
 

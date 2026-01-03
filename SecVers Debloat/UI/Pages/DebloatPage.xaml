@@ -9,154 +9,154 @@
       mc:Ignorable="d" 
       d:DesignHeight="550" d:DesignWidth="680"
       Title="Debloat">
-    <Grid Margin="20">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+
         </Grid.RowDefinitions>
 
-        <!-- Category Selection with Pivot TabControl -->
-        <TabControl Grid.Row="1" 
-                    x:Name="CategoryTabControl"
-                    Style="{StaticResource TabControlPivotStyle}"
-                    Margin="0,0,0,16"
-                    SelectionChanged="CategoryTabControl_SelectionChanged">
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,15" HorizontalAlignment="Left">
+            <TextBlock Text="App Manager &amp; components" 
+                       FontSize="28" 
+                       HorizontalAlignment="Left"
+                       FontWeight="Bold"/>
+            <TextBlock Text="Manage installed applications and deep system components." 
+                       FontSize="14" 
+                       HorizontalAlignment="Left"
+                       Margin="0,5,0,0"/>
+        </StackPanel>
+        <TabControl Grid.Row="1" Style="{StaticResource {x:Static ui:ThemeKeys.TabControlPivotStyleKey}}">
+            <TabItem Header="Installed Apps">
+                <Grid Margin="0,10,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="90"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0" Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="TxtSearch" 
+                                 ui:ControlHelper.PlaceholderText="Search application..."
+                                 TextChanged="TxtSearch_TextChanged"
+                                 VerticalAlignment="Center"/>
 
-            <TabItem x:Name="TabUWPApps" Header="UWP Apps">
-                <TextBlock Text="Loading UWP Apps..." 
-                           FontStyle="Italic" 
-                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                        <!-- Refresh Button -->
+                        <Button x:Name="BtnRefresh" 
+                                Content="Refresh List" 
+                                Click="BtnRefreshApps_Click" 
+                                Margin="10,0,0,0"
+                                Grid.Column="1"/>
+                    </Grid>
+
+                    <!-- DataGrid -->
+                    <Grid Grid.Row="1">
+                        <DataGrid x:Name="DgInstalledApps"
+                          AutoGenerateColumns="False"
+                          GridLinesVisibility="Horizontal"
+                          HeadersVisibility="Column"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          CanUserResizeRows="False"
+                          CanUserSortColumns="True"
+                          RowHeaderWidth="0"
+                          BorderThickness="1"
+                          VirtualizingPanel.IsVirtualizing="True"
+                          VirtualizingPanel.VirtualizationMode="Recycling"
+                           
+                          SelectionMode="Single"
+                          SelectionUnit="FullRow" CanUserResizeColumns="False">
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Header="Select" Width="120" IsReadOnly="False">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                      HorizontalAlignment="Center" 
+                                                      VerticalAlignment="Center"
+                                                      HorizontalContentAlignment="Center"
+                                                      VerticalContentAlignment="Center"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="Application Name" 
+                                                    Binding="{Binding DisplayName}" 
+                                                    Width="*" 
+                                                    IsReadOnly="True"/>
+
+                                <DataGridTextColumn Header="Publisher" 
+                                                    Binding="{Binding Publisher}" 
+                                                    Width="200" 
+                                                    IsReadOnly="True"/>
+
+                                <DataGridTextColumn Header="Install Date" 
+                                                    Binding="{Binding InstallDate}" 
+                                                    Width="120" 
+                                                    IsReadOnly="True"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <!-- Loading Spinner Overlay -->
+                        <Grid x:Name="LoadingLayer" Background="#7FFFFFFF" Visibility="Collapsed" 
+                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <ui:ProgressRing IsActive="True" Width="50" Height="50" 
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Grid>
+
+                    <!-- Action Bar -->
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="2">
+                        <TextBlock x:Name="TxtAppCount" 
+                                   Text="Ready to scan." 
+                                   VerticalAlignment="Center" 
+                                   Foreground="Gray" 
+                                   Margin="0,0,15,0"/>
+
+                        <Button x:Name="BtnUninstall" 
+                                Content="Uninstall Selected" 
+                                Click="BtnUninstallSelected_Click"/>
+                    </StackPanel>
+                </Grid>
             </TabItem>
 
-            <TabItem x:Name="TabWinFeatures" Header="Win Features">
-                <TextBlock Text="Loading Windows Features..." 
-                           FontStyle="Italic" 
-                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-            </TabItem>
+            <TabItem Header="Core Components">
+                <Grid Margin="0,10,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="60"/>
+                    </Grid.RowDefinitions>
+                    <!-- Checkbox List -->
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalContentAlignment="Stretch" Height="272" Grid.RowSpan="2" VerticalAlignment="Top">
+                        <StackPanel HorizontalAlignment="Stretch">
+                            <!-- Edge -->
+                            <CheckBox x:Name="ChkEdge" Content="Microsoft Edge" FontSize="16" FontWeight="SemiBold"  HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch">
+                                <CheckBox.ToolTip>
+                                    <TextBlock Text="Removes Edge files, stops services, and blocks execution via Registry."/>
+                                </CheckBox.ToolTip>
+                            </CheckBox>
+                            <!-- OneDrive -->
+                            <CheckBox x:Name="ChkOneDrive" Content="Microsoft OneDrive" FontSize="16" FontWeight="SemiBold"  HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch">
+                                <CheckBox.ToolTip>
+                                    <TextBlock Text="Uninstalls OneDrive globally and wipes data folders."/>
+                                </CheckBox.ToolTip>
+                            </CheckBox>
+                            <CheckBox x:Name="ChkCortana" Content="Cortana" FontSize="16" FontWeight="SemiBold"  HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch">
+                                <CheckBox.ToolTip>
+                                    <TextBlock Text="Disables Cortana via Policy and removes App Packages."/>
+                                </CheckBox.ToolTip>
+                            </CheckBox>
+                        </StackPanel>
+                    </ScrollViewer>
 
-            <TabItem x:Name="TabServices" Header="Services">
-                <TextBlock Text="Loading Services..." 
-                           FontStyle="Italic" 
-                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-            </TabItem>
-
-            <TabItem x:Name="TabTelemetry" Header="Telemetry">
-                <TextBlock Text="Loading Telemetry..." 
-                           FontStyle="Italic" 
-                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-            </TabItem>
-
-            <TabItem x:Name="TabOneDrive" Header="OneDrive">
-                <TextBlock Text="Loading OneDrive..." 
-                           FontStyle="Italic" 
-                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-            </TabItem>
-
-            <TabItem x:Name="TabEdge" Header="Edge">
-                <TextBlock Text="Loading Edge..." 
-                           FontStyle="Italic" 
-                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-            </TabItem>
-
-            <TabItem x:Name="TabContextMenu" Header="Context Menu">
-                <TextBlock Text="Loading Context Menu..." 
-                           FontStyle="Italic" 
-                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-            </TabItem>
-
-            <TabItem x:Name="TabStartup" Header="Startup">
-                <TextBlock Text="Loading Startup..." 
-                           FontStyle="Italic" 
-                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
-            </TabItem>
-
-            <TabItem x:Name="TabUpdates" Header="Updates">
-                <TextBlock Text="Loading Updates..." 
-                           FontStyle="Italic" 
-                           Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    <Button Grid.Row="2" Content="Execute Selected Actions" 
+                            HorizontalAlignment="Right"
+                            Click="BtnExecuteCore_Click" Margin="0,10,10,0" VerticalAlignment="Top"/>
+                </Grid>
             </TabItem>
         </TabControl>
-
-        <!-- Search Box -->
-        <ui:AutoSuggestBox Grid.Row="2" 
-                           x:Name="SearchBox"
-                           PlaceholderText="Search items in current category..."
-                           QueryIcon="Find"
-                           Margin="0,0,0,12"
-                           TextChanged="SearchBox_TextChanged"/>
-
-        <!-- Items List with Select All -->
-        <Border Grid.Row="3" 
-                BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}"
-                BorderThickness="1"
-                CornerRadius="4"
-                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
-                <!-- Select All Header -->
-                <Border Grid.Row="0" 
-                        Background="{DynamicResource CardBackgroundFillColorSecondaryBrush}"
-                        Padding="12,8"
-                        BorderBrush="{DynamicResource DividerStrokeColorDefaultBrush}"
-                        BorderThickness="0,0,0,1">
-                    <CheckBox x:Name="SelectAllCheckBox"
-                              Content="Select All"
-                              IsThreeState="True"
-                              FontWeight="SemiBold"
-                              Checked="SelectAll_Checked"
-                              Unchecked="SelectAll_Unchecked"
-                              Indeterminate="SelectAll_Indeterminate"/>
-                </Border>
-
-                <!-- Scrollable Items List -->
-                <ScrollViewer Grid.Row="1" 
-                              VerticalScrollBarVisibility="Auto"
-                              Padding="8">
-                    <StackPanel x:Name="ItemsPanel">
-                        <TextBlock Text="Select a category to view items" 
-                                   FontStyle="Italic"
-                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                                   Margin="12"
-                                   HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </ScrollViewer>
-            </Grid>
-        </Border>
-
-        <!-- Progress Bar -->
-        <StackPanel Grid.Row="4" Margin="0,16,0,0" Visibility="Collapsed" x:Name="ProgressPanel">
-            <ui:ProgressBar x:Name="ProgressBar" 
-                            Height="4"
-                            Margin="0,0,0,8"/>
-            <TextBlock x:Name="ProgressText" 
-                       Text="Processing..." 
-                       FontSize="12"
-                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                       HorizontalAlignment="Center"/>
-        </StackPanel>
-
-        <!-- Action Buttons -->
-        <StackPanel Grid.Row="5" 
-                    Orientation="Horizontal" 
-                    HorizontalAlignment="Right"
-                    Margin="0,16,0,0">
-            <Button Content="View Script" 
-                       x:Name="BtnViewScript"
-                       Style="{StaticResource DefaultButtonStyle}"
-                       Margin="0,0,8,0"
-                       Click="ViewScript_Click"/>
-            <Button Content="Execute Selected" 
-                       x:Name="BtnExecute"
-                       Style="{StaticResource AccentButtonStyle}"
-                       Click="Execute_Click"/>
-        </StackPanel>
     </Grid>
 </Page>
