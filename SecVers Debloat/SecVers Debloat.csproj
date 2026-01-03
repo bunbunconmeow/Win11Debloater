@@ -99,9 +99,12 @@
     <Compile Include="Helper\Config.cs" />
     <Compile Include="Helper\ToolDownloader.cs" />
     <Compile Include="Helper\WingetHelper.cs" />
-    <Compile Include="Patches\Debloat.cs" />
+    <Compile Include="Patches\Debloater\AppManager.cs" />
+    <Compile Include="Patches\Debloater\ForceUninstaller.cs" />
+    <Compile Include="Patches\Debloater\SpecialAppRemover.cs" />
     <Compile Include="Patches\Hardening\AccountSecurity.cs" />
     <Compile Include="Patches\Hardening\AttackSurfaceReduction.cs" />
+    <Compile Include="Patches\Hardening\DisableScreenshots.cs" />
     <Compile Include="Patches\Hardening\ExploitProtection.cs" />
     <Compile Include="Patches\Hardening\NetworkHardening.cs" />
     <Compile Include="Patches\Hardening\PrivacyHardening.cs" />
