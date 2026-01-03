@@ -84,18 +84,17 @@ Quickly deploy essential runtimes and software (winget-based).
 ## Installation
 
 1.  Download the latest release from the [Releases](https://github.com/bunbunconmeow/Win11Debloater/releases) page.
-2.  Extract the ZIP file.
-3.  Run `SecVers_Debloat.exe` as **Administrator**.
+2.  Run `SecVers_Debloat.exe` as **Administrator**.
 
 ## Requirements
 
-*   **OS:** Windows 10 (1809+) or Windows 11.
-*   **Runtime:** .NET 6.0 or higher (Desktop Runtime).
+*   **OS:** Windows 11
+*   **Runtime:** .NET Framework 4.8 or higher (Desktop Runtime).
 
 ## Development
 
 *   **Language:** C#
-*   **Framework:** WPF (.NET 6/8)
+*   **Framework:** WPF (.NET Framework 4.8)
 *   **UI Library:** [iNKORE.UI.WPF.Modern](https://github.com/iNKORE-NET/UI.WPF.Modern)
 *   **IDE:** Visual Studio 2022
 
