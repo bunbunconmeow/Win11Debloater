@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Diagnostics;
+using System.IO;
 
 internal class DisableScreenshots
 {
@@ -119,7 +120,7 @@ internal class DisableScreenshots
         }
         catch (Exception e)
         {
-            Console.WriteLine($" - [Error] Registry Setzen fehlgeschlagen ({keyPath}): {e.Message}");
+           
         }
     }
 

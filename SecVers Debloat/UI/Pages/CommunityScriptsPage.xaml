@@ -15,12 +15,12 @@
             <!-- ==================== HEADER ==================== -->
             <StackPanel Margin="0,0,0,24">
                 <TextBlock 
-                    Text="Community Scripts" 
+                    Text="Scripts Library" 
                     FontSize="28" 
                     FontWeight="SemiBold"
                     Margin="0,0,0,8"/>
                 <TextBlock 
-                    Text="Add PowerShell scripts from the community and manage your library."
+                    Text="Manage PowerShell (.ps1) and JavaScript (.js) automations."
                     FontSize="14"
                     Opacity="0.7"
                     TextWrapping="Wrap"/>
@@ -33,26 +33,37 @@
                 Margin="0,0,0,16"
                 FontWeight="SemiBold"/>
 
+            <!-- ==================== LOCAL FILE IMPORT ==================== -->
+            <ui:SettingsCard 
+                Header="Import Local File"
+                Description="Import .ps1 or .js files from your computer"
+                HeaderIcon="{x:Static ui:SegoeFluentIcons.OpenFile}"
+                Margin="0,0,0,16">
+                <Button 
+                    Content="Browse..."
+                    Click="BrowseLocalButton_Click"
+                    DockPanel.Dock="Right"
+                    Padding="16,8"/>
+            </ui:SettingsCard>
+
             <!-- ==================== ADD SCRIPT FROM URL ==================== -->
             <ui:SettingsCard 
                 Header="Add Script from URL"
-                Description="Paste a URL to a PowerShell script"
-                HeaderIcon="{x:Static ui:SegoeFluentIcons.Add}"
+                Description="Paste a URL to a .ps1 or .js raw file"
+                HeaderIcon="{x:Static ui:SegoeFluentIcons.Link}"
                 Margin="0,0,0,16">
-
                 <StackPanel>
                     <DockPanel Margin="0,8,0,0">
                         <Button 
                             x:Name="AddScriptButton"
-                            Content="Add Script"
+                            Content="Add URL"
                             DockPanel.Dock="Right"
                             Margin="8,0,0,0"
                             Padding="16,8"
                             Click="AddScriptButton_Click"/>
-
                         <TextBox 
                             x:Name="UrlInputBox"
-                            ui:ControlHelper.PlaceholderText="https://example.com/script.ps1"
+                            ui:ControlHelper.PlaceholderText="https://example.com/script.js"
                             Height="32"
                             Width="250"
                             VerticalContentAlignment="Center"/>
@@ -60,13 +71,12 @@
                 </StackPanel>
             </ui:SettingsCard>
 
-            <!-- ==================== ADD FROM JSON URL ==================== -->
+            <!-- ==================== IMPORT FROM JSON ==================== -->
             <ui:SettingsCard 
                 Header="Import from JSON Library"
-                Description="Load multiple scripts from a JSON URL"
+                Description="Load repository from a JSON URL"
                 HeaderIcon="{x:Static ui:SegoeFluentIcons.CloudDownload}"
                 Margin="0,0,0,16">
-
                 <StackPanel>
                     <DockPanel Margin="0,8,0,0">
                         <Button 
@@ -76,10 +86,9 @@
                             Margin="8,0,0,0"
                             Padding="16,8"
                             Click="AddFromJsonButton_Click"/>
-
                         <TextBox 
                             x:Name="JsonUrlInputBox"
-                            ui:ControlHelper.PlaceholderText="https://example.com/scripts.json"
+                            ui:ControlHelper.PlaceholderText="https://example.com/repo.json"
                             Height="32"
                             Width="250"
                             VerticalContentAlignment="Center"/>
@@ -97,8 +106,6 @@
             <!-- Empty State -->
             <Border 
                 x:Name="EmptyStatePanel"
-                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
                 BorderThickness="1"
                 CornerRadius="8"
                 Padding="32"
@@ -116,7 +123,7 @@
                         HorizontalAlignment="Center"
                         Margin="0,0,0,8"/>
                     <TextBlock 
-                        Text="Add your first script using the URL input above"
+                        Text="Import a local file or add from URL"
                         Opacity="0.7"
                         HorizontalAlignment="Center"/>
                 </StackPanel>
@@ -130,33 +137,39 @@
                 Background="Transparent"
                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                 HorizontalContentAlignment="Stretch">
-
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Grid>
-                            <ui:SettingsCard Width="Auto">
+                            <ui:SettingsCard Width="Auto" Margin="0,0,0,4">
                                 <ui:SettingsCard.Header>
                                     <StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock 
+                                                Text="{Binding Title}" 
+                                                FontSize="16"
+                                                FontWeight="SemiBold"/>
+                                            <!-- Type Badge -->
+                                            <Border Background="#20FFFFFF" CornerRadius="4" Margin="8,0,0,0" Padding="6,2">
+                                                <TextBlock Text="{Binding Extension}" FontSize="10" Opacity="0.8"/>
+                                            </Border>
+                                        </StackPanel>
+
                                         <TextBlock 
-                                        Text="{Binding Title}" 
-                                        FontSize="16"
-                                        FontWeight="SemiBold"/>
-                                        <TextBlock 
-                                        Text="{Binding Url}" 
-                                        FontSize="12"
-                                        Opacity="0.7"
-                                        TextTrimming="CharacterEllipsis"/>
+                                            Text="{Binding Url}" 
+                                            FontSize="12"
+                                            Opacity="0.7"
+                                            TextTrimming="CharacterEllipsis"/>
                                     </StackPanel>
                                 </ui:SettingsCard.Header>
 
                                 <StackPanel Orientation="Horizontal">
-                                    <!-- Download Button -->
+                                    <!-- Download Button (Only for URL) -->
                                     <Button 
-                                    Content="Download"
-                                    Padding="12,6"
-                                    Margin="0,0,8,0"
-                                    Click="DownloadButton_Click"
-                                    Tag="{Binding}">
+                                        Content="Download"
+                                        Padding="12,6"
+                                        Margin="0,0,8,0"
+                                        Click="DownloadButton_Click"
+                                        Tag="{Binding}">
                                         <Button.Style>
                                             <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
                                                 <Setter Property="Visibility" Value="Visible"/>
@@ -171,11 +184,11 @@
 
                                     <!-- Run Button -->
                                     <Button 
-                                    Content="Run"
-                                    Padding="12,6"
-                                    Margin="0,0,8,0"
-                                    Click="RunButton_Click"
-                                    Tag="{Binding}">
+                                        Content="Run"
+                                        Padding="12,6"
+                                        Margin="0,0,8,0"
+                                        Click="RunButton_Click"
+                                        Tag="{Binding}">
                                         <Button.Style>
                                             <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -188,13 +201,13 @@
                                         </Button.Style>
                                     </Button>
 
-                                    <!-- View Script Button -->
+                                    <!-- View Button -->
                                     <Button 
-                                    Content="View"
-                                    Padding="12,6"
-                                    Margin="0,0,8,0"
-                                    Click="ViewButton_Click"
-                                    Tag="{Binding}">
+                                        Content="Edit/View"
+                                        Padding="12,6"
+                                        Margin="0,0,8,0"
+                                        Click="ViewButton_Click"
+                                        Tag="{Binding}">
                                         <Button.Style>
                                             <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -209,10 +222,10 @@
 
                                     <!-- Delete Button -->
                                     <Button 
-                                    Content="Delete"
-                                    Padding="12,6"
-                                    Click="DeleteButton_Click"
-                                    Tag="{Binding}"/>
+                                        Content="Delete"
+                                        Padding="12,6"
+                                        Click="DeleteButton_Click"
+                                        Tag="{Binding}"/>
                                 </StackPanel>
                             </ui:SettingsCard>
                         </Grid>

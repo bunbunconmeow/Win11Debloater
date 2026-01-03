@@ -1,7 +1,9 @@
 ﻿using iNKORE.UI.WPF.Modern.Common;
 using iNKORE.UI.WPF.Modern.Common.IconKeys;
 using iNKORE.UI.WPF.Modern.Controls;
+using Microsoft.Win32;
 using Newtonsoft.Json;
+using SecVers_Debloat.Helper;
 using SecVers_Debloat.Schemas;
 using System;
 using System.Collections.Generic;
@@ -40,15 +42,20 @@ namespace SecVers_Debloat.UI.Pages
         private const string ScriptsFolder = "Data/CommunityScripts";
         private static readonly HttpClient _httpClient = new HttpClient();
 
+        // JS Executor Instance
+        private readonly ScriptExecutor _jsExecutor;
+
         public CommunityScriptsPage()
         {
             InitializeComponent();
             Scripts = new ObservableCollection<ScriptAddon>();
             ScriptsListView.ItemsSource = Scripts;
 
-            // Create scripts folder
-            EnsureDirectoriesExist();
+            // Init JS Executor
+            _jsExecutor = new ScriptExecutor();
+            _jsExecutor.OnLogMessage += (s, msg) => Dispatcher.Invoke(() => ShowStatus(msg, false));
 
+            EnsureDirectoriesExist();
             LoadScripts();
             UpdateEmptyState();
         }
@@ -59,129 +66,145 @@ namespace SecVers_Debloat.UI.Pages
             {
                 var dataDir = Path.GetDirectoryName(ScriptsFile);
                 if (!string.IsNullOrEmpty(dataDir) && !Directory.Exists(dataDir))
-                {
                     Directory.CreateDirectory(dataDir);
-                }
 
                 if (!Directory.Exists(ScriptsFolder))
-                {
                     Directory.CreateDirectory(ScriptsFolder);
-                }
             }
             catch (Exception ex)
             {
-                ShowError($"Failed to create directories: {ex.Message}");
+                ShowError($"Init Error: {ex.Message}");
             }
         }
 
-      
+        // ==================== IMPORT LOCAL FILE ====================
+        private void BrowseLocalButton_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "Script Files (*.ps1;*.js)|*.ps1;*.js|All files (*.*)|*.*",
+                Title = "Select a script"
+            };
 
-        // ==================== ADD SINGLE SCRIPT ====================
-        private async void AddScriptButton_Click(object sender, RoutedEventArgs e)
+            if (openFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    string sourcePath = openFileDialog.FileName;
+                    string fileName = Path.GetFileName(sourcePath);
+                    string destPath = Path.Combine(ScriptsFolder, fileName);
+
+                    // Prevent overwrite check for simplicity or handle it
+                    if (File.Exists(destPath))
+                    {
+                        fileName = $"{Path.GetFileNameWithoutExtension(fileName)}_{DateTime.Now.Ticks}{Path.GetExtension(fileName)}";
+                        destPath = Path.Combine(ScriptsFolder, fileName);
+                    }
+
+                    File.Copy(sourcePath, destPath);
+
+                    var script = new ScriptAddon
+                    {
+                        Title = fileName,
+                        Url = "Local File",
+                        Sha = "",
+                        Downloaded = true // Treat local as downloaded
+                    };
+
+                    Scripts.Add(script);
+                    SaveScripts();
+                    UpdateEmptyState();
+                    ShowStatus($"✓ Import successful: {fileName}", false);
+                }
+                catch (Exception ex)
+                {
+                    ShowError($"Import failed: {ex.Message}");
+                }
+            }
+        }
+
+        // ==================== ADD URL ====================
+        private void AddScriptButton_Click(object sender, RoutedEventArgs e)
         {
             var url = UrlInputBox.Text?.Trim();
-            if (string.IsNullOrEmpty(url))
+            if (string.IsNullOrEmpty(url) || !Uri.IsWellFormedUriString(url, UriKind.Absolute))
             {
-                ShowError("Please enter a valid URL");
+                ShowError("Invalid URL");
                 return;
             }
 
-            if (!Uri.TryCreate(url, UriKind.Absolute, out _))
-            {
-                ShowError("Invalid URL format");
-                return;
-            }
-
-            // Check if already exists
             if (Scripts.Any(s => s.Url == url))
             {
-                ShowError("Script already exists in library");
+                ShowError("Script already exists");
                 return;
             }
 
             try
             {
-                ShowStatus("Adding script...", false);
-
-                // Try to get filename from URL
                 var fileName = Path.GetFileName(new Uri(url).LocalPath);
-                if (string.IsNullOrEmpty(fileName))
-                    fileName = "script.ps1";
+                // Basic cleanup
+                if (string.IsNullOrEmpty(fileName) || (!fileName.EndsWith(".js") && !fileName.EndsWith(".ps1")))
+                    fileName = "script_download.ps1";
 
                 var script = new ScriptAddon
                 {
                     Title = fileName,
                     Url = url,
-                    Sha = string.Empty,
                     Downloaded = false
                 };
 
                 Scripts.Add(script);
                 SaveScripts();
                 UpdateEmptyState();
-
                 UrlInputBox.Clear();
-                ShowStatus($"✓ Script '{fileName}' added successfully", false);
+                ShowStatus("✓ Script added to library", false);
             }
             catch (Exception ex)
             {
-                ShowError($"Error adding script: {ex.Message}");
+                ShowError(ex.Message);
             }
         }
 
-        // ==================== IMPORT FROM JSON ====================
+        // ==================== JSON IMPORT ====================
         private async void AddFromJsonButton_Click(object sender, RoutedEventArgs e)
         {
             var jsonUrl = JsonUrlInputBox.Text?.Trim();
-            if (string.IsNullOrEmpty(jsonUrl))
-            {
-                ShowError("Please enter a valid JSON URL");
-                return;
-            }
+            if (string.IsNullOrEmpty(jsonUrl)) return;
 
             try
             {
-                ShowStatus("Loading JSON library...", false);
-
+                ShowStatus("Fetching JSON...", false);
                 var response = await _httpClient.GetStringAsync(jsonUrl);
                 var collection = JsonSerializer.Deserialize<ScriptAddonsCollection>(response);
 
-                if (collection?.Scripts == null || collection.Scripts.Count == 0)
+                if (collection?.Scripts != null)
                 {
-                    ShowError("No scripts found in JSON");
-                    return;
-                }
-
-                int addedCount = 0;
-                foreach (var script in collection.Scripts)
-                {
-                    // Skip if already exists
-                    if (Scripts.Any(s => s.Url == script.Url))
-                        continue;
-
-                    Scripts.Add(new ScriptAddon
+                    int count = 0;
+                    foreach (var s in collection.Scripts)
                     {
-                        Title = script.Title ?? "Unknown Script",
-                        Url = script.Url,
-                        Sha = script.Sha ?? string.Empty,
-                        Downloaded = false
-                    });
-                    addedCount++;
+                        if (Scripts.Any(ex => ex.Url == s.Url)) continue;
+
+                        // Default logic if title missing
+                        if (string.IsNullOrEmpty(s.Title))
+                            s.Title = Path.GetFileName(s.Url);
+
+                        s.Downloaded = false;
+                        Scripts.Add(s);
+                        count++;
+                    }
+                    SaveScripts();
+                    UpdateEmptyState();
+                    JsonUrlInputBox.Clear();
+                    ShowStatus($"✓ Imported {count} scripts", false);
                 }
-
-                SaveScripts();
-                UpdateEmptyState();
-                JsonUrlInputBox.Clear();
-
-                ShowStatus($"✓ Added {addedCount} new scripts from JSON", false);
             }
             catch (Exception ex)
             {
-                ShowError($"Error loading JSON: {ex.Message}");
+                ShowError($"JSON Error: {ex.Message}");
             }
         }
 
-        // ==================== DOWNLOAD SCRIPT ====================
+        // ==================== DOWNLOAD ====================
         private async void DownloadButton_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.Tag is ScriptAddon script)
@@ -189,21 +212,24 @@ namespace SecVers_Debloat.UI.Pages
                 try
                 {
                     ShowStatus($"Downloading {script.Title}...", false);
+                    string extension = GetExtension(script.Title);
 
                     var content = await _httpClient.GetStringAsync(script.Url);
-                    var fileName = SanitizeFileName(script.Title);
-                    var filePath = Path.Combine(ScriptsFolder, fileName);
+                    string fileName = SanitizeFileName(script.Title, extension);
+                    string destPath = Path.Combine(ScriptsFolder, fileName);
 
-                    File.WriteAllText(filePath, content, Encoding.UTF8);
+                    // Update Title to match file if sanitized changed it
+                    script.Title = fileName;
 
-                    // Verify hash if provided
+                    File.WriteAllText(destPath, content, Encoding.UTF8);
+
                     if (!string.IsNullOrEmpty(script.Sha))
                     {
                         var hash = ComputeSha256(content);
                         if (!hash.Equals(script.Sha, StringComparison.OrdinalIgnoreCase))
                         {
-                            File.Delete(filePath);
-                            ShowError("⚠️ Hash verification failed! Script not saved.");
+                            File.Delete(destPath);
+                            ShowError("Hash Mismatch! File deleted.");
                             return;
                         }
                     }
@@ -211,239 +237,180 @@ namespace SecVers_Debloat.UI.Pages
                     script.Downloaded = true;
                     SaveScripts();
                     ScriptsListView.Items.Refresh();
-
-                    ShowStatus($"✓ {script.Title} downloaded successfully", false);
+                    ShowStatus("✓ Download Complete", false);
                 }
                 catch (Exception ex)
                 {
-                    ShowError($"Download failed: {ex.Message}");
+                    ShowError($"Download Failed: {ex.Message}");
                 }
             }
         }
 
-        // ==================== RUN SCRIPT ====================
-        private void RunButton_Click(object sender, RoutedEventArgs e)
+        // ==================== EXECUTE LOGIC ====================
+        private async void RunButton_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.Tag is ScriptAddon script)
             {
-                var fileName = SanitizeFileName(script.Title);
-                var filePath = Path.Combine(ScriptsFolder, fileName);
+                string filePath = Path.Combine(ScriptsFolder, script.Title); // Title matches filename
 
                 if (!File.Exists(filePath))
                 {
-                    ShowError("Script file not found. Please download it first.");
+                    ShowError("File missing. Try deleting and re-adding.");
                     return;
                 }
 
-                var result = MessageBox.Show(
-                    $"Are you sure you want to run:\n\n{script.Title}\n\n⚠️ Only run scripts you trust!",
-                    "Confirm Script Execution",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Warning);
+                var confirmed = MessageBox.Show(
+                    $"Run: {script.Title}\n\n⚠️ Caution: Scripts run with system privileges.",
+                    "Confirm Execution", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
-                if (result == MessageBoxResult.Yes)
+                if (confirmed != MessageBoxResult.Yes) return;
+
+                // CHECK TYPE
+                string ext = Path.GetExtension(filePath).ToLower();
+
+                if (ext == ".js")
                 {
+                    // === JAVASCRIPT (JINT) ===
+                    ShowStatus("Running JavaScript Engine...", false);
                     try
                     {
-                        var psi = new ProcessStartInfo
-                        {
-                            FileName = "powershell.exe",
-                            Arguments = $"-ExecutionPolicy Bypass -File \"{filePath}\"",
-                            Verb = "runas",
-                            UseShellExecute = true
-                        };
-
-                        Process.Start(psi);
-                        ShowStatus($"✓ Running {script.Title}...", false);
+                        // The executor fires OnLogMessage, which updates UI
+                        await _jsExecutor.ExecuteScriptFileAsync(filePath);
                     }
                     catch (Exception ex)
                     {
-                        ShowError($"Failed to run script: {ex.Message}");
+                        ShowError($"JS Runtime Error: {ex.Message}");
                     }
+                }
+                else if (ext == ".ps1")
+                {
+                    // === POWERSHELL ===
+                    try
+                    {
+                        ProcessStartInfo psi = new ProcessStartInfo
+                        {
+                            FileName = "powershell.exe",
+                            Arguments = $"-NoProfile -ExecutionPolicy Bypass -File \"{filePath}\"",
+                            Verb = "runas",
+                            UseShellExecute = true
+                        };
+                        Process.Start(psi);
+                        ShowStatus("✓ PowerShell Triggered", false);
+                    }
+                    catch (Exception ex)
+                    {
+                        ShowError($"PS Error: {ex.Message}");
+                    }
+                }
+                else
+                {
+                    ShowError("Unknown file type. Cannot execute.");
                 }
             }
         }
 
-        // ==================== VIEW SCRIPT ====================
         private void ViewButton_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.Tag is ScriptAddon script)
             {
-                var fileName = SanitizeFileName(script.Title);
-                var filePath = Path.Combine(ScriptsFolder, fileName);
-
+                string filePath = Path.Combine(ScriptsFolder, script.Title);
                 if (File.Exists(filePath))
                 {
-                    try
-                    {
-                        Process.Start("notepad.exe", filePath);
-                    }
-                    catch (Exception ex)
-                    {
-                        ShowError($"Failed to open script: {ex.Message}");
-                    }
-                }
-                else
-                {
-                    ShowError("Script file not found");
+                    Process.Start(new ProcessStartInfo("notepad.exe", filePath) { UseShellExecute = true });
                 }
             }
         }
 
-        // ==================== DELETE SCRIPT ====================
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.Tag is ScriptAddon script)
             {
-                var result = MessageBox.Show(
-                    $"Delete '{script.Title}' from your library?",
-                    "Confirm Delete",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question);
-
-                if (result == MessageBoxResult.Yes)
+                if (MessageBox.Show("Delete script?", "Confirm", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 {
-                    // Delete file if downloaded
                     if (script.Downloaded)
                     {
-                        var fileName = SanitizeFileName(script.Title);
-                        var filePath = Path.Combine(ScriptsFolder, fileName);
-                        if (File.Exists(filePath))
-                        {
-                            try
-                            {
-                                File.Delete(filePath);
-                            }
-                            catch { }
-                        }
+                        string p = Path.Combine(ScriptsFolder, script.Title);
+                        if (File.Exists(p)) File.Delete(p);
                     }
-
                     Scripts.Remove(script);
                     SaveScripts();
                     UpdateEmptyState();
-                    ShowStatus($"✓ Deleted {script.Title}", false);
                 }
             }
         }
 
-        // ==================== HELPER METHODS ====================
+        // ==================== HELPERS ====================
+
+        private string GetExtension(string title)
+        {
+            if (title.EndsWith(".js", StringComparison.OrdinalIgnoreCase)) return ".js";
+            return ".ps1";
+        }
+
+        private string SanitizeFileName(string fileName, string extension)
+        {
+            var invalid = Path.GetInvalidFileNameChars();
+            var sanitized = string.Join("_", fileName.Split(invalid));
+
+            // Remove existing extensions to avoid script.js.ps1
+            if (sanitized.EndsWith(".ps1", StringComparison.OrdinalIgnoreCase))
+                sanitized = sanitized.Substring(0, sanitized.Length - 4);
+            if (sanitized.EndsWith(".js", StringComparison.OrdinalIgnoreCase))
+                sanitized = sanitized.Substring(0, sanitized.Length - 3);
+
+            return sanitized + extension;
+        }
+
         private void LoadScripts()
         {
+            if (!File.Exists(ScriptsFile)) return;
             try
             {
-                // Debug: Show absolute path
-                var absolutePath = Path.GetFullPath(ScriptsFile);
-                Debug.WriteLine($"Looking for scripts at: {absolutePath}");
-
-                if (File.Exists(ScriptsFile))
+                var json = File.ReadAllText(ScriptsFile);
+                var col = JsonSerializer.Deserialize<ScriptAddonsCollection>(json);
+                if (col?.Scripts != null)
                 {
-                    var json = File.ReadAllText(ScriptsFile);
-                    Debug.WriteLine($"Loaded JSON: {json}");
-
-                    var collection = JsonSerializer.Deserialize<ScriptAddonsCollection>(json);
-
-                    if (collection?.Scripts != null)
+                    Scripts.Clear();
+                    foreach (var s in col.Scripts)
                     {
-                        Scripts.Clear();
-                        foreach (var script in collection.Scripts)
-                        {
-                            Scripts.Add(script);
-                        }
-                        Debug.WriteLine($"Loaded {Scripts.Count} scripts");
-                    }
-                    else
-                    {
-                        Debug.WriteLine("JSON deserialized but Scripts collection is null");
+                       
+                        Scripts.Add(s);
                     }
                 }
-                else
-                {
-                    Debug.WriteLine($"Scripts file not found at: {absolutePath}");
-                    // Create empty file for next time
-                    SaveScripts();
-                }
             }
-            catch (Exception ex)
-            {
-                ShowError($"Failed to load scripts: {ex.Message}");
-                Debug.WriteLine($"LoadScripts Exception: {ex}");
-            }
+            catch (Exception ex) { ShowError("Load Error: " + ex.Message); }
         }
-
 
         private void SaveScripts()
         {
-            try
-            {
-                var collection = new ScriptAddonsCollection { Scripts = Scripts.ToList() };
-                var options = new JsonSerializerOptions
-                {
-                    WriteIndented = true,
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                };
-
-                var json = JsonSerializer.Serialize(collection, options);
-
-                // Ensure directory exists before writing
-                var directory = Path.GetDirectoryName(ScriptsFile);
-                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
-                {
-                    Directory.CreateDirectory(directory);
-                }
-
-                File.WriteAllText(ScriptsFile, json, Encoding.UTF8);
-                Debug.WriteLine($"Saved {Scripts.Count} scripts to {ScriptsFile}");
-            }
-            catch (Exception ex)
-            {
-                ShowError($"Failed to save scripts: {ex.Message}");
-                Debug.WriteLine($"SaveScripts Exception: {ex}");
-            }
+            var col = new ScriptAddonsCollection { Scripts = Scripts.ToList() };
+            var json = JsonSerializer.Serialize(col, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(ScriptsFile, json);
         }
-
 
         private void UpdateEmptyState()
         {
-            bool hasScripts = Scripts.Count > 0;
-            EmptyStatePanel.Visibility = hasScripts ? Visibility.Collapsed : Visibility.Visible;
-            ScriptsListView.Visibility = hasScripts ? Visibility.Visible : Visibility.Collapsed;
+            bool has = Scripts.Count > 0;
+            EmptyStatePanel.Visibility = has ? Visibility.Collapsed : Visibility.Visible;
+            ScriptsListView.Visibility = has ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        private void ShowStatus(string message, bool isError)
+        private void ShowStatus(string msg, bool err)
         {
-            StatusTextBlock.Text = message;
-            StatusTextBlock.Foreground = isError 
-                ? System.Windows.Media.Brushes.Red 
-                : System.Windows.Media.Brushes.Green;
+            StatusTextBlock.Text = msg;
+            StatusTextBlock.Foreground = err ? System.Windows.Media.Brushes.Red : System.Windows.Media.Brushes.Green;
             StatusTextBlock.Visibility = Visibility.Visible;
         }
 
-        private void ShowError(string message)
-        {
-            ShowStatus(message, true);
-        }
-
-        private string SanitizeFileName(string fileName)
-        {
-
-            var invalid = Path.GetInvalidFileNameChars();
-            var sanitized = string.Join("_", fileName.Split(invalid));
-            
-            if (!sanitized.EndsWith(".ps1", StringComparison.OrdinalIgnoreCase))
-                sanitized += ".ps1";
-                
-            return sanitized;
-        }
+        private void ShowError(string msg) => ShowStatus("❌ " + msg, true);
 
         private string ComputeSha256(string content)
         {
-            using (var sha256 = SHA256.Create())
+            using (var sha = SHA256.Create())
             {
-                var bytes = Encoding.UTF8.GetBytes(content);
-                var hash = sha256.ComputeHash(bytes);
-                return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(content));
+                return BitConverter.ToString(bytes).Replace("-", "").ToLowerInvariant();
             }
         }
-
     }
 }

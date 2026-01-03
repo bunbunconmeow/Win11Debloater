@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace SecVers_Debloat.Schemas
@@ -16,6 +17,19 @@ namespace SecVers_Debloat.Schemas
 
         [JsonPropertyName("downloaded")]
         public bool Downloaded { get; set; }
+
+        [JsonIgnore]
+        public string Extension
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(Title) && Title.EndsWith(".js", StringComparison.OrdinalIgnoreCase))
+                {
+                    return "JS";
+                }
+                return "PS1";
+            }
+        }
     }
 
     public class ScriptAddonsCollection

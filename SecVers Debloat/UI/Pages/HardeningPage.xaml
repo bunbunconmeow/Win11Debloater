@@ -152,6 +152,11 @@
                                       Margin="4"
                                       Checked="ExploitProtectionOption_Checked"
                                       Unchecked="ExploitProtectionOption_Unchecked"/>
+                            <CheckBox x:Name="ChkEnableAntiScreenshot"
+                                      Content="Disable the Feature to take Screenshots"
+                                      Margin="4"
+                                      Checked="ExploitProtectionOption_Checked"
+                                      Unchecked="ExploitProtectionOption_Unchecked"/>
                         </StackPanel>
                     </Expander.Content>
                 </Expander>
