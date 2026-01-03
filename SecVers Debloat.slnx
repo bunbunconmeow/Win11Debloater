@@ -6,6 +6,7 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
+  <Project Path="SecVereLHE/SecVereLHE.csproj" Id="c1f31325-75d4-407a-8091-930b5d558796" />
   <Project Path="SecVers Debloat/SecVers Debloat.csproj" Id="d462c9b2-c8da-4540-8d06-b76629c9fbd3">
     <Platform Solution="*|x64" Project="x64" />
   </Project>
