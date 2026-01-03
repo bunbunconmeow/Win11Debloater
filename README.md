@@ -1,36 +1,38 @@
-# Win11Debloater & System Hardener
+# SecVers Debloat (Win11Debloater)
 
 ![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)
 ![Status](https://img.shields.io/badge/Status-Early%20Development-orange)
-![Platform](https://img.shields.io/badge/Platform-Windows%2011-blue)
+![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%2F%2011-blue)
 ![Tech](https://img.shields.io/badge/Made%20with-C%23%20%2F%20WPF%20%2F%20iNKORE.UI-purple)
 
-A modern, modular, and security-focused Windows 11 optimization tool. Built with **WPF** and **iNKORE.UI**, it offers a sleek user interface similar to AtlasOS but acts as a standalone application to debloat, harden, and customize your system.
+**SecVers Debloat** is a powerful, modern, and modular Windows 11 optimization tool designed to help users remove bloatware, disable telemetry, harden system security, and enhance performance. 
+
+Built with **C#**, **WPF**, and the **iNKORE.UI** library, it offers a sleek Fluent Design interface (similar to AtlasOS/Settings) but operates as a standalone application. It features a dual-engine scripting system supporting both PowerShell and JavaScript automation.
 
 > [!WARNING]
-> **EARLY DEVELOPMENT**
-> This project is currently in the early stages of development. Features are subject to change, and bugs may be present. **Always create a System Restore Point before using any modules.**
+> **USE AT YOUR OWN RISK**
+> This tool modifies core system configurations, Registry keys, and Hardware IDs. Always create a **System Restore Point** before applying changes.
 
 ---
 
 ## Screenshots
 
-| Home & Dashboard | Debloater |
+| Dashboard | Debloater Engine |
 |:---:|:---:|
 | ![Home](https://github.com/bunbunconmeow/Win11Debloater/blob/main/GitHub/Images/HomeScreen.png?raw=true) | ![Debloater](https://github.com/bunbunconmeow/Win11Debloater/blob/main/GitHub/Images/Debloater.png?raw=true) |
 
-| System Hardening | Defender Options |
+| System Hardening | Defender & Exclusions |
 |:---:|:---:|
 | ![Hardening](https://github.com/bunbunconmeow/Win11Debloater/blob/main/GitHub/Images/SystemHardening.png?raw=true) | ![Defender](https://github.com/bunbunconmeow/Win11Debloater/blob/main/GitHub/Images/DefenderOptions.png?raw=true) |
 
 <details>
-<summary><strong>View more screenshots (Registry, Anonymizer, Installer...)</strong></summary>
+<summary><strong>View more screenshots (Script Engine, Anonymizer, Installer...)</strong></summary>
 
-| Registry Tweaks | Anonymizer |
+| Registry & UI Tweaks | Anonymizer (HWID) |
 |:---:|:---:|
 | ![Registry](https://github.com/bunbunconmeow/Win11Debloater/blob/main/GitHub/Images/RegistryTweaks.png?raw=true) | ![Anonymizer](https://github.com/bunbunconmeow/Win11Debloater/blob/main/GitHub/Images/Anonymizer.png?raw=true) |
 
-| Software Installer | Community Scripts |
+| Software Installer | Script Library |
 |:---:|:---:|
 | ![Installer](https://github.com/bunbunconmeow/Win11Debloater/blob/main/GitHub/Images/SoftwareInstaller.png?raw=true) | ![Scripts](https://github.com/bunbunconmeow/Win11Debloater/blob/main/GitHub/Images/CommunityScripts.png?raw=true) |
 
@@ -38,71 +40,69 @@ A modern, modular, and security-focused Windows 11 optimization tool. Built with
 
 ---
 
-## Key Features
+## Features
 
-### Smart Debloater engine
-Unlike other tools that generally rely on PowerShell wrappers, this engine uses **native Win32 APIs** where possible for speed and reliability.
-*   **Remove Bloatware:** Bulk removal of UWP apps (Teams, Cortana, Bing, OneDrive, Widgets).
-*   **Telemetry Disable:** Blocks diagnostic data, "Tailored Experiences," and edge-case telemetry via Registry.
-*   **Context Menu:** Clean up the right-click menu and restore classic capabilities.
-*   **Startup Manager:** Manage high-impact startup items.
-*   **Edge Cleanup:** Policies to restrict Edge background services and updates.
+### 🚀 Smart Debloater Engine
+A native removal engine designed for speed and reliability.
+*   **Bulk App Removal:** Remove pre-installed UWP bloatware (Cortana, Teams, BingWeather, Feedback Hub, etc.).
+*   **Search & Filter:** Easily find specific packages to remove via the search bar.
+*   **Tabbed Interface:** Organized view of Core Apps, System Apps, and optional Features.
 
-### System Hardening
-Advanced security features that go beyond standard settings.
-*   **System Integrity:** Checks and configures Secure Boot, WDAC (Windows Defender Application Control), and Hypervisor-Enforced Code Integrity.
-*   **Credential Guard:** Enables VBS (Virtualization-Based Security) to protect system secrets.
-*   **Exploit Protection:** Configures system-wide mitigation settings.
-*   **Attack Surface Reduction (ASR):** Minimizes vulnerability vectors in apps and Office.
+### 📜 Scripting & Automation (Dual-Engine)
+An advanced environment to run community or custom tweaks safely.
+*   **JavaScript Interpreter:** Native support for executing `.js` automation scripts for system tasks.
+*   **PowerShell Integration:** Execute standard `.ps1` scripts directly from the UI.
+*   **Import System:** Import local script files easily to build your own library.
 
-### Defender Control options
-Granular control over Windows Security with one-click presets.
-*   **Presets:** Quick switching between Standard, Strictly Secure, or Minimal/Gaming modes.
-*   **Toggle Features:** Manually control Real-time Protection, Cloud Protection, SmartScreen, Script Scanning, and Tamper Protection.
+### 🕵️ Anonymizer & HWID Spoofing
+Advanced privacy tools to randomize system fingerprints and identifiers.
+*   **HWID Management:** Randomize Machine GUIDs, Product IDs, and Serial Numbers.
+*   **Privacy Reset:** Clear/Reset Advertising ID and Telemetry ID.
+*   **Registration Data:** Randomize "Registered Owner" and "Organization" info.
+*   **Install Date:** Randomize the Windows Installation Date to obfuscate system age.
+*   *> Note: Spoofing HWIDs may affect software licenses (e.g., Windows Activation, Games).*
 
-### Anonymizer & Privacy
-*   **Data Randomization:** Features to generate random MAC addresses and unique system identifiers.
-*   **Registry Privacy:** Disable advertising IDs, tracking, and unsolicited feedback.
+### 🛡️ System Hardening & Defender Control
+Granular control over Windows Security beyond the standard Settings app.
+*   **Exclusions Manager:** View and remove File, Folder, and Process exclusions that malware might hide in.
+*   **Hardening Presets:** One-click profiles (Standard, Strictly Secure, Gaming).
+*   **Security Tweaks:** Configure Real-time Protection, Cloud Protection, SmartScreen, and ASR (Attack Surface Reduction) rules.
 
-### Utilities
-*   **Software Installer:** Quickly install essential software (Browsers, Runtimes, Tools).
-*   **Registry Tweaks:** UI customization (Taskbar alignment, Snap Assist, File Extensions, Chat Icon removal).
-*   **Community Scripts:** A dedicated section to import and run trusted community batches/scripts safely.
+### 🎨 Registry & UI Customization
+Restoring the classic feel of Windows.
+*   **Classic Context Menu:** Restore the Windows 10 "Full" right-click menu (requires Explorer restart).
+*   **Taskbar Cleanup:** Disable Widgets, Chat Icons, and Search bars.
+*   **Impact Analysis:** UI shows Risk and Impact levels for every tweak before applying.
+
+### 📦 Software Installer
+Quickly deploy essential runtimes and software (winget-based).
+*   **Runtimes:** .NET Desktop Runtime (6 & 8), Visual C++ 2015-2022 Redist (x64/x86), DirectX, Java Runtime (JRE).
+*   **Browsers & Tools:** Setup Chrome, Firefox, VS Code, and other essentials in seconds.
 
 ---
 
-## Installation & Usage
+## Installation
 
-1.  Download the latest release from the [Releases Page](https://github.com/bunbunconmeow/Win11Debloater/releases).
+1.  Download the latest release from the [Releases](https://github.com/bunbunconmeow/Win11Debloater/releases) page.
 2.  Extract the ZIP file.
-3.  Right-click `Win11Debloater.exe` and select **Run as Administrator**.
-4.  Navigate using the sidebar to the desired module.
+3.  Run `SecVers_Debloat.exe` as **Administrator**.
 
-> **Note:** The application requires Administrator privileges to modify Registry keys, Services, and System Policies.
+## Requirements
 
----
+*   **OS:** Windows 10 (1809+) or Windows 11.
+*   **Runtime:** .NET 6.0 or higher (Desktop Runtime).
+
+## Development
+
+*   **Language:** C#
+*   **Framework:** WPF (.NET 6/8)
+*   **UI Library:** [iNKORE.UI.WPF.Modern](https://github.com/iNKORE-NET/UI.WPF.Modern)
+*   **IDE:** Visual Studio 2022
 
 ## Disclaimer
 
-This software modifies core Windows configurations. While every effort has been made to ensure safety and stability:
-*   **You use this software at your own risk.**
-*   The developers are not responsible for any data loss, boot loops, or system instability.
-*   Some "features" removed (like OneDrive or Defender) may be difficult to restore without reinstalling Windows components.
+This software is provided "as is", without warranty of any kind. The authors are not responsible for any damage to your computer, data loss, or license invalidation caused by the use of this tool. 
+Some features (especially HWID Spoofing) may violate Terms of Service of certain software vendors.
 
 ---
-
-## Contributing
-
-This project is in early development! Pull requests, bug reports, and feature suggestions are highly welcome.
-
-1.  Fork the repository.
-2.  Create your feature branch (`git checkout -b feature/AmazingFeature`).
-3.  Commit your changes (`git commit -m 'Add some AmazingFeature'`).
-4.  Push to the branch (`git push origin feature/AmazingFeature`).
-5.  Open a Pull Request.
-
----
-
-## License
-
-This project is licensed under the **BSD 3-Clause License**. See the [LICENSE](LICENSE) file for details.
+*Made with ❤️ by the SecVers team*
