@@ -16,10 +16,12 @@ namespace SecVerseLHE.Core
 
                 if (File.Exists(path))
                 {
-                    string quarantinePath = path + ".LOCKED";
-                    if (File.Exists(quarantinePath)) File.Delete(quarantinePath);
-                    File.Move(path, quarantinePath);
-                    File.SetAttributes(quarantinePath, FileAttributes.Hidden);
+                    string quarantinePath = path + ".SecVersBlocked";
+                    if (!File.Exists(quarantinePath))
+                    {
+                        File.Move(path, quarantinePath);
+                        File.SetAttributes(quarantinePath, FileAttributes.Compressed);
+                    }
                 }
             }
             catch (Exception ex)
