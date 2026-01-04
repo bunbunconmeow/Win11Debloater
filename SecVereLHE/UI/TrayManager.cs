@@ -42,6 +42,22 @@ namespace SecVerseLHE.UI
             _menu.ShowImageMargin = true;
             _menu.BackColor = usageDarkMode ? Color.FromArgb(31, 31, 31) : Color.White;
 
+            var separator = new ToolStripSeparator
+            {
+                BackColor = usageDarkMode ? Color.FromArgb(64, 64, 64) : Color.LightGray,
+                Height = 1
+            };
+            var separatorTitle = new ToolStripSeparator
+            {
+                BackColor = usageDarkMode ? Color.FromArgb(64, 64, 64) : Color.LightGray,
+                Height = 1
+            };
+            
+            _menu.Items.Add("SecVerse LHE");
+            _menu.Items.Add(separatorTitle);
+
+            #region ProtectionSection
+
             var tgl_InterpreterGuard = new ToolStripMenuItem("Disable Interpreter Guard");
             tgl_InterpreterGuard.Click += (s, e) => ToggleIG(tgl_InterpreterGuard);
             tgl_InterpreterGuard.Padding = new Padding(0, 4, 0, 4);
@@ -52,8 +68,6 @@ namespace SecVerseLHE.UI
             _whitelistItem.Padding = new Padding(0, 4, 0, 4);
             _whitelistItem.ForeColor = Color.Gray; 
             _menu.Items.Add(_whitelistItem);
-
-
 
             // disable office thingy
             var tgl_officeProtection = new ToolStripMenuItem("Disable Office Protection");
@@ -68,7 +82,9 @@ namespace SecVerseLHE.UI
             _menu.Items.Add(tgl_RuntimeGuard);
 
 
-            _menu.Items.Add(new ToolStripSeparator());
+            #endregion ProtectionSection
+
+            _menu.Items.Add(separator);
             #region InfoSection
             // about
             var aboutItem = new ToolStripMenuItem("About", null, (s, e) =>
