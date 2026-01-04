@@ -1,6 +1,5 @@
-﻿using SecVerseLHE.Core;
-using System;
-using System.Drawing; // Wichtig für Fonts/Colors
+﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace SecVerseLHE.UI
@@ -8,10 +7,15 @@ namespace SecVerseLHE.UI
     public class TrayManager : ApplicationContext
     {
         private NotifyIcon _trayIcon;
-        private ContextMenuStrip _menu; // Menü als Variable speichern
+        private ContextMenuStrip _menu;
+        private ToolStripMenuItem _whitelistItem;
 
         public event EventHandler ExitRequested;
         public event EventHandler<bool> OfficeProtectionToggled;
+        public event EventHandler<bool> RuntimeGuardToggled;
+
+        public event EventHandler<bool> IG_Toggled;
+        public event EventHandler<bool> IG_WhitelistToggled;
 
         public TrayManager()
         {
@@ -38,12 +42,30 @@ namespace SecVerseLHE.UI
             _menu.ShowImageMargin = true;
             _menu.BackColor = usageDarkMode ? Color.FromArgb(31, 31, 31) : Color.White;
 
+            var tgl_InterpreterGuard = new ToolStripMenuItem("Disable Interpreter Guard");
+            tgl_InterpreterGuard.Click += (s, e) => ToggleIG(tgl_InterpreterGuard);
+            tgl_InterpreterGuard.Padding = new Padding(0, 4, 0, 4);
+            _menu.Items.Add(tgl_InterpreterGuard);
+
+            _whitelistItem = new ToolStripMenuItem("    Enable Whitelist (Games)");
+            _whitelistItem.Click += (s, e) => ToggleWhitelist(_whitelistItem);
+            _whitelistItem.Padding = new Padding(0, 4, 0, 4);
+            _whitelistItem.ForeColor = Color.Gray; 
+            _menu.Items.Add(_whitelistItem);
+
+
 
             // disable office thingy
-            var toggleItem = new ToolStripMenuItem("Disable Office Protection");
-            toggleItem.Click += (s, e) => ToggleProtection(toggleItem);
-            toggleItem.Padding = new Padding(0, 4, 0, 4);
-            _menu.Items.Add(toggleItem);
+            var tgl_officeProtection = new ToolStripMenuItem("Disable Office Protection");
+            tgl_officeProtection.Click += (s, e) => ToggleProtection(tgl_officeProtection);
+            tgl_officeProtection.Padding = new Padding(0, 4, 0, 4);
+            _menu.Items.Add(tgl_officeProtection);
+
+            // disable runtime Guard
+            var tgl_RuntimeGuard = new ToolStripMenuItem("Disable Runtime Guard");
+            tgl_RuntimeGuard.Click += (s, e) => ToggleProtectionRuntimeGuard(tgl_RuntimeGuard);
+            tgl_RuntimeGuard.Padding = new Padding(0, 4, 0, 4);
+            _menu.Items.Add(tgl_RuntimeGuard);
 
 
             _menu.Items.Add(new ToolStripSeparator());
@@ -86,6 +108,60 @@ namespace SecVerseLHE.UI
                 OfficeProtectionToggled?.Invoke(this, true);
             }
         }
+
+
+        private void ToggleWhitelist(ToolStripMenuItem item)
+        {
+            if (item.Text.Contains("Enable"))
+            {
+                item.Text = "    Disable Whitelist (Strict Mode)";
+                item.ForeColor = Color.Orange;
+                ShowAlert("Whitelist Active", "Game compatibility enabled (Steam/Minecraft allowed).");
+                IG_WhitelistToggled?.Invoke(this, true);
+            }
+            else
+            {
+                item.Text = "    Enable Whitelist (Games)";
+                item.ForeColor = Color.Gray;
+                ShowAlert("Strict Mode", "Whitelist disabled. ALL AppData scripts will be blocked.");
+                IG_WhitelistToggled?.Invoke(this, false);
+            }
+        }
+
+        private void ToggleIG(ToolStripMenuItem item)
+        {
+            if (item.Text.StartsWith("Disable"))
+            {
+                item.Text = "Enable Interpreter Guard";
+                ShowAlert("Interpreter Guard Paused", "Interpreter Guard disabled.");
+                IG_Toggled?.Invoke(this, false);
+            }
+            else
+            {
+                item.Text = "Disable Interpreter Guard";
+                ShowAlert("Interpreter Guard Active", "Interpreter Guard enabled.");
+                IG_Toggled?.Invoke(this, true);
+            }
+        }
+
+        private void ToggleProtectionRuntimeGuard(ToolStripMenuItem item)
+        {
+            if (item.Text.StartsWith("Disable"))
+            {
+                item.Text = "Enable Runtime Guard";
+                ShowAlert("Runtime Guard Paused", "Runtime Guard disabled.");
+                RuntimeGuardToggled?.Invoke(this, false);
+            }
+            else
+            {
+                item.Text = "Disable Runtime Guard";
+                ShowAlert("Runtime Guard Active", "Runtime Guard enabled.");
+                RuntimeGuardToggled?.Invoke(this, true);
+            }
+        }
+
+
+
         private bool ShouldUseDarkMode()
         {
             try

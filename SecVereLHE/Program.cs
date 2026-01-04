@@ -25,6 +25,8 @@ namespace SecVerseLHE
                 var tray = new TrayManager();
                 var processMonitor = new ProcessGenealogy();
                 var monitor = new ProcessMonitor(tray);
+                var interceptor = new IntercepterGuard();
+
                 monitor.Start();
                 processMonitor.StartMonitoring(tray);
 
@@ -34,7 +36,28 @@ namespace SecVerseLHE
                     else processMonitor.Stop();
                 };
 
+                tray.IG_Toggled += (sender, isEnabled) =>
+                {
+                    if(isEnabled) interceptor.StartMonitoring(tray);
+                    else interceptor.Stop();
+                };
+
+                tray.IG_WhitelistToggled += (sender, isEnabled) =>
+                {
+                    interceptor.SetWhitelistEnabled(isEnabled);
+                };
+
+                tray.RuntimeGuardToggled += (sender, isEnabled) =>
+                {
+                    if (isEnabled) monitor.Start();
+                    else monitor.Stop();
+                };
+
                 tray.ExitRequested += (s, e) => {
+
+                    if(MessageBox.Show(
+                        "Are you sure you want to exit SecVerse LHE? Exiting will disable all protection features.",
+                        "Confirm Exit", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No) return;
 
                     monitor.Stop();
                     processMonitor.Stop();

@@ -59,6 +59,7 @@
     <Compile Include="Core\BsodProtection.cs" />
     <Compile Include="Core\Enforcer.cs" />
     <Compile Include="Core\Heuristics.cs" />
+    <Compile Include="Core\IntercepterGuard.cs" />
     <Compile Include="Core\NativeMethods.cs" />
     <Compile Include="Core\PathResolver.cs" />
     <Compile Include="Core\ProcessGenealogy.cs" />
