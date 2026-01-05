@@ -24,10 +24,7 @@ namespace SecVerseLHE.Core
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Enforce Error: {ex.Message}");
-            }
+            catch { }
         }
     }
 }

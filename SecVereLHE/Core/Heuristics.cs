@@ -73,10 +73,7 @@ namespace SecVerseLHE.Core
                     return !string.IsNullOrEmpty(cert.Subject);
                 }
             }
-            catch
-            {
-                return false;
-            }
+            catch { return false; }
         }
     }
 }

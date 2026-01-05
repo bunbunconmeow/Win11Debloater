@@ -160,6 +160,11 @@ namespace SecVerseLHE.Core
                    cmd.Contains("https:") ||
                    cmd.Contains("curl ") ||
                    cmd.Contains("wget ") ||
+                   cmd.Contains("bitsadmin ") ||
+                   cmd.Contains("Invoke-WebRequest") ||
+                   cmd.Contains("Invoke-RestMethod") ||
+                   cmd.Contains("jar") ||
+                   cmd.Contains("certutil ") ||
                    cmd.Contains("iwr ") ||
                    (cmd.Contains("download") && cmd.Contains("net.webclient"));
         }
@@ -168,6 +173,10 @@ namespace SecVerseLHE.Core
         {
             return cmd.Contains(" -enc ") ||
                    cmd.Contains(" -encodedcommand ") ||
+                     cmd.Contains("%00") ||
+                     cmd.Contains("\\u") ||
+                        cmd.Contains("\\x") ||
+                        cmd.Contains("--startup") ||
                    (cmd.Contains(" -windowstyle hidden") && !cmd.Contains("system32"));
         }
 

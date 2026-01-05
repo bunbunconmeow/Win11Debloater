@@ -83,7 +83,6 @@ namespace SecVerseLHE.UI
 
 
             #endregion ProtectionSection
-
             _menu.Items.Add(separator);
             #region InfoSection
             // about
@@ -175,8 +174,6 @@ namespace SecVerseLHE.UI
                 RuntimeGuardToggled?.Invoke(this, true);
             }
         }
-
-
 
         private bool ShouldUseDarkMode()
         {
