@@ -91,6 +91,9 @@ namespace SecVers_Debloat
                 case "AnonymizerPage":
                     pageType = typeof(UI.Pages.AnonymizerPage);
                     break;
+                case "LHE":
+                    pageType = typeof(UI.Pages.InstallLHE);
+                    break;
             }
 
             if (pageType != null)
