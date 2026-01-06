@@ -46,9 +46,9 @@
                             TextWrapping="Wrap" 
                             Foreground="#8A6D3B"
                             LineHeight="20">
-                            <Bold>Important:</Bold> This component runs with elevated privileges and starts automatically with Windows. 
-                            It may be critical for system stability. <LineBreak/>
-                            Always stop the service from within the LHE application before uninstalling it here to avoid potential system instability or crashes.
+                            <Bold>Important:</Bold> <LineBreak/> This component runs with elevated privileges and starts automatically with Windows.<LineBreak/>
+                            It may be critical for system stability.<LineBreak/>
+                            Always stop the service from within the LHE application<LineBreak/>before uninstalling it here to avoid OS Crash.
                         </TextBlock>
                     </StackPanel>
                 </Border>

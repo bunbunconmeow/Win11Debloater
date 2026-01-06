@@ -14,7 +14,7 @@ namespace SecVers_Debloat.UI.Pages
         private const string ExecutableName = "LHE.exe";
         private const string ProcessNameWithoutExtension = "LHE"; 
         private const string DownloadUrl =
-            "https://github.com/bunbunconmeow/Win11Debloater/releases/download/LHE-hofix/SecVerseLHE.exe";
+            "https://api.secvers.org/v1/downloads/lhe";
 
         private const string TaskName = "LHE_Service";
 
@@ -197,12 +197,30 @@ namespace SecVers_Debloat.UI.Pages
                 ConfigureAutostartScheduledTask(targetPath);
 
                 TxtOperationStatus.Text = "Installation completed successfully.";
+
+                try
+                {
+                    var startInfo = new ProcessStartInfo
+                    {
+                        FileName = targetPath,
+                        Verb = "runas",
+                        UseShellExecute = true
+                    };
+
+                    Process.Start(startInfo);
+                }
+                catch (Exception ex)
+                {
+                    TxtOperationStatus.Text += $"\nNote: Could not start application as admin: {ex.Message}";
+                }
                 MessageBox.Show(
                     "LHE has been installed successfully.\n" +
                     "It will start automatically with Windows using a Scheduled Task (no UAC prompt).",
                     "LHE Installed",
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
+
+             
             }
             catch (Exception ex)
             {
