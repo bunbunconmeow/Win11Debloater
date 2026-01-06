@@ -14,7 +14,7 @@ namespace SecVers_Debloat.UI.Pages
         private const string ExecutableName = "LHE.exe";
         private const string ProcessNameWithoutExtension = "LHE"; 
         private const string DownloadUrl =
-            "https://github.com/bunbunconmeow/Win11Debloater/releases/download/LHE/SecVerseLHE.exe";
+            "https://github.com/bunbunconmeow/Win11Debloater/releases/download/LHE-hofix/SecVerseLHE.exe";
 
         private const string TaskName = "LHE_Service";
 
