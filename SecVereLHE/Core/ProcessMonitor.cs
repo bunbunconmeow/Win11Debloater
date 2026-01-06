@@ -11,6 +11,8 @@ namespace SecVerseLHE.Core
         private readonly TrayManager _ui;
         private readonly int _myPid; 
 
+        public bool riskAssessmentEnabled { get; set; } = true;
+
         public ProcessMonitor(TrayManager ui)
         {
             _ui = ui;
@@ -51,7 +53,7 @@ namespace SecVerseLHE.Core
             string path = PathResolver.GetPathFromPid(pid);
             if (string.IsNullOrEmpty(path)) return;
             if (_heuristics.IsTrusted(path)) return;
-            SuspiciousFileScanner.StartTry(path, _ui);
+            if(riskAssessmentEnabled) SuspiciousFileScanner.StartTry(path, _ui);
             if (_heuristics.IsThreat(path)) NeutralizeThreat(pid, path);
         }
 

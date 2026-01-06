@@ -17,6 +17,8 @@ namespace SecVerseLHE.UI
         public event EventHandler<bool> IG_Toggled;
         public event EventHandler<bool> IG_WhitelistToggled;
 
+        public event EventHandler<bool> RiskAssessmentEngine;
+
         public TrayManager()
         {
             var appIcon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
@@ -81,6 +83,10 @@ namespace SecVerseLHE.UI
             tgl_RuntimeGuard.Padding = new Padding(0, 4, 0, 4);
             _menu.Items.Add(tgl_RuntimeGuard);
 
+            var tgl_RiskAssessmentEngine = new ToolStripMenuItem("Disable Risk Assessment Engine");
+            tgl_RiskAssessmentEngine.Click += (s, e) => ToggleRiskAssessmentEngine(tgl_RiskAssessmentEngine);
+            tgl_RiskAssessmentEngine.Padding = new Padding(0, 4, 0, 4);
+            _menu.Items.Add(tgl_RiskAssessmentEngine);
 
             #endregion ProtectionSection
             _menu.Items.Add(separator);
@@ -106,6 +112,23 @@ namespace SecVerseLHE.UI
             _menu.Items.Add(exitItem);
             #endregion InfoSection
             _trayIcon.ContextMenuStrip = _menu;
+        }
+
+
+        private void ToggleRiskAssessmentEngine(ToolStripMenuItem item)
+        {
+            if (item.Text.StartsWith("Disable"))
+            {
+                item.Text = "Enable Risk Assessment Engine";
+                ShowAlert("Risk Assessment Engine Paused", "Risk Assessment Engine disabled.");
+                RiskAssessmentEngine?.Invoke(this, false);
+            }
+            else
+            {
+                item.Text = "Disable Risk Assessment Engine";
+                ShowAlert("Risk Assessment Engine Active", "Risk Assessment Engine enabled.");
+                RiskAssessmentEngine?.Invoke(this, true);
+            }
         }
 
         private void ToggleProtection(ToolStripMenuItem item)

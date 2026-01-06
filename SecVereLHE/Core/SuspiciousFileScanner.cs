@@ -21,7 +21,6 @@ namespace SecVerseLHE.Core
 
     internal class SuspiciousFileScanner
     {
-        // public entry point, wrapped in try/catch
         public static void StartTry(string filePath, TrayManager tray)
         {
             try
@@ -32,6 +31,10 @@ namespace SecVerseLHE.Core
                 var result = Analyze(filePath);
                 if (!result.IsSuspicious)
                     return;
+
+                if (IsGloballyWhitelisted(filePath))
+                    return;
+
 
                 try
                 {
@@ -51,6 +54,56 @@ namespace SecVerseLHE.Core
                 // swallow everything here, we don't want to crash protection
             }
         }
+
+        private static bool IsGloballyWhitelisted(string filePath)
+        {
+            try
+            {
+                if (TrustHelper.IsTrustedSignedFile(filePath))
+                    return true;
+
+                string fileName = Path.GetFileName(filePath);
+                string fullPath = Path.GetFullPath(filePath);
+
+                string windowsDir = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+                if (fullPath.StartsWith(windowsDir, StringComparison.OrdinalIgnoreCase))
+                    return true;
+
+                string programFiles = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+                string programFilesX86 = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
+
+                if (fullPath.StartsWith(Path.Combine(programFiles, "Microsoft"), StringComparison.OrdinalIgnoreCase) ||
+                    fullPath.StartsWith(Path.Combine(programFilesX86, "Microsoft"), StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                if (fileName.Equals("msedge.exe", StringComparison.OrdinalIgnoreCase) ||
+                    fileName.Equals("chrome.exe", StringComparison.OrdinalIgnoreCase) ||
+                    fileName.Equals("zen.exe", StringComparison.OrdinalIgnoreCase) ||
+                    fileName.Equals("firefox.exe", StringComparison.OrdinalIgnoreCase) ||
+                    fileName.Equals("brave.exe", StringComparison.OrdinalIgnoreCase) ||
+                    fileName.Equals("opera.exe", StringComparison.OrdinalIgnoreCase) ||
+                    fileName.Equals("discord.exe", StringComparison.OrdinalIgnoreCase) ||
+                    fileName.Equals("DiscordCanary.exe", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                if (fileName.IndexOf("edgeupdate", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    fileName.IndexOf("GoogleUpdate", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
 
         private static FileSuspicionResult Analyze(string filePath)
         {
@@ -318,14 +371,12 @@ namespace SecVerseLHE.Core
 
             string[] indicators =
             {
-                // file / temp / startup
                 "CreateFileA","CreateFileW","WriteFile",
                 "WriteAllBytes","File.WriteAllBytes","FileStream",
                 "GetTempPath","Path.GetTempPath","%TEMP%","%APPDATA%",
                 "Startup","StartUp","Run\\","RunOnce",
                 "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
 
-                // process / execution
                 "CreateProcessA","CreateProcessW",
                 "ShellExecuteA","ShellExecuteW",
                 "WinExec","Process.Start","CreateRemoteThread",

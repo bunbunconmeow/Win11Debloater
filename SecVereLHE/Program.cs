@@ -54,6 +54,11 @@ namespace SecVerseLHE
                     else monitor.Stop();
                 };
 
+                tray.RiskAssessmentEngine += (sender, isEnabled) =>
+                {
+                    monitor.riskAssessmentEnabled = isEnabled;
+                };
+
                 tray.ExitRequested += (s, e) => {
 
                     if(MessageBox.Show(
