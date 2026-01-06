@@ -29,6 +29,7 @@ namespace SecVerseLHE
 
                 monitor.Start();
                 processMonitor.StartMonitoring(tray);
+                RegisterShutdownHandler();
 
                 tray.OfficeProtectionToggled += (sender, isEnabled) =>
                 {
@@ -71,6 +72,42 @@ namespace SecVerseLHE
 
                 Application.Run(tray);
             }
+        }
+
+
+        private static void RegisterShutdownHandler()
+        {
+            Microsoft.Win32.SystemEvents.SessionEnding += (sender, e) =>
+            {
+#if !DEBUG
+                try
+                {
+                    string v = "Unknown reason";
+                    switch(e.Reason)
+                    {
+                          case Microsoft.Win32.SessionEndReasons.Logoff:
+                            BsodProtection.SetCritical(false);
+                            v = "User logoff";
+                            break;
+                        case Microsoft.Win32.SessionEndReasons.SystemShutdown:
+                            BsodProtection.SetCritical(false);
+                            v = "System shutdown";
+                            break;
+                        default:
+                            v = "Unknown reason";
+                            break;
+                    }
+              
+                    string reason = v;
+
+                    System.Diagnostics.Debug.WriteLine($"LHE: BSOD protection disabled for system event: {reason}");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"LHE: Failed to disable BSOD protection on shutdown: {ex.Message}");
+                }
+#endif
+            };
         }
     }
 }

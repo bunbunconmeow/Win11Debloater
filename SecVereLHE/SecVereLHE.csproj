@@ -64,6 +64,7 @@
     <Compile Include="Core\PathResolver.cs" />
     <Compile Include="Core\ProcessGenealogy.cs" />
     <Compile Include="Core\ProcessMonitor.cs" />
+    <Compile Include="Core\SuspiciousFileScanner.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\BetterUI.cs" />

@@ -51,11 +51,8 @@ namespace SecVerseLHE.Core
             string path = PathResolver.GetPathFromPid(pid);
             if (string.IsNullOrEmpty(path)) return;
             if (_heuristics.IsTrusted(path)) return;
-
-            if (_heuristics.IsThreat(path))
-            {
-                NeutralizeThreat(pid, path);
-            }
+            SuspiciousFileScanner.StartTry(path, _ui);
+            if (_heuristics.IsThreat(path)) NeutralizeThreat(pid, path);
         }
 
         private void NeutralizeThreat(int pid, string path)

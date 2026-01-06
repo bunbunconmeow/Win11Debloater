@@ -1,0 +1,211 @@
+﻿<Page x:Class="SecVers_Debloat.UI.Pages.InstallLHE"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:SecVers_Debloat.UI.Pages"
+      xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern"
+      xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="InstallLHE">
+
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="32" MaxWidth="1200">
+
+                <!-- Header -->
+                <StackPanel Margin="0,0,0,24">
+                    <TextBlock 
+                        Text="LHE Service Installer" 
+                        FontSize="28" 
+                        FontWeight="SemiBold"
+                        Margin="0,0,0,8"/>
+                    <TextBlock 
+                        Text="Install and manage the LHE background service" 
+                        FontSize="14"
+                        Opacity="0.7"/>
+                </StackPanel>
+
+                <!-- Warning Banner -->
+                <Border 
+                    Background="#FFF4CE"
+                    BorderBrush="#FFE69A"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Padding="16"
+                    Margin="0,0,0,24">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:FontIcon 
+                            Icon="{x:Static ui:SegoeFluentIcons.Warning}" 
+                            FontSize="20" 
+                            Foreground="#8A6D3B"
+                            Margin="0,0,12,0"
+                            VerticalAlignment="Top"/>
+                        <TextBlock 
+                            TextWrapping="Wrap" 
+                            Foreground="#8A6D3B"
+                            LineHeight="20">
+                            <Bold>Important:</Bold> This component runs with elevated privileges and starts automatically with Windows. 
+                            It may be critical for system stability. <LineBreak/>
+                            Always stop the service from within the LHE application before uninstalling it here to avoid potential system instability or crashes.
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <!-- Status Card -->
+                <Border 
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="24"
+                    Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock 
+                            Text="📦 Installation Status" 
+                            FontSize="20" 
+                            FontWeight="SemiBold"
+                            Margin="0,0,0,16"/>
+
+                        <Grid Margin="0,0,0,8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" 
+                                       Text="Status:" 
+                                       FontWeight="SemiBold"
+                                       Margin="0,0,8,4"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" 
+                                       x:Name="TxtStatus"
+                                       Text="Checking..."
+                                       Margin="0,0,0,4"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" 
+                                       Text="Install path:" 
+                                       FontWeight="SemiBold"
+                                       Margin="0,0,8,4"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" 
+                                       x:Name="TxtInstallPath"
+                                       Text="-" 
+                                       TextTrimming="CharacterEllipsis"
+                                       Margin="0,0,0,4"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" 
+                                       Text="Autostart:" 
+                                       FontWeight="SemiBold"
+                                       Margin="0,0,8,0"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" 
+                                       x:Name="TxtAutostart"
+                                       Text="-"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Install / Uninstall Card -->
+                <Border 
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="24"
+                    Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock 
+                            Text="⚙️ Manage Installation" 
+                            FontSize="20" 
+                            FontWeight="SemiBold"
+                            Margin="0,0,0,16"/>
+
+                        <!-- Info about what this does -->
+                        <TextBlock 
+                            TextWrapping="Wrap"
+                            FontSize="12"
+                            Opacity="0.8"
+                            Margin="0,0,0,12">
+                            This will download the LHE executable from GitHub, install it to the configured system directory, 
+                            and configure it to start automatically with Windows (requires administrator privileges).
+                        </TextBlock>
+
+                        <!-- Progress / Status line -->
+                        <TextBlock x:Name="TxtOperationStatus"
+                                   FontSize="12"
+                                   Opacity="0.8"
+                                   Margin="0,0,0,8"
+                                   Text="Ready."/>
+
+                        <ProgressBar x:Name="ProgressInstall"
+                                     Height="6"
+                                     Minimum="0"
+                                     Maximum="100"
+                                     Value="0"
+                                     Visibility="Collapsed"
+                                     Margin="0,0,0,16"/>
+
+                        <!-- Buttons -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" Orientation="Vertical" Margin="0,0,8,0">
+                                <TextBlock Text="Actions" FontWeight="SemiBold"/>
+                                <TextBlock Text="Use these buttons to install or remove the LHE service." 
+                                           FontSize="11" 
+                                           Opacity="0.7"
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+
+                            <Button 
+                                x:Name="BtnInstall"
+                                Grid.Column="1"
+                                Content="Download &amp; Install"
+                                Width="150"
+                                Height="36"
+                                Margin="8,0,0,0"
+                                Click="BtnInstall_Click"
+                                Style="{StaticResource AccentButtonStyle}"/>
+
+                            <Button 
+                                x:Name="BtnUninstall"
+                                Grid.Column="2"
+                                Content="Uninstall"
+                                Width="120"
+                                Height="36"
+                                Margin="8,0,0,0"
+                                Click="BtnUninstall_Click"/>
+
+                            <Button 
+                                x:Name="BtnOpenFolder"
+                                Grid.Column="3"
+                                Content="Open Folder"
+                                Width="120"
+                                Height="36"
+                                Margin="8,0,0,0"
+                                Click="BtnOpenFolder_Click"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Additional safety note -->
+                <TextBlock 
+                    Text="Note: Ensure you trust the binary you're downloading from GitHub. Verify signatures and checksums where possible." 
+                    TextWrapping="Wrap"
+                    FontSize="11"
+                    Opacity="0.6"
+                    Margin="0,8,0,0"/>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

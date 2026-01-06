@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Management;
 using System.Text;
@@ -148,10 +149,12 @@ namespace SecVerseLHE.Core
 
         private bool IsPathRisky(string path)
         {
-            return path.Contains(@"\appdata\") ||
-                   path.Contains(@"\local\temp\") ||
-                   path.Contains(@"\users\public\") ||
-                   path.Contains(@"\programdata\");
+            return path.Contains(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData).ToLower()) ||
+                   path.Contains(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData).ToLower()) ||
+                   path.Contains(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData).ToLower()) ||
+                   path.Contains(@"\programdata\") ||
+                   path.Contains("appdata") ||
+                   path.Contains("LocalLow");
         }
 
         private bool IsNetworkCommand(string cmd)

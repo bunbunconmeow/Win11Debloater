@@ -99,6 +99,7 @@
                         <ui:FontIcon Icon="{x:Static ui:SegoeFluentIcons.ExploitProtection}"/>
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
+                
                 <ui:NavigationViewItem
                     Content="System Anonymizer"
                     Tag="AnonymizerPage">
@@ -106,9 +107,16 @@
                         <ui:FontIcon Icon="{x:Static ui:SegoeFluentIcons.RedEye}"/>
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
+
+                <ui:NavigationViewItem
+                    Content="SecVers LHE"
+                    Tag="LHE">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:FontIcon Icon="{x:Static ui:SegoeFluentIcons.ReportHacked}"/>
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
             </ui:NavigationView.MenuItems>
 
-            <!-- Footer Items (Settings wird automatisch von IsSettingsVisible hinzugefügt) -->
             <ui:NavigationView.FooterMenuItems>
                 <ui:NavigationViewItem
                     Content="About"
