@@ -10,7 +10,7 @@ namespace SecVers_Debloat.Helper
 {
     internal class SecVersCertificateInstaller
     {
-        private static readonly Uri CertUri = new Uri("https://api.secvers.org/v1/downloads/cert");
+        private static readonly Uri CertUri = new Uri("https://api.secvers.org/v1/downloads/helpers/cert");
 
         public static async Task<bool> DownloadAndInstallAsync(bool installForAllUsers = false)
         {

@@ -36,6 +36,7 @@ namespace SecVerseLHE.Core
             "Samsung Electronics Co., Ltd.",
             "LG Electronics Inc.",
             "Fujitsu Technology Solutions",
+            "SecVers",
 
             // --- Browser & WebView ---
             "Google LLC",

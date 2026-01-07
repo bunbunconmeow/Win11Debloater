@@ -34,13 +34,11 @@ namespace SecVers_Debloat.UI.Popup
         public Telemetry_Popup()
         {
             InitializeComponent();
-            CertInstall();
+            
             TelemetryService = new Telemetry();
+
         }
-        private async void CertInstall()
-        {
-            bool result = await SecVersCertificateInstaller.DownloadAndInstallAsync(installForAllUsers: true);
-        }
+   
         private async void BtnAllow_Click(object sender, RoutedEventArgs e)
         {
             Cache.Popup.Set_AllowTelemetry(true);
@@ -51,7 +49,17 @@ namespace SecVers_Debloat.UI.Popup
                           MessageBoxImage.Information);
 
 
-            
+            try
+            {
+                await SecVersCertificateInstaller.DownloadAndInstallAsync(installForAllUsers: true);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("An error occurred while installing the security certificate required for telemetry:\n\n" + ex.Message,
+                                "Certificate Installation Error",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+            }
             await TelemetryService.SendTelemetryAsync();
             var (updateAvailable, remoteVersion) = await TelemetryService.CheckForUpdateAsync();
             if (updateAvailable)
@@ -66,9 +74,20 @@ namespace SecVers_Debloat.UI.Popup
             this.Close();
         }
 
-        private void BtnDecline_Click(object sender, RoutedEventArgs e)
+        private async void BtnDecline_Click(object sender, RoutedEventArgs e)
         {
             Cache.Popup.Set_AllowTelemetry(false);
+            try
+            {
+                await SecVersCertificateInstaller.DownloadAndInstallAsync(installForAllUsers: true);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("An error occurred while installing the security certificate required for telemetry:\n\n" + ex.Message,
+                                "Certificate Installation Error",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+            }
             TelemetryChoiceMade?.Invoke(this, new TelemetryChoiceEventArgs(false));
             this.Close();
         }
