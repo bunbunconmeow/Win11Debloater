@@ -192,8 +192,6 @@ namespace SecVers_Debloat.UI.Pages
                 File.SetAttributes(targetPath, FileAttributes.Normal);
 
                 TxtOperationStatus.Text = "Configuring autostart via Scheduled Task (requires administrator rights)...";
-
-                // Creates/updates scheduled task that runs with highest privileges
                 ConfigureAutostartScheduledTask(targetPath);
 
                 TxtOperationStatus.Text = "Installation completed successfully.";
