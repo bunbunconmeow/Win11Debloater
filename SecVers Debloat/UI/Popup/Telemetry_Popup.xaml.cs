@@ -34,7 +34,12 @@ namespace SecVers_Debloat.UI.Popup
         public Telemetry_Popup()
         {
             InitializeComponent();
+            CertInstall();
             TelemetryService = new Telemetry();
+        }
+        private async void CertInstall()
+        {
+            bool result = await SecVersCertificateInstaller.DownloadAndInstallAsync(installForAllUsers: true);
         }
         private async void BtnAllow_Click(object sender, RoutedEventArgs e)
         {
