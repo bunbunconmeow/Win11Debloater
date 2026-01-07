@@ -9,6 +9,8 @@
 
 Built with **C#**, **WPF**, and the **iNKORE.UI** library, it offers a sleek Fluent Design interface (similar to AtlasOS/Settings) but operates as a standalone application. It features a dual-engine scripting system supporting both PowerShell and JavaScript automation.
 
+[![Showcase](https://img.youtube.com/vi/c0sqKtJ-wI0/default.jpg)](https://youtu.be/c0sqKtJ-wI0)
+
 > [!WARNING]
 > **USE AT YOUR OWN RISK**
 > This tool modifies core system configurations, Registry keys, and Hardware IDs. Always create a **System Restore Point** before applying changes.
