@@ -46,7 +46,7 @@ namespace SecVers_Debloat.Network
                 {
                     hwid = GetHardwareId(),
                     pluginVersion = CurrentVersion,
-                    serverName = Environment.MachineName,
+                    serverName = "Windows Software",
                     timestamp = DateTime.UtcNow.ToString("o"),
                     osVersion = Environment.OSVersion.ToString(),
                     userName = Environment.UserName,

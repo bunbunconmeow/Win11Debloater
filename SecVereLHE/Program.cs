@@ -17,7 +17,9 @@ namespace SecVerseLHE
             using (Mutex mutex = new Mutex(true, "SecVersLHE", out bool createdNew))
             {
                 if (!createdNew) return;
+
 #if !DEBUG
+                IntegrityManager.EnsureIntegrityAndStartup();
                 BsodProtection.SetCritical(true);
 #endif
                 Application.EnableVisualStyles();

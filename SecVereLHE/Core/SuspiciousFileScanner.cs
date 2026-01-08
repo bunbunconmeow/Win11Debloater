@@ -168,7 +168,7 @@ namespace SecVerseLHE.Core
                 result.Score += 1;
                 reasons.Add("Found dropper-related strings: " + string.Join(", ", dropperStrings));
             }
-            if (dropperHits >= 3)
+            if (dropperHits >= 4)
             {
                 result.LooksLikeDropper = true;
                 result.Score += 2;
