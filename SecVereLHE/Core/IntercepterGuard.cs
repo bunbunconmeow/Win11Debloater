@@ -7,7 +7,7 @@ using System.Linq;
 using System.Management;
 using System.Text;
 using System.Threading.Tasks;
-using SecVerseLHE.Helper;
+
 
 namespace SecVerseLHE.Core
 {

@@ -99,21 +99,33 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AVEngine\MemoryDetction.cs" />
+    <Compile Include="AVEngine\TrafficDetection.cs" />
+    <Compile Include="AVEngine\YaraImplementation.cs" />
     <Compile Include="Config\Config.cs" />
     <Compile Include="Config\CredentialManager.cs" />
     <Compile Include="Config\DpapiNative.cs" />
-    <Compile Include="Core\BsodProtection.cs" />
-    <Compile Include="Core\Enforcer.cs" />
+    <Compile Include="Core\SuspiciousAutoStart.cs" />
+    <Compile Include="Helper\BsodProtection.cs" />
+    <Compile Include="Helper\Enforcer.cs" />
     <Compile Include="Core\Heuristics.cs" />
     <Compile Include="Core\IntegrityManager.cs" />
     <Compile Include="Core\IntercepterGuard.cs" />
-    <Compile Include="Core\NativeMethods.cs" />
-    <Compile Include="Core\PathResolver.cs" />
+    <Compile Include="Helper\InitHelper.cs" />
+    <Compile Include="Helper\NativeMethods.cs" />
+    <Compile Include="Helper\PathResolver.cs" />
     <Compile Include="Core\ProcessGenealogy.cs" />
     <Compile Include="Core\ProcessMonitor.cs" />
     <Compile Include="Core\SuspiciousFileScanner.cs" />
-    <Compile Include="Core\TrustHelper.cs" />
+    <Compile Include="Helper\TrustHelper.cs" />
+    <Compile Include="Helper\ProcessHelper.cs" />
+    <Compile Include="Network\GET\ConfigSystem.cs" />
+    <Compile Include="Network\GET\UserData.cs" />
+    <Compile Include="Network\POST\SecVersScans.cs" />
+    <Compile Include="Network\SSLProtection.cs" />
     <Compile Include="Network\Telemetry.cs" />
+    <Compile Include="Network\POST\Userstats.cs" />
+    <Compile Include="Network\GET\YaraAPI.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\BetterUI.cs" />
@@ -159,9 +171,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="AVEngine\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
