@@ -8,5 +8,14 @@ namespace SecVerseLHE.Core
 {
     internal class SuspiciousAutoStart : IDisposable
     {
+        public SuspiciousAutoStart()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

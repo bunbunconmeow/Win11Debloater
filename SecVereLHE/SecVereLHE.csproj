@@ -105,18 +105,21 @@
     <Compile Include="Config\Config.cs" />
     <Compile Include="Config\CredentialManager.cs" />
     <Compile Include="Config\DpapiNative.cs" />
+    <Compile Include="Core\RansomwareDetectionWorker.cs" />
     <Compile Include="Core\SuspiciousAutoStart.cs" />
     <Compile Include="Helper\BsodProtection.cs" />
     <Compile Include="Helper\Enforcer.cs" />
     <Compile Include="Core\Heuristics.cs" />
     <Compile Include="Core\IntegrityManager.cs" />
     <Compile Include="Core\IntercepterGuard.cs" />
+    <Compile Include="Helper\IBackgroundWorker.cs" />
     <Compile Include="Helper\InitHelper.cs" />
     <Compile Include="Helper\NativeMethods.cs" />
     <Compile Include="Helper\PathResolver.cs" />
     <Compile Include="Core\ProcessGenealogy.cs" />
     <Compile Include="Core\ProcessMonitor.cs" />
     <Compile Include="Core\SuspiciousFileScanner.cs" />
+    <Compile Include="Helper\ThreadManager.cs" />
     <Compile Include="Helper\TrustHelper.cs" />
     <Compile Include="Helper\ProcessHelper.cs" />
     <Compile Include="Network\GET\ConfigSystem.cs" />
@@ -131,6 +134,7 @@
     <Compile Include="UI\BetterUI.cs" />
     <Compile Include="UI\ContextMenuManager.cs" />
     <Compile Include="UI\TrayManager.cs" />
+    <Compile Include="UI\TrayMessageDispatcher.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
