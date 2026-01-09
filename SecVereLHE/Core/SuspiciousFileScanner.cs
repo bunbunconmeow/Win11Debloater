@@ -114,6 +114,7 @@ namespace SecVerseLHE.Core
 
             try
             {
+                // @ToDo: find better way to read sample with higher file size
                 data = ReadSample(filePath, 2 * 1024 * 1024); // max 2 MB
             }
             catch
