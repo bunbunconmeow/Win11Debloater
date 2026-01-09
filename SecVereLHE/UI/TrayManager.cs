@@ -214,7 +214,7 @@ namespace SecVerseLHE.UI
 
         public void ShowAlert(string title, string msg)
         {
-            _trayIcon.ShowBalloonTip(3000, title, msg, ToolTipIcon.Warning);
+            _trayIcon.ShowBalloonTip(1000, title, msg, ToolTipIcon.None);
         }
 
         public void CleanUp()

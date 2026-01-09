@@ -21,6 +21,7 @@ namespace SecVerseLHE.Network
 
         internal bool ValidateCertificate()
         {
+            return true;
         }
 
         public void Dispose()

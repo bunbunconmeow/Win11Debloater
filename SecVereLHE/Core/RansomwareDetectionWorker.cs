@@ -2,16 +2,14 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using SecVerseLHE.Helper;
+using SecVerseLHE.UI;
 
 namespace SecVerseLHE.Core
 {
-    internal class RansomwareDetectionWorker
+    internal class RansomwareDetectionWorker : IBackgroundWorker
     {
         private sealed class EventWindow
         {
@@ -45,14 +43,19 @@ namespace SecVerseLHE.Core
         private readonly Func<int, bool> _processWhitelist;
         private bool _disposed;
 
-        public string Name { get; }
+        private readonly TrayManager _trayManager;
+
+        public new string Name => "RansomwareDetection";
+
 
         public RansomwareDetectionWorker(
+            TrayManager trayManager,
             string name = "RansomwareDetection",
             TimeSpan? window = null,
             int thresholdCount = 30,
             Func<int, bool> processWhitelist = null)
         {
+            _trayManager = trayManager ?? throw new ArgumentNullException(nameof(trayManager));
             Name = string.IsNullOrWhiteSpace(name) ? "RansomwareDetection" : name;
             _window = window ?? TimeSpan.FromSeconds(10);
             _thresholdCount = thresholdCount;
@@ -67,14 +70,15 @@ namespace SecVerseLHE.Core
             if (processId <= 0)
                 return;
 
-            if (_processWhitelist(processId))
+            if (_processWhitelist != null && _processWhitelist(processId)) 
                 return;
+
 
             var evt = _events.GetOrAdd(processId, _ => new EventWindow());
             evt.Add(DateTime.UtcNow);
         }
 
-        public void Run(CancellationToken token)
+        public new void Run(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
             {
@@ -86,8 +90,9 @@ namespace SecVerseLHE.Core
                 {
                     break;
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Debug.WriteLine($"Error in RansomwareWorker: {ex.Message}");
                 }
 
                 token.WaitHandle.WaitOne(TimeSpan.FromSeconds(1));
@@ -132,7 +137,7 @@ namespace SecVerseLHE.Core
 
             string processName = process.ProcessName;
 
-            if (!SuspendProcess(process))
+            if (!ProcessHelper.SuspendProcess(process))
                 return false;
 
             var result = MessageBox.Show(
@@ -147,7 +152,7 @@ namespace SecVerseLHE.Core
 
             if (result == DialogResult.Yes)
             {
-                ResumeProcess(process);
+                ProcessHelper.ResumeProcess(process);
                 return false;
             }
 
@@ -166,38 +171,6 @@ namespace SecVerseLHE.Core
         {
             _disposed = true;
             _events.Clear();
-        }
-
-        [DllImport("ntdll.dll", SetLastError = true)]
-        private static extern int NtSuspendProcess(IntPtr processHandle);
-
-        [DllImport("ntdll.dll", SetLastError = true)]
-        private static extern int NtResumeProcess(IntPtr processHandle);
-
-        private static bool SuspendProcess(Process process)
-        {
-            try
-            {
-                var hr = NtSuspendProcess(process.Handle);
-                return hr >= 0;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        private static bool ResumeProcess(Process process)
-        {
-            try
-            {
-                var hr = NtResumeProcess(process.Handle);
-                return hr >= 0;
-            }
-            catch
-            {
-                return false;
-            }
         }
     }
 }

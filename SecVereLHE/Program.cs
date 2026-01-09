@@ -28,6 +28,10 @@ namespace SecVerseLHE
                 var processMonitor = new ProcessGenealogy();
                 var monitor = new ProcessMonitor(tray);
                 var interceptor = new IntercepterGuard();
+                var threadManager = new ThreadManager();
+                var ransomwareWorker = new RansomwareDetectionWorker(tray);
+
+                threadManager.StartWorker(ransomwareWorker);
 
                 monitor.Start();
                 processMonitor.StartMonitoring(tray);

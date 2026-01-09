@@ -5,7 +5,7 @@ namespace SecVerseLHE.Helper
 {
     internal class IBackgroundWorker : IDisposable
     {
-        string Name { get; }
+       public string Name { get; }
 
         public void Dispose()
         {
@@ -14,8 +14,6 @@ namespace SecVerseLHE.Helper
 
         public IBackgroundWorker() { }
 
-        public void Run(CancellationToken token)
-        {
-        }
+        public void Run(CancellationToken token) { }
     }
 }
