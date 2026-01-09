@@ -8,15 +8,25 @@ namespace SecVerseLHE.UI
     {
         private NotifyIcon _trayIcon;
         private ContextMenuStrip _menu;
-        private ToolStripMenuItem _whitelistItem;
+        private bool _isDarkMode;
+        private ModernMenuRenderer _menuRenderer;
+
+
+
+        private ToolStripMenuItem _igToggle;
+        private ToolStripMenuItem _whitelistToggle;
+        private ToolStripMenuItem _officeToggle;
+        private ToolStripMenuItem _runtimeToggle;
+        private ToolStripMenuItem _riskToggle;
+        private ToolStripMenuItem _ransomwareToggle;
+
 
         public event EventHandler ExitRequested;
         public event EventHandler<bool> OfficeProtectionToggled;
         public event EventHandler<bool> RuntimeGuardToggled;
-
         public event EventHandler<bool> IG_Toggled;
         public event EventHandler<bool> IG_WhitelistToggled;
-
+        public event EventHandler<bool> RansomwareDetectionToggled;
         public event EventHandler<bool> RiskAssessmentEngine;
 
         public TrayManager()
@@ -26,195 +36,247 @@ namespace SecVerseLHE.UI
             {
                 Icon = appIcon,
                 Visible = true,
-                Text = "SecVers LHE"
+                Text = "SecVerse LHE"
             };
 
+            _isDarkMode = ShouldUseDarkMode();
             BuildMenu();
         }
 
         private void BuildMenu()
         {
             _menu = new ContextMenuStrip();
-            bool usageDarkMode = ShouldUseDarkMode();
-            _menu.Renderer = new ModernMenuRenderer(usageDarkMode);
-
+            _menuRenderer = new ModernMenuRenderer(_isDarkMode);
+            _menu.Renderer = _menuRenderer;
             _menu.Font = new Font("Segoe UI", 10f, FontStyle.Regular);
-
-            _menu.ShowImageMargin = false; 
             _menu.ShowImageMargin = true;
-            _menu.BackColor = usageDarkMode ? Color.FromArgb(31, 31, 31) : Color.White;
-
-            var separator = new ToolStripSeparator
+            _menu.BackColor = _isDarkMode ? Color.FromArgb(31, 31, 31) : Color.White;
+            _menu.Padding = new Padding(4, 8, 4, 8);
+            var header = new ToolStripMenuItem("SecVerse LHE")
             {
-                BackColor = usageDarkMode ? Color.FromArgb(64, 64, 64) : Color.LightGray,
-                Height = 1
+                Enabled = false,
+                Font = new Font("Segoe UI", 11f, FontStyle.Bold)
             };
-            var separatorTitle = new ToolStripSeparator
+
+            _menu.Items.Add(header);
+            _menu.Items.Add(CreateSeparator());
+
+
+
+            _igToggle = CreateToggleMenuItem(
+                "Interpreter Guard",
+                isEnabled: true,
+                onToggle: (enabled) =>
+                {
+                    IG_Toggled?.Invoke(this, enabled);
+                    ShowAlert(
+                        enabled ? "Interpreter Guard Active" : "Interpreter Guard Paused",
+                        enabled ? "Interpreter Guard enabled." : "Interpreter Guard disabled.");
+                    _whitelistToggle.Enabled = enabled;
+                    if (!enabled)
+                    {
+                        _whitelistToggle.Checked = false;
+                        _whitelistToggle.Tag = false;
+                    }
+                });
+            _menu.Items.Add(_igToggle);
+            _menu.Items.Add(_igToggle);
+            _whitelistToggle = CreateToggleMenuItem(
+                "    Whitelist (Games)",
+                isEnabled: false,
+                onToggle: (enabled) =>
+                {
+                    IG_WhitelistToggled?.Invoke(this, enabled);
+                    ShowAlert(
+                        enabled ? "Whitelist Active" : "Strict Mode",
+                        enabled ? "Game compatibility enabled (Steam/Minecraft allowed)." : "Whitelist disabled. ALL AppData scripts blocked.");
+                },
+                isSubItem: true);
+            _menu.Items.Add(_whitelistToggle);
+
+            _officeToggle = CreateToggleMenuItem(
+                "Office Protection",
+                isEnabled: true,
+                onToggle: (enabled) =>
+                {
+                    OfficeProtectionToggled?.Invoke(this, enabled);
+                    ShowAlert(
+                        enabled ? "Office Protection Active" : "Office Protection Paused",
+                        enabled ? "Office monitoring enabled." : "Office monitoring disabled.");
+                });
+            _menu.Items.Add(_officeToggle);
+
+            _runtimeToggle = CreateToggleMenuItem(
+                "Runtime Guard",
+                isEnabled: true,
+                onToggle: (enabled) =>
+                {
+                    RuntimeGuardToggled?.Invoke(this, enabled);
+                    ShowAlert(
+                        enabled ? "Runtime Guard Active" : "Runtime Guard Paused",
+                        enabled ? "Runtime Guard enabled." : "Runtime Guard disabled.");
+                });
+            _menu.Items.Add(_runtimeToggle);
+
+            _riskToggle = CreateToggleMenuItem(
+                "Risk Assessment Engine",
+                isEnabled: true,
+                onToggle: (enabled) =>
+                {
+                    RiskAssessmentEngine?.Invoke(this, enabled);
+                    ShowAlert(
+                        enabled ? "Risk Assessment Active" : "Risk Assessment Paused",
+                        enabled ? "Risk Assessment Engine enabled." : "Risk Assessment Engine disabled.");
+                });
+            _menu.Items.Add(_riskToggle);
+
+           
+            _ransomwareToggle = CreateToggleMenuItem(
+                "Ransomware Detection",
+                isEnabled: true,
+                onToggle: (enabled) =>
+                {
+                    RansomwareDetectionToggled?.Invoke(this, enabled);
+                    ShowAlert(
+                        enabled ? "Ransomware Detection Active" : "Ransomware Detection Paused",
+                        enabled ? "Ransomware monitoring enabled." : "Ransomware monitoring disabled.");
+                });
+            _menu.Items.Add(_ransomwareToggle);
+
+            _menu.Items.Add(CreateSeparator());
+
+            var aboutItem = new ToolStripMenuItem("About")
             {
-                BackColor = usageDarkMode ? Color.FromArgb(64, 64, 64) : Color.LightGray,
-                Height = 1
+                Padding = new Padding(0, 4, 0, 4)
             };
-            
-            _menu.Items.Add("SecVerse LHE");
-            _menu.Items.Add(separatorTitle);
-
-            #region ProtectionSection
-
-            var tgl_InterpreterGuard = new ToolStripMenuItem("Disable Interpreter Guard");
-            tgl_InterpreterGuard.Click += (s, e) => ToggleIG(tgl_InterpreterGuard);
-            tgl_InterpreterGuard.Padding = new Padding(0, 4, 0, 4);
-            _menu.Items.Add(tgl_InterpreterGuard);
-
-            _whitelistItem = new ToolStripMenuItem("    Enable Whitelist (Games)");
-            _whitelistItem.Click += (s, e) => ToggleWhitelist(_whitelistItem);
-            _whitelistItem.Padding = new Padding(0, 4, 0, 4);
-            _whitelistItem.ForeColor = Color.Gray; 
-            _menu.Items.Add(_whitelistItem);
-
-            // disable office thingy
-            var tgl_officeProtection = new ToolStripMenuItem("Disable Office Protection");
-            tgl_officeProtection.Click += (s, e) => ToggleProtection(tgl_officeProtection);
-            tgl_officeProtection.Padding = new Padding(0, 4, 0, 4);
-            _menu.Items.Add(tgl_officeProtection);
-
-            // disable runtime Guard
-            var tgl_RuntimeGuard = new ToolStripMenuItem("Disable Runtime Guard");
-            tgl_RuntimeGuard.Click += (s, e) => ToggleProtectionRuntimeGuard(tgl_RuntimeGuard);
-            tgl_RuntimeGuard.Padding = new Padding(0, 4, 0, 4);
-            _menu.Items.Add(tgl_RuntimeGuard);
-
-            var tgl_RiskAssessmentEngine = new ToolStripMenuItem("Disable Risk Assessment Engine");
-            tgl_RiskAssessmentEngine.Click += (s, e) => ToggleRiskAssessmentEngine(tgl_RiskAssessmentEngine);
-            tgl_RiskAssessmentEngine.Padding = new Padding(0, 4, 0, 4);
-            _menu.Items.Add(tgl_RiskAssessmentEngine);
-
-            #endregion ProtectionSection
-            _menu.Items.Add(separator);
-            #region InfoSection
-            // about
-            var aboutItem = new ToolStripMenuItem("About", null, (s, e) =>
-                MessageBox.Show("SecVerse LHE\n\nA lightway System Hardening Tool.\nBlocks Software run from Appdata that dosnt include a code Sign Certificate.", "About", MessageBoxButtons.OK, MessageBoxIcon.Information));
-            aboutItem.Padding = new Padding(0, 4, 0, 4);
+            aboutItem.Click += (s, e) =>
+                MessageBox.Show(
+                    "SecVerse LHE\n\n" +
+                    "A lightweight System Hardening Tool.\n\n" +
+                    "• Blocks unsigned software from AppData\n" +
+                    "• Monitors Office macro execution\n" +
+                    "• Detects ransomware behavior\n" +
+                    "• Runtime process protection",
+                    "About SecVerse LHE",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
             _menu.Items.Add(aboutItem);
 
 
-            // githb
-            var gitItem = new ToolStripMenuItem("Github Repository", null, (s, e) =>
-                System.Diagnostics.Process.Start("https://github.com/bunbunconmeow/Win11Debloater"));
-            gitItem.Padding = new Padding(0, 4, 0, 4);
+            var gitItem = new ToolStripMenuItem("GitHub Repository")
+            {
+                Padding = new Padding(0, 4, 0, 4)
+            };
+            gitItem.Click += (s, e) =>
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "https://github.com/bunbunconmeow/Win11Debloater",
+                    UseShellExecute = true
+                });
             _menu.Items.Add(gitItem);
 
+            _menu.Items.Add(CreateSeparator());
 
-            // exit
-            var exitItem = new ToolStripMenuItem("Exit", null, (s, e) => ExitRequested?.Invoke(this, EventArgs.Empty));
-            exitItem.Padding = new Padding(0, 4, 0, 4);
-            exitItem.Font = new Font(_menu.Font, FontStyle.Bold);
+            var exitItem = new ToolStripMenuItem("Exit")
+            {
+                Padding = new Padding(0, 4, 0, 4),
+                Font = new Font(_menu.Font, FontStyle.Bold)
+            };
+            exitItem.ForeColor = Color.FromArgb(220, 80, 80);
+            exitItem.Click += (s, e) => ExitRequested?.Invoke(this, EventArgs.Empty);
             _menu.Items.Add(exitItem);
-            #endregion InfoSection
+            _menuRenderer.AttachToMenu(_menu);
             _trayIcon.ContextMenuStrip = _menu;
         }
 
-
-        private void ToggleRiskAssessmentEngine(ToolStripMenuItem item)
+        private ToolStripMenuItem CreateToggleMenuItem(string text, bool isEnabled, Action<bool> onToggle, bool isSubItem = false)
         {
-            if (item.Text.StartsWith("Disable"))
+            var item = new ToolStripMenuItem(text)
             {
-                item.Text = "Enable Risk Assessment Engine";
-                ShowAlert("Risk Assessment Engine Paused", "Risk Assessment Engine disabled.");
-                RiskAssessmentEngine?.Invoke(this, false);
-            }
-            else
+                CheckOnClick = true,
+                Checked = isEnabled,
+                Tag = isEnabled,
+                Padding = new Padding(0, 6, 0, 6)
+            };
+
+            if (isSubItem)
             {
-                item.Text = "Disable Risk Assessment Engine";
-                ShowAlert("Risk Assessment Engine Active", "Risk Assessment Engine enabled.");
-                RiskAssessmentEngine?.Invoke(this, true);
+                item.ForeColor = _isDarkMode ? Color.FromArgb(140, 140, 140) : Color.Gray;
             }
+
+            item.Click += (s, e) =>
+            {
+                var menuItem = (ToolStripMenuItem)s;
+                menuItem.Tag = menuItem.Checked;
+                onToggle?.Invoke(menuItem.Checked);
+            };
+
+            return item;
         }
 
-        private void ToggleProtection(ToolStripMenuItem item)
+        private ToolStripSeparator CreateSeparator()
         {
-            if (item.Text.StartsWith("Disable"))
+            return new ToolStripSeparator
             {
-                item.Text = "Enable Office Protection";
-                ShowAlert("Protection Paused", "Monitoring disabled.");
-                OfficeProtectionToggled?.Invoke(this, false);
-            }
-            else
-            {
-                item.Text = "Disable Office Protection";
-                ShowAlert("Protection Active", "Monitoring enabled.");
-                OfficeProtectionToggled?.Invoke(this, true);
-            }
-        }
-
-
-        private void ToggleWhitelist(ToolStripMenuItem item)
-        {
-            if (item.Text.Contains("Enable"))
-            {
-                item.Text = "    Disable Whitelist (Strict Mode)";
-                item.ForeColor = Color.Orange;
-                ShowAlert("Whitelist Active", "Game compatibility enabled (Steam/Minecraft allowed).");
-                IG_WhitelistToggled?.Invoke(this, true);
-            }
-            else
-            {
-                item.Text = "    Enable Whitelist (Games)";
-                item.ForeColor = Color.Gray;
-                ShowAlert("Strict Mode", "Whitelist disabled. ALL AppData scripts will be blocked.");
-                IG_WhitelistToggled?.Invoke(this, false);
-            }
-        }
-
-        private void ToggleIG(ToolStripMenuItem item)
-        {
-            if (item.Text.StartsWith("Disable"))
-            {
-                item.Text = "Enable Interpreter Guard";
-                ShowAlert("Interpreter Guard Paused", "Interpreter Guard disabled.");
-                IG_Toggled?.Invoke(this, false);
-            }
-            else
-            {
-                item.Text = "Disable Interpreter Guard";
-                ShowAlert("Interpreter Guard Active", "Interpreter Guard enabled.");
-                IG_Toggled?.Invoke(this, true);
-            }
-        }
-
-        private void ToggleProtectionRuntimeGuard(ToolStripMenuItem item)
-        {
-            if (item.Text.StartsWith("Disable"))
-            {
-                item.Text = "Enable Runtime Guard";
-                ShowAlert("Runtime Guard Paused", "Runtime Guard disabled.");
-                RuntimeGuardToggled?.Invoke(this, false);
-            }
-            else
-            {
-                item.Text = "Disable Runtime Guard";
-                ShowAlert("Runtime Guard Active", "Runtime Guard enabled.");
-                RuntimeGuardToggled?.Invoke(this, true);
-            }
+                BackColor = _isDarkMode ? Color.FromArgb(64, 64, 64) : Color.LightGray
+            };
         }
 
         private bool ShouldUseDarkMode()
         {
             try
             {
-                using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"))
+                using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(
+                    @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"))
                 {
                     object val = key?.GetValue("AppsUseLightTheme");
-                    if (val is int i && i == 0) return true; // 0 = Dark, 1 = Light
+                    if (val is int i && i == 0) return true;
                 }
             }
             catch { }
-            return true; 
+            return true;
         }
 
         public void ShowAlert(string title, string msg)
         {
-            _trayIcon.ShowBalloonTip(1000, title, msg, ToolTipIcon.None);
+            _trayIcon.ShowBalloonTip(1500, title, msg, ToolTipIcon.None);
+        }
+
+
+        public void SetToggleState(ProtectionFeature feature, bool enabled)
+        {
+            ToolStripMenuItem target = null;
+
+            switch (feature)
+            {
+                case ProtectionFeature.InterpreterGuard:
+                    target = _igToggle;
+                    break;
+                case ProtectionFeature.Whitelist:
+                    target = _whitelistToggle;
+                    break;
+                case ProtectionFeature.OfficeProtection:
+                    target = _officeToggle;
+                    break;
+                case ProtectionFeature.RuntimeGuard:
+                    target = _runtimeToggle;
+                    break;
+                case ProtectionFeature.RiskAssessment:
+                    target = _riskToggle;
+                    break;
+                case ProtectionFeature.RansomwareDetection:
+                    target = _ransomwareToggle;
+                    break;
+                default:
+                    target = null;
+                    break;
+            }
+
+            if (target != null)
+            {
+                target.Checked = enabled;
+                target.Tag = enabled;
+            }
         }
 
         public void CleanUp()
@@ -223,5 +285,15 @@ namespace SecVerseLHE.UI
             _trayIcon.Dispose();
             _menu.Dispose();
         }
+    }
+
+    public enum ProtectionFeature
+    {
+        InterpreterGuard,
+        Whitelist,
+        OfficeProtection,
+        RuntimeGuard,
+        RiskAssessment,
+        RansomwareDetection
     }
 }

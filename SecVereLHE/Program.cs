@@ -25,16 +25,20 @@ namespace SecVerseLHE
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 var tray = new TrayManager();
+                var dispatcher = new TrayMessageDispatcher(tray, 1000);
+                var threadManager = new ThreadManager(maxThreads: 5);
                 var processMonitor = new ProcessGenealogy();
                 var monitor = new ProcessMonitor(tray);
                 var interceptor = new IntercepterGuard();
-                var threadManager = new ThreadManager();
-                var ransomwareWorker = new RansomwareDetectionWorker(tray);
 
-                threadManager.StartWorker(ransomwareWorker);
+
+                var ransomwareDetector = new RansomwareDetector(tray, dispatcher);
+                Guid? ransomwareThreadId = null;
+
 
                 monitor.Start();
                 processMonitor.StartMonitoring(tray);
+                ransomwareThreadId = threadManager.RegisterThread(ransomwareDetector);
                 RegisterShutdownHandler();
 
                 tray.OfficeProtectionToggled += (sender, isEnabled) =>

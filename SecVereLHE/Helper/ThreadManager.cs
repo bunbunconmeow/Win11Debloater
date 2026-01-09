@@ -1,162 +1,184 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
+using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace SecVerseLHE.Helper
 {
     internal class ThreadManager : IDisposable
     {
-        private sealed class WorkerEntry
+        private readonly ConcurrentDictionary<Guid, ManagedThread> _threads;
+        private readonly object _lock = new object();
+        private volatile bool _disposed;
+        private readonly int _maxThreads;
+
+        private readonly Guid _securityToken;
+
+        public ThreadManager(int maxThreads = 10)
         {
-            public Thread Thread;
-            public CancellationTokenSource TokenSource;
-            public IBackgroundWorker Worker;
+            _maxThreads = maxThreads;
+            _threads = new ConcurrentDictionary<Guid, ManagedThread>();
+            _securityToken = Guid.NewGuid();
         }
 
-        private readonly object _lock = new object();
-        private readonly Dictionary<string, WorkerEntry> _workers = new Dictionary<string, WorkerEntry>(StringComparer.OrdinalIgnoreCase);
-        private bool _disposed;
-
-        public void StartWorker(IBackgroundWorker worker)
+        public Guid RegisterThread(IManagedThreadWorker worker)
         {
+            ThrowIfDisposed();
+
             if (worker == null)
                 throw new ArgumentNullException(nameof(worker));
 
             lock (_lock)
             {
-                if (_disposed)
-                    throw new ObjectDisposedException(nameof(ThreadManager));
+                if (_threads.Count >= _maxThreads)
+                    throw new InvalidOperationException($"Maximum thread count ({_maxThreads}) reached.");
 
-                if (_workers.ContainsKey(worker.Name))
-                    throw new InvalidOperationException($"Worker with name '{worker.Name}' is already running.");
+                var managedThread = new ManagedThread(worker, _securityToken);
 
-                var cts = new CancellationTokenSource();
-                var entry = new WorkerEntry
-                {
-                    TokenSource = cts,
-                    Worker = worker
-                };
+                if (!_threads.TryAdd(managedThread.Id, managedThread))
+                    throw new InvalidOperationException("Failed to register thread.");
 
-                var thread = new Thread(() => RunWorker(entry))
-                {
-                    IsBackground = true,
-                    Name = worker.Name
-                };
-
-                entry.Thread = thread;
-                _workers.Add(worker.Name, entry);
-
-                thread.Start();
+                managedThread.Start();
+                return managedThread.Id;
             }
         }
 
-        public void StopWorker(string name)
+        public bool StopThread(Guid threadId)
         {
-            if (string.IsNullOrWhiteSpace(name))
-                return;
+            ThrowIfDisposed();
 
-            WorkerEntry entry;
-
+            if (_threads.TryRemove(threadId, out var thread))
+            {
+                thread.Stop();
+                thread.Dispose();
+                return true;
+            }
+            return false;
+        }
+        public void StopAll()
+        {
             lock (_lock)
             {
-                if (_disposed)
-                    return;
-
-                if (!_workers.TryGetValue(name, out entry))
-                    return;
-
-                _workers.Remove(name);
-            }
-
-            try
-            {
-                entry.TokenSource.Cancel();
-            }
-            catch { }
-
-            try
-            {
-                if (entry.Thread.IsAlive)
-                    entry.Thread.Join(TimeSpan.FromSeconds(5));
-            }
-            catch { }
-
-            try
-            {
-                entry.Worker.Dispose();
-            }
-            catch { }
-
-            try
-            {
-                entry.TokenSource.Dispose();
-            }
-            catch { }
-        }
-
-        public bool IsRunning(string name)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-                return false;
-
-            lock (_lock)
-            {
-                if (_disposed)
-                    return false;
-
-                return _workers.ContainsKey(name);
+                foreach (var kvp in _threads)
+                {
+                    kvp.Value.Stop();
+                    kvp.Value.Dispose();
+                }
+                _threads.Clear();
             }
         }
 
-        private void RunWorker(WorkerEntry entry)
+        public bool IsThreadRunning(Guid threadId)
         {
-            try
-            {
-                entry.Worker.Run(entry.TokenSource.Token);
-            }
-            catch (OperationCanceledException)
-            {
-            }
-            catch
-            {
-            }
+            return _threads.TryGetValue(threadId, out var thread) && thread.IsRunning;
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(ThreadManager));
         }
 
         public void Dispose()
         {
-            if (_disposed)
-                return;
-
-            List<WorkerEntry> snapshot;
+            if (_disposed) return;
 
             lock (_lock)
             {
-                if (_disposed)
-                    return;
-
+                if (_disposed) return;
                 _disposed = true;
-                snapshot = new List<WorkerEntry>(_workers.Values);
-                _workers.Clear();
+
+                StopAll();
+            }
+        }
+        private sealed class ManagedThread : IDisposable
+        {
+            private readonly IManagedThreadWorker _worker;
+            private readonly Guid _securityToken;
+            private readonly Thread _thread;
+            private readonly CancellationTokenSource _cts;
+            private volatile bool _disposed;
+
+            public Guid Id { get; }
+            public bool IsRunning => _thread.IsAlive && !_cts.IsCancellationRequested;
+
+            public ManagedThread(IManagedThreadWorker worker, Guid securityToken)
+            {
+                _worker = worker;
+                _securityToken = securityToken;
+                _cts = new CancellationTokenSource();
+                Id = Guid.NewGuid();
+
+                _thread = new Thread(ThreadProc)
+                {
+                    IsBackground = true,
+                    Name = $"SecVerse_{worker.GetType().Name}_{Id:N}",
+                    Priority = ThreadPriority.Highest
+                };
             }
 
-            foreach (var entry in snapshot)
+            public void Start()
             {
-                try { entry.TokenSource.Cancel(); } catch { }
+                if (!_disposed && !_thread.IsAlive)
+                {
+                    _worker.Initialize(_cts.Token);
+                    _thread.Start();
+                }
+            }
 
+            public void Stop()
+            {
+                if (!_disposed)
+                {
+                    _cts.Cancel();
+                    if (_thread.IsAlive && !_thread.Join(3000))
+                    {
+                        try { _thread.Interrupt(); } catch { }
+                    }
+                }
+            }
+
+            private void ThreadProc()
+            {
                 try
                 {
-                    if (entry.Thread.IsAlive)
-                        entry.Thread.Join(TimeSpan.FromSeconds(5));
-                }
-                catch { }
+                    if (Thread.CurrentThread.Name?.StartsWith("SecVerse_") != true)
+                    {
+                        Debug.WriteLine("LHE: Thread security violation detected!");
+                        return;
+                    }
 
-                try { entry.Worker.Dispose(); } catch { }
-                try { entry.TokenSource.Dispose(); } catch { }
+                    _worker.Execute();
+                }
+                catch (OperationCanceledException){ }
+                catch (ThreadInterruptedException) { }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"LHE: Thread {Id} crashed: {ex.Message}");
+                    _worker.OnError(ex);
+                }
+                finally
+                {
+                    _worker.Cleanup();
+                }
             }
+
+            public void Dispose()
+            {
+                if (_disposed) return;
+                _disposed = true;
+
+                Stop();
+                _cts.Dispose();
+            }
+        }
+
+        internal interface IManagedThreadWorker
+        {
+            void Initialize(CancellationToken token);
+            void Execute();
+            void Cleanup();
+            void OnError(Exception ex);
         }
     }
 }

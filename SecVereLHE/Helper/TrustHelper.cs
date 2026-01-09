@@ -9,7 +9,6 @@ namespace SecVerseLHE.Helper
     {
         private static readonly string[] TrustedPublishers =
         {
-            // --- Betriebssystem / Plattform / große OEMs ---
             "Microsoft Corporation",
             "Microsoft Windows",
             "Microsoft Windows Hardware Compatibility Publisher",
@@ -34,8 +33,6 @@ namespace SecVerseLHE.Helper
             "LG Electronics Inc.",
             "Fujitsu Technology Solutions",
             "SecVers",
-
-            // --- Browser & WebView ---
             "Google LLC",
             "Google Inc.",
             "Mozilla Corporation",
@@ -70,7 +67,7 @@ namespace SecVerseLHE.Helper
             "SAP SE",
 
             // --- Game-Launcher / Gaming ---
-            "Valve Corporation",                // Steam
+            "Valve Corporation",                
             "Epic Games, Inc.",
             "Electronic Arts Inc.",
             "EA Swiss Sarl",
@@ -116,13 +113,13 @@ namespace SecVerseLHE.Helper
             "McAfee, LLC",
             "F-Secure Corporation",
             "Acronis International GmbH",
-            "Piriform Ltd",        // CCleaner (gehört zu Avast)
+            "Piriform Ltd",        // CCleaner
             "WinRAR GmbH",
             "7-Zip",
             "Irfan Skiljan",       // IrfanView
             "VideoLAN",            // VLC
 
-            // --- Launcher / Stores (Non-Gaming) ---
+            // --- Launcher / Stores  ---
             "Amazon.com Services LLC",
             "Amazon Web Services, Inc.",
             "Dropbox, Inc.",
@@ -130,15 +127,13 @@ namespace SecVerseLHE.Helper
             "Google LLC",          // (bewusst doppelt, stört nicht)
             "Mega Limited",
 
-            // --- Sonstiges ---
+            // --- Optional ---
             "Logitech Inc.",
             "Logitech Europe S.A.",
             "Razer Inc.",
             "Corsair Memory, Inc.",
             "Elgato Systems",
         };
-
-
         public static bool IsTrustedSignedFile(string filePath)
         {
             try
