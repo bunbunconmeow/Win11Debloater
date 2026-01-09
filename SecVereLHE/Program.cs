@@ -1,10 +1,8 @@
 ﻿using SecVerseLHE.Core;
+using SecVerseLHE.Helper;
 using SecVerseLHE.UI;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SecVerseLHE
@@ -14,9 +12,11 @@ namespace SecVerseLHE
         [STAThread]
         static void Main()
         {
+            InitHelper.Initialize();
             using (Mutex mutex = new Mutex(true, "SecVersLHE", out bool createdNew))
             {
                 if (!createdNew) return;
+
 
 #if !DEBUG
                 IntegrityManager.EnsureIntegrityAndStartup();

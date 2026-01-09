@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.IO;
 
 
-namespace SecVerseLHE.Core
+namespace SecVerseLHE.Helper
 {
     internal class Enforcer
     {

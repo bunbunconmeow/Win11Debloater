@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 namespace SecVerseLHE.Network
 {
-    // @ToDo: Implement Telemetry Functionality
-    internal class Telemetry
+    internal class YaraAPI
     {
     }
 }

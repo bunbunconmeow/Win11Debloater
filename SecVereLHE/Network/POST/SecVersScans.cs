@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace SecVerseLHE.Network
 {
-    // @ToDo: Implement Telemetry Functionality
-    internal class Telemetry
+    // @ToDo: Once the Backend is ready implement SecVers Scan Functionality
+    internal class SecVersScans
     {
     }
 }

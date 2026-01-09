@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SecVerseLHE.Network
+namespace SecVerseLHE.AVEngine
 {
-    // @ToDo: Implement Telemetry Functionality
-    internal class Telemetry
+    // @ToDo: Implement Yara Scanning Functionality
+    internal class YaraImplementation
     {
     }
 }

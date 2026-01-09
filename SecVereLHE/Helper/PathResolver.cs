@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using SecVerseLHE.Core;
+using System;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace SecVerseLHE.Core
+
+namespace SecVerseLHE.Helper
 {
     internal class PathResolver
     {

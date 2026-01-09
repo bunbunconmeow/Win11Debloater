@@ -1,10 +1,9 @@
 ﻿using SecVerseLHE.UI;
+using SecVerseLHE.Helper;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SecVerseLHE.Core
@@ -44,14 +43,15 @@ namespace SecVerseLHE.Core
                 }
                 catch
                 {
-                    // tray errors are not critical
+                    
                 }
-
-                ShowPopup(filePath, result, tray);
+                var process = ProcessHelper.GetProcessByPath(filePath); 
+                ProcessHelper.SuspendProcess(process);
+                ShowPopup(filePath, result, tray, process);
             }
             catch
             {
-                // swallow everything here, we don't want to crash protection
+               
             }
         }
 
@@ -202,7 +202,7 @@ namespace SecVerseLHE.Core
             return result;
         }
 
-        private static void ShowPopup(string filePath, FileSuspicionResult result, TrayManager tray)
+        private static void ShowPopup(string filePath, FileSuspicionResult result, TrayManager tray, System.Diagnostics.Process proc)
         {
             var sb = new StringBuilder();
 
@@ -228,8 +228,8 @@ namespace SecVerseLHE.Core
             sb.AppendLine("This is only a heuristic check and does NOT replace a real antivirus scan.");
             sb.AppendLine();
             sb.AppendLine("Actions:");
-            sb.AppendLine("Yes    = Open file location");
-            sb.AppendLine("No     = Delete file");
+            sb.AppendLine("Yes    = Delete file");
+            sb.AppendLine("No     = Open File location");
             sb.AppendLine("Cancel = Ignore");
 
             var dlgResult = MessageBox.Show(
@@ -240,20 +240,20 @@ namespace SecVerseLHE.Core
 
             try
             {
-                if (dlgResult == DialogResult.Yes)
+                if (dlgResult == DialogResult.No)
                 {
-                    // open file location in explorer
                     try
                     {
                         System.Diagnostics.Process.Start("explorer.exe", "/select,\"" + filePath + "\"");
                     }
                     catch { }
                 }
-                else if (dlgResult == DialogResult.No)
+                else if (dlgResult == DialogResult.Yes)
                 {
-                    // delete file (best-effort)
                     try
                     {
+
+                        ProcessHelper.KillProcess(proc);
                         File.Delete(filePath);
                         tray?.ShowAlert("File deleted", "Suspicious file was deleted:\n" + Path.GetFileName(filePath));
                     }
@@ -264,13 +264,13 @@ namespace SecVerseLHE.Core
                 }
                 else
                 {
-                    // ignore
+                    ProcessHelper.ResumeProcess(proc);
                     tray?.ShowAlert("Ignored", "Suspicious file was ignored by user.");
                 }
             }
             catch
             {
-                // don't let UI actions kill the app
+                
             }
         }
 

@@ -1,7 +1,9 @@
-﻿using SecVerseLHE.UI;
+﻿using SecVerseLHE.Helper;
+using SecVerseLHE.UI;
 using System;
 using System.Diagnostics;
 using System.Management;
+
 namespace SecVerseLHE.Core
 {
     internal class ProcessMonitor
