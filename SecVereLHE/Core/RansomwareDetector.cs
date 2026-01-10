@@ -1063,7 +1063,7 @@ namespace SecVerseLHE.Core
             }
         }
 
-        private void SuspendProcessSafe(int processId)
+        private bool SuspendProcessSafe(int processId)
         {
             if (processId <= 0)
                 return false;
@@ -1085,10 +1085,10 @@ namespace SecVerseLHE.Core
             try
             {
                 if (_disposed || _cancellationToken.IsCancellationRequested || !_isRunning)
-                    return;
+                    return false;
 
                 if (!IsProcessAlive(processId) || processId == Process.GetCurrentProcess().Id)
-                    return;
+                    return false;
 
                 handle = OpenProcess(PROCESS_SUSPEND_RESUME, false, processId);
                 if (!IsValidHandle(handle))
@@ -1133,49 +1133,6 @@ namespace SecVerseLHE.Core
         private object GetProcessLock(int processId)
         {
             return _processLocks.GetOrAdd(processId, _ => new object());
-        }
-
-        private void SuspendProcessSafe(int processId)
-        {
-            IntPtr handle = IntPtr.Zero;
-            try
-            {
-                if (_disposed || _cancellationToken.IsCancellationRequested || !_isRunning)
-                    return;
-
-                if (!IsProcessAlive(processId) || processId == Process.GetCurrentProcess().Id)
-                    return;
-
-                lock (GetProcessLock(processId))
-                {
-                    handle = OpenProcess(PROCESS_SUSPEND_RESUME, false, processId);
-                    if (!IsValidHandle(handle))
-                    {
-                        Debug.WriteLine($"LHE: Cannot open process {processId} for suspend");
-                        return;
-                    }
-
-                    if (!IsHandleProcessActive(handle))
-                        return;
-
-                    var result = NtSuspendProcess(handle);
-                    if (result != 0)
-                    {
-                        Debug.WriteLine($"LHE: NtSuspendProcess failed with {result}");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"LHE: SuspendProcessSafe error: {ex.Message}");
-            }
-            finally
-            {
-                if (IsValidHandle(handle))
-                {
-                    try { CloseHandle(handle); } catch { }
-                }
-            }
         }
 
         private void ResumeProcessSafe(int processId)
