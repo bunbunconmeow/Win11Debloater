@@ -17,7 +17,7 @@ namespace SecVerseLHE.Core
     {
         #region Configuration
 
-        private const int IMMEDIATE_BLOCK_THRESHOLD = 20;
+        private const int IMMEDIATE_BLOCK_THRESHOLD = 60;
         private const int OBSERVATION_THRESHOLD = 8;
         private const int OBSERVATION_WINDOW_MS = 3000;
         private const int SUSTAINED_BLOCK_THRESHOLD = 50;
