@@ -66,6 +66,7 @@ namespace SecVerseLHE.Core
 
         private readonly ConcurrentDictionary<int, ProcessActivity> _processActivity;
         private readonly ConcurrentDictionary<int, SuspendedProcessInfo> _suspendedProcesses;
+        private readonly ConcurrentDictionary<int, object> _processLocks;
         private readonly HashSet<string> _sessionWhitelist;
         private readonly object _whitelistLock = new object();
         private readonly List<FileSystemWatcher> _watchers;
@@ -126,6 +127,7 @@ namespace SecVerseLHE.Core
             _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
             _processActivity = new ConcurrentDictionary<int, ProcessActivity>();
             _suspendedProcesses = new ConcurrentDictionary<int, SuspendedProcessInfo>();
+            _processLocks = new ConcurrentDictionary<int, object>();
             _sessionWhitelist = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             _watchers = new List<FileSystemWatcher>();
             _thresholdHelper = new RansomwareThresholdHelper(
@@ -1063,6 +1065,22 @@ namespace SecVerseLHE.Core
 
         private void SuspendProcessSafe(int processId)
         {
+            if (processId <= 0)
+                return false;
+
+            try
+            {
+                using (var process = Process.GetProcessById(processId))
+                {
+                    if (process.HasExited)
+                        return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+
             IntPtr handle = IntPtr.Zero;
             try
             {
@@ -1074,15 +1092,77 @@ namespace SecVerseLHE.Core
 
                 handle = OpenProcess(PROCESS_SUSPEND_RESUME, false, processId);
                 if (!IsValidHandle(handle))
-                {
-                    Debug.WriteLine($"LHE: Cannot open process {processId} for suspend");
-                    return;
-                }
+                    return false;
 
-                var result = NtSuspendProcess(handle);
-                if (result != 0)
+                if (!GetExitCodeProcess(handle, out uint exitCode))
+                    return false;
+
+                return exitCode == STILL_ACTIVE;
+            }
+            catch
+            {
+                return false;
+            }
+            finally
+            {
+                if (IsValidHandle(handle))
                 {
-                    Debug.WriteLine($"LHE: NtSuspendProcess failed with {result}");
+                    try { CloseHandle(handle); } catch { }
+                }
+            }
+        }
+
+        private bool IsHandleProcessActive(IntPtr handle)
+        {
+            if (!IsValidHandle(handle))
+                return false;
+
+            try
+            {
+                if (!GetExitCodeProcess(handle, out uint exitCode))
+                    return false;
+
+                return exitCode == STILL_ACTIVE;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private object GetProcessLock(int processId)
+        {
+            return _processLocks.GetOrAdd(processId, _ => new object());
+        }
+
+        private void SuspendProcessSafe(int processId)
+        {
+            IntPtr handle = IntPtr.Zero;
+            try
+            {
+                if (_disposed || _cancellationToken.IsCancellationRequested || !_isRunning)
+                    return;
+
+                if (!IsProcessAlive(processId) || processId == Process.GetCurrentProcess().Id)
+                    return;
+
+                lock (GetProcessLock(processId))
+                {
+                    handle = OpenProcess(PROCESS_SUSPEND_RESUME, false, processId);
+                    if (!IsValidHandle(handle))
+                    {
+                        Debug.WriteLine($"LHE: Cannot open process {processId} for suspend");
+                        return;
+                    }
+
+                    if (!IsHandleProcessActive(handle))
+                        return;
+
+                    var result = NtSuspendProcess(handle);
+                    if (result != 0)
+                    {
+                        Debug.WriteLine($"LHE: NtSuspendProcess failed with {result}");
+                    }
                 }
             }
             catch (Exception ex)
@@ -1113,7 +1193,20 @@ namespace SecVerseLHE.Core
                 if (!IsValidHandle(handle))
                     return;
 
-                NtResumeProcess(handle);
+                if (!IsProcessAlive(processId) || processId == Process.GetCurrentProcess().Id)
+                    return;
+
+                lock (GetProcessLock(processId))
+                {
+                    handle = OpenProcess(PROCESS_SUSPEND_RESUME, false, processId);
+                    if (!IsValidHandle(handle))
+                        return;
+
+                    if (!IsHandleProcessActive(handle))
+                        return;
+
+                    NtResumeProcess(handle);
+                }
             }
             catch (Exception ex)
             {
@@ -1143,7 +1236,20 @@ namespace SecVerseLHE.Core
                 if (!IsValidHandle(handle))
                     return;
 
-                TerminateProcess(handle, 1);
+                if (!IsProcessAlive(processId) || processId == Process.GetCurrentProcess().Id)
+                    return;
+
+                lock (GetProcessLock(processId))
+                {
+                    handle = OpenProcess(PROCESS_TERMINATE, false, processId);
+                    if (!IsValidHandle(handle))
+                        return;
+
+                    if (!IsHandleProcessActive(handle))
+                        return;
+
+                    TerminateProcess(handle, 1);
+                }
             }
             catch (Exception ex)
             {
