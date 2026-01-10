@@ -204,12 +204,14 @@ namespace SecVerseLHE.Core
             try
             {
                 if (path.IndexOfAny(Path.GetInvalidPathChars()) >= 0) return null;
-                if (path.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0) return null;
                 if (string.IsNullOrEmpty(path)) return null;
                 path = path.Trim();
                 if (string.IsNullOrEmpty(path)) return null;
                 if (path.Contains('\0')) path = path.Replace("\0", "");
                 if (!IsValidPath(path))  return null;
+                var fileName = GetFileNameSafe(path);
+                if (!string.IsNullOrEmpty(fileName) && fileName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+                    return null;
 
                 return path;
             }
@@ -286,7 +288,7 @@ namespace SecVerseLHE.Core
 
         private void ProcessQueueWorker()
         {
-            foreach (var fileEvent in _eventQueue.GetConsumingEnumerable())
+            foreach (var fileEvent in _eventQueue.GetConsumingEnumerable(_cancellationToken))
             {
                 if (_cancellationToken.IsCancellationRequested) break;
 
@@ -994,6 +996,10 @@ namespace SecVerseLHE.Core
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool TerminateProcess(IntPtr processHandle, uint exitCode);
 
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetExitCodeProcess(IntPtr processHandle, out uint exitCode);
+
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         private static extern bool QueryFullProcessImageName(IntPtr hProcess, int dwFlags,
             StringBuilder lpExeName, ref int lpdwSize);
@@ -1001,6 +1007,7 @@ namespace SecVerseLHE.Core
         private const uint PROCESS_SUSPEND_RESUME = 0x0800;
         private const uint PROCESS_TERMINATE = 0x0001;
         private const uint PROCESS_QUERY_LIMITED_INFORMATION = 0x1000;
+        private const uint STILL_ACTIVE = 259;
 
         #endregion Process Control - Native APIs
 
@@ -1011,11 +1018,60 @@ namespace SecVerseLHE.Core
             return handle != IntPtr.Zero && handle != new IntPtr(-1);
         }
 
+        private bool IsProcessAlive(int processId)
+        {
+            if (processId <= 0)
+                return false;
+
+            try
+            {
+                using (var process = Process.GetProcessById(processId))
+                {
+                    if (process.HasExited)
+                        return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+
+            IntPtr handle = IntPtr.Zero;
+            try
+            {
+                handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, processId);
+                if (!IsValidHandle(handle))
+                    return false;
+
+                if (!GetExitCodeProcess(handle, out uint exitCode))
+                    return false;
+
+                return exitCode == STILL_ACTIVE;
+            }
+            catch
+            {
+                return false;
+            }
+            finally
+            {
+                if (IsValidHandle(handle))
+                {
+                    try { CloseHandle(handle); } catch { }
+                }
+            }
+        }
+
         private void SuspendProcessSafe(int processId)
         {
             IntPtr handle = IntPtr.Zero;
             try
             {
+                if (_disposed || _cancellationToken.IsCancellationRequested || !_isRunning)
+                    return;
+
+                if (!IsProcessAlive(processId) || processId == Process.GetCurrentProcess().Id)
+                    return;
+
                 handle = OpenProcess(PROCESS_SUSPEND_RESUME, false, processId);
                 if (!IsValidHandle(handle))
                 {
@@ -1047,6 +1103,12 @@ namespace SecVerseLHE.Core
             IntPtr handle = IntPtr.Zero;
             try
             {
+                if (_disposed || _cancellationToken.IsCancellationRequested)
+                    return;
+
+                if (!IsProcessAlive(processId) || processId == Process.GetCurrentProcess().Id)
+                    return;
+
                 handle = OpenProcess(PROCESS_SUSPEND_RESUME, false, processId);
                 if (!IsValidHandle(handle))
                     return;
@@ -1071,6 +1133,12 @@ namespace SecVerseLHE.Core
             IntPtr handle = IntPtr.Zero;
             try
             {
+                if (_disposed || _cancellationToken.IsCancellationRequested)
+                    return;
+
+                if (!IsProcessAlive(processId) || processId == Process.GetCurrentProcess().Id)
+                    return;
+
                 handle = OpenProcess(PROCESS_TERMINATE, false, processId);
                 if (!IsValidHandle(handle))
                     return;

@@ -104,6 +104,7 @@
     <Compile Include="Config\Config.cs" />
     <Compile Include="Config\CredentialManager.cs" />
     <Compile Include="Config\DpapiNative.cs" />
+    <Compile Include="Core\MemoryForensicsMonitor.cs" />
     <Compile Include="Core\RansomwareDetector.cs" />
     <Compile Include="Core\SuspiciousAutoStart.cs" />
     <Compile Include="Helper\RansomwareThresholdHelper.cs" />
