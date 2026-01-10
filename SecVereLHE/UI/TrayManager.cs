@@ -19,6 +19,7 @@ namespace SecVerseLHE.UI
         private ToolStripMenuItem _runtimeToggle;
         private ToolStripMenuItem _riskToggle;
         private ToolStripMenuItem _ransomwareToggle;
+        private ToolStripMenuItem _meforToggle;
 
 
         public event EventHandler ExitRequested;
@@ -28,6 +29,7 @@ namespace SecVerseLHE.UI
         public event EventHandler<bool> IG_WhitelistToggled;
         public event EventHandler<bool> RansomwareDetectionToggled;
         public event EventHandler<bool> RiskAssessmentEngine;
+        public event EventHandler<bool> MemoryForensicDetection;
 
         public TrayManager()
         {
@@ -106,6 +108,8 @@ namespace SecVerseLHE.UI
                 });
             _menu.Items.Add(_officeToggle);
 
+
+
             _runtimeToggle = CreateToggleMenuItem(
                 "Runtime Guard",
                 isEnabled: true,
@@ -142,6 +146,18 @@ namespace SecVerseLHE.UI
                         enabled ? "Ransomware monitoring enabled." : "Ransomware monitoring disabled.");
                 });
             _menu.Items.Add(_ransomwareToggle);
+
+            _meforToggle = CreateToggleMenuItem(
+                "Memory Forensic Detection",
+                isEnabled: true,
+                onToggle: (enabled) =>
+                {
+                    MemoryForensicDetection?.Invoke(this, enabled);
+                    ShowAlert(
+                        enabled ? "Memory Forensic Detection Active" : "Memory Forensic Detection Paused",
+                        enabled ? "Memory Forensic Detection enabled." : "Memory Forensic Detection disabled.");
+                });
+            _menu.Items.Add(_meforToggle);
 
             _menu.Items.Add(CreateSeparator());
 

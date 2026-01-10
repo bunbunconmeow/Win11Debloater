@@ -30,6 +30,7 @@ namespace SecVerseLHE
                 var processMonitor = new ProcessGenealogy();
                 var monitor = new ProcessMonitor(tray);
                 var interceptor = new IntercepterGuard();
+                var memoryForensicDetector = new MemoryForensicsMonitor();
 
 
                 var ransomwareDetector = new RansomwareDetector(tray, dispatcher);
@@ -45,6 +46,12 @@ namespace SecVerseLHE
                 {
                     if (isEnabled) processMonitor.StartMonitoring(tray);
                     else processMonitor.Stop();
+                };
+
+                tray.MemoryForensicDetection += (sender, isEnabled) =>
+                {
+                    if (isEnabled) memoryForensicDetector.Start();
+                    else memoryForensicDetector.Stop();
                 };
 
                 tray.IG_Toggled += (sender, isEnabled) =>
@@ -95,10 +102,16 @@ namespace SecVerseLHE
 
                     monitor.Stop();
                     processMonitor.Stop();
+                    if (ransomwareThreadId.HasValue)
+                    {
+                        threadManager.StopThread(ransomwareThreadId.Value);
+                    }
 
 #if !DEBUG
                     BsodProtection.SetCritical(false);
 #endif
+                    ransomwareDetector.Dispose();
+                    dispatcher.Dispose();
                     tray.CleanUp();
                     Application.Exit();
                 };

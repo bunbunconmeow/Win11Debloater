@@ -206,12 +206,14 @@ namespace SecVerseLHE.Core
             try
             {
                 if (path.IndexOfAny(Path.GetInvalidPathChars()) >= 0) return null;
-                if (path.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0) return null;
                 if (string.IsNullOrEmpty(path)) return null;
                 path = path.Trim();
                 if (string.IsNullOrEmpty(path)) return null;
                 if (path.Contains('\0')) path = path.Replace("\0", "");
                 if (!IsValidPath(path))  return null;
+                var fileName = GetFileNameSafe(path);
+                if (!string.IsNullOrEmpty(fileName) && fileName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+                    return null;
 
                 return path;
             }
@@ -288,7 +290,7 @@ namespace SecVerseLHE.Core
 
         private void ProcessQueueWorker()
         {
-            foreach (var fileEvent in _eventQueue.GetConsumingEnumerable())
+            foreach (var fileEvent in _eventQueue.GetConsumingEnumerable(_cancellationToken))
             {
                 if (_cancellationToken.IsCancellationRequested) break;
 
@@ -1061,6 +1063,55 @@ namespace SecVerseLHE.Core
             }
         }
 
+        private void SuspendProcessSafe(int processId)
+        {
+            if (processId <= 0)
+                return false;
+
+            try
+            {
+                using (var process = Process.GetProcessById(processId))
+                {
+                    if (process.HasExited)
+                        return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+
+            IntPtr handle = IntPtr.Zero;
+            try
+            {
+                if (_disposed || _cancellationToken.IsCancellationRequested || !_isRunning)
+                    return;
+
+                if (!IsProcessAlive(processId) || processId == Process.GetCurrentProcess().Id)
+                    return;
+
+                handle = OpenProcess(PROCESS_SUSPEND_RESUME, false, processId);
+                if (!IsValidHandle(handle))
+                    return false;
+
+                if (!GetExitCodeProcess(handle, out uint exitCode))
+                    return false;
+
+                return exitCode == STILL_ACTIVE;
+            }
+            catch
+            {
+                return false;
+            }
+            finally
+            {
+                if (IsValidHandle(handle))
+                {
+                    try { CloseHandle(handle); } catch { }
+                }
+            }
+        }
+
         private bool IsHandleProcessActive(IntPtr handle)
         {
             if (!IsValidHandle(handle))
@@ -1132,7 +1183,14 @@ namespace SecVerseLHE.Core
             IntPtr handle = IntPtr.Zero;
             try
             {
-                if (_disposed)
+                if (_disposed || _cancellationToken.IsCancellationRequested)
+                    return;
+
+                if (!IsProcessAlive(processId) || processId == Process.GetCurrentProcess().Id)
+                    return;
+
+                handle = OpenProcess(PROCESS_SUSPEND_RESUME, false, processId);
+                if (!IsValidHandle(handle))
                     return;
 
                 if (!IsProcessAlive(processId) || processId == Process.GetCurrentProcess().Id)
@@ -1169,6 +1227,13 @@ namespace SecVerseLHE.Core
             try
             {
                 if (_disposed || _cancellationToken.IsCancellationRequested)
+                    return;
+
+                if (!IsProcessAlive(processId) || processId == Process.GetCurrentProcess().Id)
+                    return;
+
+                handle = OpenProcess(PROCESS_TERMINATE, false, processId);
+                if (!IsValidHandle(handle))
                     return;
 
                 if (!IsProcessAlive(processId) || processId == Process.GetCurrentProcess().Id)
