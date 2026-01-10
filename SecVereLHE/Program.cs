@@ -69,6 +69,24 @@ namespace SecVerseLHE
                     monitor.riskAssessmentEnabled = isEnabled;
                 };
 
+                tray.RansomwareDetectionToggled += (sender, isEnabled) =>
+                {
+                    if (ransomwareThreadId.HasValue)
+                    {
+                        if (isEnabled)
+                        {
+                            if (!threadManager.IsThreadRunning(ransomwareThreadId.Value))
+                            {
+                                ransomwareThreadId = threadManager.RegisterThread(ransomwareDetector);
+                            }
+                        }
+                        else
+                        {
+                            threadManager.StopThread(ransomwareThreadId.Value);
+                        }
+                    }
+                };
+
                 tray.ExitRequested += (s, e) => {
 
                     if(MessageBox.Show(

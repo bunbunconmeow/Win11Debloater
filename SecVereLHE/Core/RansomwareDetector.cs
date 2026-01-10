@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using static SecVerseLHE.Helper.ThreadManager;
 
@@ -20,13 +21,15 @@ namespace SecVerseLHE.Core
         private const int IMMEDIATE_BLOCK_THRESHOLD = 60;
         private const int OBSERVATION_THRESHOLD = 8;
         private const int OBSERVATION_WINDOW_MS = 3000;
-        private const int SUSTAINED_BLOCK_THRESHOLD = 50;
+        private const int SUSTAINED_BLOCK_THRESHOLD = 60;
         private const double HIGH_ENTROPY_THRESHOLD = 7.5;
         private const int ENTROPY_SAMPLE_SIZE = 4096;
 
-        // Ungültige Pfad-Zeichen cachen
+
         private static readonly char[] InvalidPathChars = Path.GetInvalidPathChars();
-        private static readonly char[] InvalidFileNameChars = Path.GetInvalidFileNameChars();
+
+        private BlockingCollection<FileEventData> _eventQueue = new BlockingCollection<FileEventData>();
+        private Task _processingTask;
 
         private static readonly HashSet<string> SafeProcesses = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
@@ -275,12 +278,58 @@ namespace SecVerseLHE.Core
             try
             {
                 _cancellationToken = token;
+                _processingTask = Task.Factory.StartNew(ProcessQueueWorker, TaskCreationOptions.LongRunning);
                 InitializeWatchers();
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"LHE RansomwareDetector: Initialize failed: {ex.Message}");
             }
+        }
+
+        private void ProcessQueueWorker()
+        {
+            foreach (var fileEvent in _eventQueue.GetConsumingEnumerable())
+            {
+                if (_cancellationToken.IsCancellationRequested) break;
+
+                try
+                {
+                    ProcessFileEventLogic(fileEvent);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Error processing file event: {ex.Message}");
+                }
+            }
+        }
+
+        private void OnChanged(object sender, FileSystemEventArgs e)
+        {
+            if (_eventQueue.Count < 5000) 
+            {
+                _eventQueue.TryAdd(new FileEventData { Path = e.FullPath, Type = e.ChangeType });
+            }
+        }
+
+        
+        private void ProcessFileEventLogic(FileEventData e)
+        {
+            string filePath = e.Path;
+            if (!IsValidPath(filePath)) return;
+            if (IsSystemPathSafe(filePath)) return;
+
+
+            int pid = GetWritingProcessIdSafe(filePath);
+            if (pid <= 0) return;
+
+            double? entropy = null;
+            if (e.Type == WatcherChangeTypes.Changed)
+            {
+                entropy = CalculateFileEntropySafe(filePath);
+            }
+
+            RecordActivitySafe(pid, GetProcessNameSafe(pid), filePath, e.Type, entropy);
         }
 
         public void Execute()
@@ -1183,62 +1232,46 @@ namespace SecVerseLHE.Core
         {
             try
             {
-                if (string.IsNullOrEmpty(filePath))
-                    return 0;
-
-                bool exists = false;
+                if (string.IsNullOrWhiteSpace(filePath)) return 0;
+                if (filePath.IndexOfAny(Path.GetInvalidPathChars()) >= 0) return 0;
                 try
                 {
-                    exists = File.Exists(filePath);
-                }
-                catch
-                {
-                    return 0;
-                }
+                    if (!File.Exists(filePath)) return 0;
 
-                if (!exists)
-                    return 0;
+                    var bytes = new byte[ENTROPY_SAMPLE_SIZE];
+                    int bytesRead = 0;
 
-                var bytes = new byte[ENTROPY_SAMPLE_SIZE];
-                int bytesRead = 0;
-
-                try
-                {
                     using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read,
-                        FileShare.ReadWrite | FileShare.Delete, 4096, FileOptions.SequentialScan))
+                           FileShare.ReadWrite | FileShare.Delete, 4096, FileOptions.SequentialScan))
                     {
                         bytesRead = fs.Read(bytes, 0, ENTROPY_SAMPLE_SIZE);
                     }
-                }
-                catch
-                {
-                    return 0;
-                }
 
-                if (bytesRead == 0)
-                    return 0;
+                    if (bytesRead == 0) return 0;
 
-                var frequency = new int[256];
-                for (int i = 0; i < bytesRead; i++)
-                {
-                    frequency[bytes[i]]++;
-                }
+                    var frequency = new int[256];
+                    for (int i = 0; i < bytesRead; i++) frequency[bytes[i]]++;
 
-                double entropy = 0;
-                double logBase = Math.Log(2);
-                for (int i = 0; i < 256; i++)
-                {
-                    if (frequency[i] > 0)
+                    double entropy = 0;
+                    double logBase = Math.Log(2);
+                    for (int i = 0; i < 256; i++)
                     {
-                        double p = (double)frequency[i] / bytesRead;
-                        entropy -= p * (Math.Log(p) / logBase);
+                        if (frequency[i] > 0)
+                        {
+                            double p = (double)frequency[i] / bytesRead;
+                            entropy -= p * (Math.Log(p) / logBase);
+                        }
                     }
+                    return entropy;
                 }
-
-                return entropy;
+                catch (ArgumentException) { return 0; }
+                catch (NotSupportedException) { return 0; } 
+                catch (IOException) { return 0; } 
+                catch (UnauthorizedAccessException) { return 0; }
             }
-            catch
+            catch (Exception ex)
             {
+                Debug.WriteLine($"Entropy calc failed catastrophic: {ex.Message}");
                 return 0;
             }
         }
@@ -1289,5 +1322,12 @@ namespace SecVerseLHE.Core
         }
 
         #endregion IDisposable
+
+        private class FileEventData
+        {
+            public string Path { get; set; }
+            public WatcherChangeTypes Type { get; set; }
+        }
+
     }
 }
