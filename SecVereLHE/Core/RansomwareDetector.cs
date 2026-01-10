@@ -66,6 +66,7 @@ namespace SecVerseLHE.Core
 
         private readonly ConcurrentDictionary<int, ProcessActivity> _processActivity;
         private readonly ConcurrentDictionary<int, SuspendedProcessInfo> _suspendedProcesses;
+        private readonly ConcurrentDictionary<int, object> _processLocks;
         private readonly HashSet<string> _sessionWhitelist;
         private readonly object _whitelistLock = new object();
         private readonly List<FileSystemWatcher> _watchers;
@@ -126,6 +127,7 @@ namespace SecVerseLHE.Core
             _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
             _processActivity = new ConcurrentDictionary<int, ProcessActivity>();
             _suspendedProcesses = new ConcurrentDictionary<int, SuspendedProcessInfo>();
+            _processLocks = new ConcurrentDictionary<int, object>();
             _sessionWhitelist = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             _watchers = new List<FileSystemWatcher>();
             _thresholdHelper = new RansomwareThresholdHelper(
@@ -994,6 +996,10 @@ namespace SecVerseLHE.Core
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool TerminateProcess(IntPtr processHandle, uint exitCode);
 
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool GetExitCodeProcess(IntPtr processHandle, out uint exitCode);
+
         [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         private static extern bool QueryFullProcessImageName(IntPtr hProcess, int dwFlags,
             StringBuilder lpExeName, ref int lpdwSize);
@@ -1001,6 +1007,7 @@ namespace SecVerseLHE.Core
         private const uint PROCESS_SUSPEND_RESUME = 0x0800;
         private const uint PROCESS_TERMINATE = 0x0001;
         private const uint PROCESS_QUERY_LIMITED_INFORMATION = 0x1000;
+        private const uint STILL_ACTIVE = 259;
 
         #endregion Process Control - Native APIs
 
@@ -1011,22 +1018,100 @@ namespace SecVerseLHE.Core
             return handle != IntPtr.Zero && handle != new IntPtr(-1);
         }
 
+        private bool IsProcessAlive(int processId)
+        {
+            if (processId <= 0)
+                return false;
+
+            try
+            {
+                using (var process = Process.GetProcessById(processId))
+                {
+                    if (process.HasExited)
+                        return false;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+
+            IntPtr handle = IntPtr.Zero;
+            try
+            {
+                handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, processId);
+                if (!IsValidHandle(handle))
+                    return false;
+
+                if (!GetExitCodeProcess(handle, out uint exitCode))
+                    return false;
+
+                return exitCode == STILL_ACTIVE;
+            }
+            catch
+            {
+                return false;
+            }
+            finally
+            {
+                if (IsValidHandle(handle))
+                {
+                    try { CloseHandle(handle); } catch { }
+                }
+            }
+        }
+
+        private bool IsHandleProcessActive(IntPtr handle)
+        {
+            if (!IsValidHandle(handle))
+                return false;
+
+            try
+            {
+                if (!GetExitCodeProcess(handle, out uint exitCode))
+                    return false;
+
+                return exitCode == STILL_ACTIVE;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private object GetProcessLock(int processId)
+        {
+            return _processLocks.GetOrAdd(processId, _ => new object());
+        }
+
         private void SuspendProcessSafe(int processId)
         {
             IntPtr handle = IntPtr.Zero;
             try
             {
-                handle = OpenProcess(PROCESS_SUSPEND_RESUME, false, processId);
-                if (!IsValidHandle(handle))
-                {
-                    Debug.WriteLine($"LHE: Cannot open process {processId} for suspend");
+                if (_disposed || _cancellationToken.IsCancellationRequested || !_isRunning)
                     return;
-                }
 
-                var result = NtSuspendProcess(handle);
-                if (result != 0)
+                if (!IsProcessAlive(processId) || processId == Process.GetCurrentProcess().Id)
+                    return;
+
+                lock (GetProcessLock(processId))
                 {
-                    Debug.WriteLine($"LHE: NtSuspendProcess failed with {result}");
+                    handle = OpenProcess(PROCESS_SUSPEND_RESUME, false, processId);
+                    if (!IsValidHandle(handle))
+                    {
+                        Debug.WriteLine($"LHE: Cannot open process {processId} for suspend");
+                        return;
+                    }
+
+                    if (!IsHandleProcessActive(handle))
+                        return;
+
+                    var result = NtSuspendProcess(handle);
+                    if (result != 0)
+                    {
+                        Debug.WriteLine($"LHE: NtSuspendProcess failed with {result}");
+                    }
                 }
             }
             catch (Exception ex)
@@ -1047,11 +1132,23 @@ namespace SecVerseLHE.Core
             IntPtr handle = IntPtr.Zero;
             try
             {
-                handle = OpenProcess(PROCESS_SUSPEND_RESUME, false, processId);
-                if (!IsValidHandle(handle))
+                if (_disposed)
                     return;
 
-                NtResumeProcess(handle);
+                if (!IsProcessAlive(processId) || processId == Process.GetCurrentProcess().Id)
+                    return;
+
+                lock (GetProcessLock(processId))
+                {
+                    handle = OpenProcess(PROCESS_SUSPEND_RESUME, false, processId);
+                    if (!IsValidHandle(handle))
+                        return;
+
+                    if (!IsHandleProcessActive(handle))
+                        return;
+
+                    NtResumeProcess(handle);
+                }
             }
             catch (Exception ex)
             {
@@ -1071,11 +1168,23 @@ namespace SecVerseLHE.Core
             IntPtr handle = IntPtr.Zero;
             try
             {
-                handle = OpenProcess(PROCESS_TERMINATE, false, processId);
-                if (!IsValidHandle(handle))
+                if (_disposed || _cancellationToken.IsCancellationRequested)
                     return;
 
-                TerminateProcess(handle, 1);
+                if (!IsProcessAlive(processId) || processId == Process.GetCurrentProcess().Id)
+                    return;
+
+                lock (GetProcessLock(processId))
+                {
+                    handle = OpenProcess(PROCESS_TERMINATE, false, processId);
+                    if (!IsValidHandle(handle))
+                        return;
+
+                    if (!IsHandleProcessActive(handle))
+                        return;
+
+                    TerminateProcess(handle, 1);
+                }
             }
             catch (Exception ex)
             {
