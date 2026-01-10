@@ -1,4 +1,5 @@
-﻿using SecVerseLHE.UI;
+﻿using SecVerseLHE.Helper;
+using SecVerseLHE.UI;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -69,6 +70,7 @@ namespace SecVerseLHE.Core
         private readonly object _whitelistLock = new object();
         private readonly List<FileSystemWatcher> _watchers;
         private readonly object _watcherLock = new object();
+        private readonly RansomwareThresholdHelper _thresholdHelper;
 
         private volatile bool _disposed;
         private volatile bool _isRunning;
@@ -126,6 +128,10 @@ namespace SecVerseLHE.Core
             _suspendedProcesses = new ConcurrentDictionary<int, SuspendedProcessInfo>();
             _sessionWhitelist = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             _watchers = new List<FileSystemWatcher>();
+            _thresholdHelper = new RansomwareThresholdHelper(
+                IMMEDIATE_BLOCK_THRESHOLD,
+                OBSERVATION_THRESHOLD,
+                SUSTAINED_BLOCK_THRESHOLD);
         }
 
         #endregion Constructor
@@ -659,13 +665,16 @@ namespace SecVerseLHE.Core
                 }
                 catch { }
 
-                if (recentCount >= IMMEDIATE_BLOCK_THRESHOLD || highEntropyCount >= IMMEDIATE_BLOCK_THRESHOLD / 2)
+                var thresholds = _thresholdHelper.GetThresholds(recentCount, OBSERVATION_WINDOW_MS);
+
+                if (recentCount >= thresholds.ImmediateBlockThreshold
+                    || highEntropyCount >= thresholds.ImmediateBlockThreshold / 2)
                 {
                     HandleThreatDetectedSafe(processId, activity, recentMods, true);
                     return;
                 }
 
-                if (recentCount >= OBSERVATION_THRESHOLD && !activity.IsUnderObservation)
+                if (recentCount >= thresholds.ObservationThreshold && !activity.IsUnderObservation)
                 {
                     activity.IsUnderObservation = true;
                     activity.ObservationStarted = DateTime.UtcNow;
@@ -696,7 +705,20 @@ namespace SecVerseLHE.Core
                         if (activity == null || !activity.IsUnderObservation || activity.IsBlocked)
                             continue;
 
-                        if (activity.TotalModifications >= SUSTAINED_BLOCK_THRESHOLD)
+                        var windowStart = DateTime.UtcNow.AddMilliseconds(-OBSERVATION_WINDOW_MS);
+                        int recentCount;
+                        try
+                        {
+                            recentCount = activity.Modifications.Count(m => m.Timestamp >= windowStart);
+                        }
+                        catch
+                        {
+                            recentCount = activity.TotalModifications;
+                        }
+
+                        var thresholds = _thresholdHelper.GetThresholds(recentCount, OBSERVATION_WINDOW_MS);
+
+                        if (activity.TotalModifications >= thresholds.SustainedBlockThreshold)
                         {
                             List<FileModification> recentMods;
                             try

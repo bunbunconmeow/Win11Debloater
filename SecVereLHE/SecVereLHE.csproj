@@ -106,6 +106,7 @@
     <Compile Include="Config\DpapiNative.cs" />
     <Compile Include="Core\RansomwareDetector.cs" />
     <Compile Include="Core\SuspiciousAutoStart.cs" />
+    <Compile Include="Helper\RansomwareThresholdHelper.cs" />
     <Compile Include="Helper\ThreadManager.cs" />
     <Compile Include="Helper\BsodProtection.cs" />
     <Compile Include="Helper\Enforcer.cs" />
