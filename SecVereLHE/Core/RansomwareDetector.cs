@@ -197,22 +197,13 @@ namespace SecVerseLHE.Core
         {
             try
             {
-                if (string.IsNullOrEmpty(path))
-                    return null;
-
-               
+                if (path.IndexOfAny(Path.GetInvalidPathChars()) >= 0) return null;
+                if (path.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0) return null;
+                if (string.IsNullOrEmpty(path)) return null;
                 path = path.Trim();
-
-                if (string.IsNullOrEmpty(path))
-                    return null;
-
-
-                if (path.Contains('\0'))
-                {
-                    path = path.Replace("\0", "");
-                }
-                if (!IsValidPath(path))
-                    return null;
+                if (string.IsNullOrEmpty(path)) return null;
+                if (path.Contains('\0')) path = path.Replace("\0", "");
+                if (!IsValidPath(path))  return null;
 
                 return path;
             }
