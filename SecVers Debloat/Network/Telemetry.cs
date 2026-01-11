@@ -1,13 +1,8 @@
-﻿using Hardware.Info;
+﻿
 using Newtonsoft.Json;
 using RestSharp;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Management;
-using System.Net;
-using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
@@ -18,8 +13,6 @@ namespace SecVers_Debloat.Network
     internal class Telemetry
     {
         private const string BaseUrl = "https://api.secvers.org";
-  
-        
         private const string PluginName = "debloater";
 
         private string CurrentVersion => Assembly.GetExecutingAssembly().GetName().Version.ToString();
